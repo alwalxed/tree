@@ -1,3 +1,9 @@
+import { DocsSidebar } from "@/components/docs-sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
@@ -30,7 +36,16 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <SidebarProvider>
+              <DocsSidebar />
+              <SidebarInset className="px-4 py-6 md:px-8">
+                <header className="mb-4 flex items-center">
+                  <SidebarTrigger className="mr-4" />
+                  <h1 className="text-2xl font-bold">Documentation</h1>
+                </header>
+                <main>{children}</main>
+              </SidebarInset>
+            </SidebarProvider>
           </ThemeProvider>
         </body>
       </html>
