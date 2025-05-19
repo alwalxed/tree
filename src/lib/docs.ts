@@ -10,6 +10,11 @@ export type DocItem = {
   slug: string;
   title: string;
   content: string;
+  excerpt?: string;
+  date?: string;
+  author?: string;
+  keywords?: string[];
+  coverImage?: string;
 };
 
 export function getAllDocSlugs() {
@@ -40,10 +45,20 @@ export async function getDocBySlug(slug: string): Promise<DocItem | null> {
 
     const contentHtml = processedContent.toString();
 
+    // Create an excerpt if one isn't provided
+    const excerpt =
+      data.excerpt ||
+      content.trim().replace(/\s+/g, " ").slice(0, 160).trim() + "...";
+
     return {
       slug,
       title: data.title || slug,
       content: contentHtml,
+      excerpt,
+      date: data.date ? new Date(data.date).toISOString() : undefined,
+      author: data.author,
+      keywords: data.keywords,
+      coverImage: data.coverImage,
     };
   } catch (error) {
     console.error(`Error loading doc with slug ${slug}:`, error);
