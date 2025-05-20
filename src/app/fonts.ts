@@ -23,7 +23,6 @@ export const ibmPlexSansArabic = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-ibm-plex-sans-arabic",
   display: "swap",
   preload: true,
 });

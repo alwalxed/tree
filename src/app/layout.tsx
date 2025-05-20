@@ -30,15 +30,12 @@ export default async function RootLayout({
   const docsTree = await getDocsTree();
   return (
     <>
-      <html
-        dir="rtl"
-        lang="ar"
-        suppressHydrationWarning
-        className={cn(ibmPlexSansArabic.variable, {
-          "debug-screens": isDev,
-        })}
-      >
-        <body className={`antialiased`}>
+      <html dir="rtl" lang="ar" suppressHydrationWarning>
+        <body
+          className={cn(ibmPlexSansArabic.className, {
+            "debug-screens": isDev,
+          })}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
