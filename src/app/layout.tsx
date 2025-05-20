@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { isDev } from "@/constants/env";
 import { SITE_URL } from "@/constants/site";
+import { getDocsTree } from "@/lib/docs";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
@@ -21,11 +22,12 @@ export const metadata: Metadata = {
   description: "Documentation site built with Next.js",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const docsTree = await getDocsTree();
   return (
     <>
       <html
@@ -43,7 +45,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <SidebarProvider>
-              <DocsSidebar />
+              <DocsSidebar docsTree={docsTree} />
               <SidebarInset className="px-4 py-6 md:px-8">
                 <header className="mb-4 flex items-center">
                   <SidebarTrigger className="mr-4" />

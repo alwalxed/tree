@@ -4,13 +4,15 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 // This generates all existing paths at build time
 export async function generateStaticParams() {
   const slugs = getAllDocSlugs();
-  return slugs;
+  return slugs.map(({ slug }) => ({
+    slug: slug.split("/").filter(Boolean),
+  }));
 }
 
 // Generate metadata for SEO
@@ -18,9 +20,12 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  // Get the document
+  // Join the slug parts to get the full slug
   const resolvedParams = await params;
-  const doc = await getDocBySlug(resolvedParams.slug);
+  const slug = resolvedParams.slug.join("/");
+
+  // Get the document
+  const doc = await getDocBySlug(slug);
 
   // If doc doesn't exist, return minimal metadata
   if (!doc) {
@@ -52,7 +57,7 @@ export async function generateMetadata(
       description,
       type: "article",
       publishedTime: doc.date,
-      url: `/docs/${resolvedParams.slug}`,
+      url: `/docs/${slug}`,
       images: doc.coverImage
         ? [doc.coverImage, ...previousImages]
         : previousImages,
@@ -64,14 +69,17 @@ export async function generateMetadata(
       images: doc.coverImage ? [doc.coverImage] : undefined,
     },
     alternates: {
-      canonical: `/docs/${resolvedParams.slug}`,
+      canonical: `/docs/${slug}`,
     },
   };
 }
 
 export default async function DocPage({ params }: Props) {
+  // Join the slug parts to get the full slug
   const resolvedParams = await params;
-  const doc = await getDocBySlug(resolvedParams.slug);
+  const slug = resolvedParams.slug.join("/");
+
+  const doc = await getDocBySlug(slug);
 
   // If the doc doesn't exist, return a 404
   if (!doc) {
