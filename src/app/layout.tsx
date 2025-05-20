@@ -31,7 +31,8 @@ export default async function RootLayout({
   return (
     <>
       <html
-        lang="en"
+        dir="rtl"
+        lang="ar"
         suppressHydrationWarning
         className={cn(ibmPlexSansArabic.variable, {
           "debug-screens": isDev,

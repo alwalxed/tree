@@ -157,10 +157,10 @@ export function DocsSidebar({ docsTree }: DocSidebarProps) {
   };
 
   return (
-    <Sidebar>
+    <Sidebar side="right">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Documentation</SidebarGroupLabel>
+          <SidebarGroupLabel>النحو الرقمي</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{docsTree.map(renderTreeItem)}</SidebarMenu>
           </SidebarGroupContent>
