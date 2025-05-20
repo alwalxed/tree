@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getAllDocs } from "@/lib/docs";
+import { getDocsTree, type DocNode } from "@/lib/docs";
 import { FileQuestion, Home, Search } from "lucide-react";
 import Link from "next/link";
 
@@ -8,12 +8,33 @@ export const metadata = {
   description: "The page you're looking for doesn't exist or has been moved.",
 };
 
-export default async function NotFound() {
-  // Get all docs to suggest some popular ones
-  const allDocs = await getAllDocs();
+function flattenDocs(tree: DocNode[]): DocNode[] {
+  const flat: DocNode[] = [];
 
-  // Get a few random docs to suggest (up to 3)
-  const suggestedDocs = allDocs.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const walk = (nodes: DocNode[]) => {
+    for (const node of nodes) {
+      if (node.contentHtml || node.excerpt) {
+        flat.push(node);
+      }
+      if (node.children.length > 0) {
+        walk(node.children);
+      }
+    }
+  };
+
+  walk(tree);
+  return flat;
+}
+
+function getFullSlug(node: DocNode): string {
+  return [...node.parentPath, node.slug].join("/");
+}
+
+export default async function NotFound() {
+  const tree = await getDocsTree();
+  const flatDocs = flattenDocs(tree);
+
+  const suggestedDocs = flatDocs.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
@@ -56,7 +77,7 @@ export default async function NotFound() {
             {suggestedDocs.map((doc) => (
               <Link
                 key={doc.slug}
-                href={`/docs/${doc.slug}`}
+                href={`/docs/${getFullSlug(doc)}`}
                 className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <h3 className="font-medium">{doc.title}</h3>

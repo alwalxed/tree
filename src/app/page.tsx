@@ -1,8 +1,28 @@
-import { getAllDocs } from "@/lib/docs";
+import { DocNode, getDocsTree } from "@/lib/docs";
 import Link from "next/link";
 
+function getFlattenedDocs(docs: DocNode[]): { title: string; slug: string }[] {
+  const flat: { title: string; slug: string }[] = [];
+
+  function walk(node: DocNode, path: string[] = []) {
+    const fullPath = [...path, node.slug];
+    if (node.contentHtml) {
+      flat.push({
+        title: node.title,
+        slug: fullPath.join("/"),
+      });
+    }
+
+    node.children.forEach((child) => walk(child, fullPath));
+  }
+
+  docs.forEach((doc) => walk(doc));
+  return flat;
+}
+
 export default async function Home() {
-  const docs = await getAllDocs();
+  const tree = await getDocsTree();
+  const docs = getFlattenedDocs(tree);
 
   return (
     <div className="max-w-4xl mx-auto">

@@ -9,9 +9,10 @@ type Props = {
 
 // This generates all existing paths at build time
 export async function generateStaticParams() {
-  const slugs = getAllDocSlugs();
-  return slugs.map(({ slug }) => ({
-    slug: slug.split("/").filter(Boolean),
+  const slugs = await getAllDocSlugs();
+
+  return slugs.map((slugParts) => ({
+    slug: slugParts,
   }));
 }
 
@@ -20,14 +21,11 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  // Join the slug parts to get the full slug
   const resolvedParams = await params;
-  const slug = resolvedParams.slug.join("/");
+  const slugPath = resolvedParams.slug;
 
-  // Get the document
-  const doc = await getDocBySlug(slug);
+  const doc = await getDocBySlug(slugPath);
 
-  // If doc doesn't exist, return minimal metadata
   if (!doc) {
     return {
       title: "Not Found",
@@ -35,53 +33,47 @@ export async function generateMetadata(
     };
   }
 
-  // Get the parent metadata (from layout)
   const previousImages = (await parent).openGraph?.images || [];
 
-  // Create a description from the content
-  // Strip HTML tags and limit to ~160 characters
   const description =
     doc.excerpt ||
-    doc.content
-      .replace(/<[^>]*>/g, "")
-      .slice(0, 160)
-      .trim() + "...";
+    (doc.contentHtml
+      ? doc.contentHtml
+          .replace(/<[^>]*>/g, "")
+          .slice(0, 160)
+          .trim() + "..."
+      : "");
+
+  const canonicalSlug = slugPath.join("/");
 
   return {
     title: doc.title,
     description,
-    keywords: doc.keywords || [],
-    authors: doc.author ? [{ name: doc.author }] : undefined,
     openGraph: {
       title: doc.title,
       description,
       type: "article",
-      publishedTime: doc.date,
-      url: `/docs/${slug}`,
-      images: doc.coverImage
-        ? [doc.coverImage, ...previousImages]
-        : previousImages,
+      url: `/docs/${canonicalSlug}`,
+      images: previousImages,
     },
     twitter: {
       card: "summary_large_image",
       title: doc.title,
       description,
-      images: doc.coverImage ? [doc.coverImage] : undefined,
+      images: previousImages,
     },
     alternates: {
-      canonical: `/docs/${slug}`,
+      canonical: `/docs/${canonicalSlug}`,
     },
   };
 }
 
 export default async function DocPage({ params }: Props) {
-  // Join the slug parts to get the full slug
   const resolvedParams = await params;
-  const slug = resolvedParams.slug.join("/");
+  const slugPath = resolvedParams.slug;
 
-  const doc = await getDocBySlug(slug);
+  const doc = await getDocBySlug(slugPath);
 
-  // If the doc doesn't exist, return a 404
   if (!doc) {
     notFound();
   }
@@ -89,12 +81,12 @@ export default async function DocPage({ params }: Props) {
   return (
     <article className="prose prose-slate dark:prose-invert max-w-none">
       <h1>{doc.title}</h1>
-      {doc.date && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Last updated: {new Date(doc.date).toLocaleDateString()}
-        </p>
+
+      {doc.contentHtml ? (
+        <MarkdownRenderer content={doc.contentHtml} />
+      ) : (
+        <p className="text-muted">No content available for this section.</p>
       )}
-      <MarkdownRenderer content={doc.content} />
     </article>
   );
 }
