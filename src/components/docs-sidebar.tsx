@@ -20,7 +20,7 @@ import {
   ChevronsDownUp,
   FileText,
   Folder,
-  Home,
+  Hash,
 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
@@ -65,7 +65,7 @@ export function DocsSidebar({ docsTree }: Props) {
                   className="pl-1.5"
                 >
                   <Link href="/">
-                    <Home className="h-4 w-4 shrink-0" />
+                    <Hash className="h-4 w-4 shrink-0" />
                     <span>الرئسية</span>
                   </Link>
                 </SidebarMenuButton>
