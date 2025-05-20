@@ -1,69 +1,62 @@
 import type { DocNode } from "@/lib/docs";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export function useDocsSidebar(docsTree: DocNode[]) {
   const pathname = usePathname();
+
+  const getAllTopLevelPaths = useCallback((nodes: DocNode[]): string[] => {
+    return nodes
+      .filter((node) => node.children.length > 0)
+      .map((node) => [...node.parentPath, node.slug].join("/"));
+  }, []);
+
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
-  >({});
+  >(() => {
+    const topLevel = getAllTopLevelPaths(docsTree);
+    const defaultExpanded: Record<string, boolean> = {};
+    topLevel.forEach((path) => {
+      defaultExpanded[path] = true;
+    });
+    return defaultExpanded;
+  });
 
-  console.log(pathname);
-  useEffect(() => {
-    if (!pathname) return;
-
-    const currentPath = pathname.replace(/^\/docs\//, "");
-    const parts = currentPath.split("/");
-
-    const newExpanded: Record<string, boolean> = {};
-    for (let i = 0; i < parts.length; i++) {
-      const joined = parts.slice(0, i + 1).join("/");
-      newExpanded[joined] = true;
-    }
-
-    setExpandedSections((prev) => ({ ...prev, ...newExpanded }));
-  }, [pathname]);
-
-  const toggleSection = useCallback((fullPath: string) => {
+  const toggleSection = useCallback((path: string) => {
     setExpandedSections((prev) => ({
       ...prev,
-      [fullPath]: !prev[fullPath],
+      [path]: !prev[path],
     }));
   }, []);
 
   const isCurrentPage = useCallback(
     (fullPath: string) => {
-      if (fullPath === "__home") {
-        return pathname === "/";
-      }
+      if (fullPath === "__home") return pathname === "/";
       return pathname === `/docs/${fullPath}/`;
     },
     [pathname]
   );
 
-  const flattenTree = useCallback(
-    (nodes: DocNode[], level = 0): { node: DocNode; level: number }[] => {
+  const flatItems = useMemo(() => {
+    const walk = (
+      nodes: DocNode[],
+      level = 0
+    ): { node: DocNode; level: number }[] => {
       let result: { node: DocNode; level: number }[] = [];
 
       for (const node of nodes) {
         result.push({ node, level });
-
-        const fullPath = [...node.parentPath, node.slug].join("/");
-        const isExpanded = expandedSections[fullPath] || false;
-
-        if (node.children.length > 0 && isExpanded) {
-          result = result.concat(flattenTree(node.children, level + 1));
-        }
+        result = result.concat(walk(node.children, level + 1));
       }
 
       return result;
-    },
-    [expandedSections]
-  );
+    };
+
+    return walk(docsTree);
+  }, [docsTree]);
 
   const getAllPaths = useCallback((nodes: DocNode[]): string[] => {
     let paths: string[] = [];
-
     for (const node of nodes) {
       const fullPath = [...node.parentPath, node.slug].join("/");
       if (node.children.length > 0) {
@@ -71,16 +64,13 @@ export function useDocsSidebar(docsTree: DocNode[]) {
         paths = paths.concat(getAllPaths(node.children));
       }
     }
-
     return paths;
   }, []);
 
   const expandAll = useCallback(() => {
-    const allPaths = getAllPaths(docsTree);
+    const all = getAllPaths(docsTree);
     const expanded: Record<string, boolean> = {};
-    allPaths.forEach((path) => {
-      expanded[path] = true;
-    });
+    all.forEach((p) => (expanded[p] = true));
     setExpandedSections(expanded);
   }, [docsTree, getAllPaths]);
 
@@ -91,22 +81,15 @@ export function useDocsSidebar(docsTree: DocNode[]) {
   const toggleAll = useCallback(() => {
     const allPaths = getAllPaths(docsTree);
     const someExpanded = allPaths.some((path) => expandedSections[path]);
-    if (someExpanded) {
-      collapseAll();
-    } else {
-      expandAll();
-    }
+    if (someExpanded) collapseAll();
+    else expandAll();
   }, [expandedSections, collapseAll, expandAll, getAllPaths, docsTree]);
-
-  const flatItems = flattenTree(docsTree);
 
   return {
     flatItems,
     expandedSections,
     toggleSection,
     isCurrentPage,
-    expandAll,
-    collapseAll,
     toggleAll,
   };
 }

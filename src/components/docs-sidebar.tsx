@@ -23,7 +23,7 @@ import {
   Hash,
 } from "lucide-react";
 import Link from "next/link";
-import type React from "react";
+import React from "react";
 
 type Props = {
   docsTree: DocNode[];
@@ -38,26 +38,28 @@ export function DocsSidebar({ docsTree }: Props) {
     toggleAll,
   } = useDocsSidebar(docsTree);
 
+  const isVisible = (node: DocNode): boolean => {
+    // If all of its parent paths are expanded, it's visible
+    let path = "";
+    for (let part of node.parentPath) {
+      path = path ? `${path}/${part}` : part;
+      if (!expandedSections[path]) return false;
+    }
+    return true;
+  };
+
   return (
     <Sidebar side="right">
       <SidebarContent
-        className={cn(
-          "overflow-y-scroll",
-          "[&::-webkit-scrollbar]:w-0",
-          "[&::-webkit-scrollbar-track]:bg-transparent",
-          "[&::-webkit-scrollbar-thumb]:bg-transparent",
-          "dark:[&::-webkit-scrollbar-track]:bg-transparent",
-          "dark:[&::-webkit-scrollbar-thumb]:bg-transparent"
-        )}
+        className={cn("overflow-y-scroll", "[&::-webkit-scrollbar]:w-0")}
       >
         <SidebarGroup>
           <SidebarGroupLabel>النحو الرقمي</SidebarGroupLabel>
           <SidebarGroupAction onClick={toggleAll} title="طي وبسط">
-            <ChevronsDownUp /> <span className="sr-only">طي</span>
+            <ChevronsDownUp /> <span className="sr-only">Toggle</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Static Home item */}
               <SidebarMenuItem key="__home">
                 <SidebarMenuButton
                   asChild
@@ -71,15 +73,14 @@ export function DocsSidebar({ docsTree }: Props) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Dynamic doc items */}
               {flatItems.map(({ node, level }) => {
-                const fullPathParts = [...node.parentPath, node.slug];
-                const fullPath = fullPathParts.join("/");
+                const fullPath = [...node.parentPath, node.slug].join("/");
                 const hasChildren = node.children.length > 0;
                 const isExpanded = expandedSections[fullPath] || false;
                 const isActive = isCurrentPage(fullPath);
-                console.log(isActive);
-                console.log(fullPath);
+                const visible = isVisible(node);
+
+                if (!visible) return null;
 
                 return (
                   <SidebarMenuItem key={fullPath}>
