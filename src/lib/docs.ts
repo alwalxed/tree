@@ -1,6 +1,3 @@
-/*
-  Utiles
-*/
 const arabicToEnglishMap: Record<string, string> = {
   // letters
   ا: "a",
@@ -175,6 +172,27 @@ export async function getDocBySlug(slugPath: string[]) {
   const tree = await getDocsTree();
   const node = findDeepestNode(tree, slugPath);
   return node;
+}
+
+export function getLeafDocs(
+  docs: DocNode[]
+): { title: string; slug: string }[] {
+  const leaves: { title: string; slug: string }[] = [];
+
+  function walk(node: DocNode, path: string[] = []) {
+    const fullPath = [...path, node.slug];
+    if (node.children.length === 0) {
+      leaves.push({
+        title: node.title,
+        slug: fullPath.join("/"),
+      });
+    } else {
+      node.children.forEach((child) => walk(child, fullPath));
+    }
+  }
+
+  docs.forEach((doc) => walk(doc));
+  return leaves;
 }
 
 function getBreadcrumbs(
