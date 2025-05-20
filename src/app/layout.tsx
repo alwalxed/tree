@@ -51,8 +51,7 @@ export default async function RootLayout({
               <DocsSidebar docsTree={docsTree} />
               <SidebarInset className="px-4 py-6 md:px-8">
                 <header className="mb-4 flex items-center">
-                  <SidebarTrigger className="ml-4" />
-                  <h1 className="text-2xl font-bold">النحو الرقمي</h1>
+                  <SidebarTrigger />
                 </header>
                 <main>{children}</main>
               </SidebarInset>
