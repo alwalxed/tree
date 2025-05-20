@@ -3,7 +3,7 @@
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-debug-screens" {
   classname: "debug-screens";
-  position: "bottom, left";
+  position: "bottom, right";
   prefix: "screen: ";
 }
 

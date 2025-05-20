@@ -53,7 +53,7 @@ export async function generateMetadata(
       title: doc.title,
       description,
       type: "article",
-      url: `/docs/${canonicalSlug}`,
+      url: `/learn/${canonicalSlug}`,
       images: previousImages,
     },
     twitter: {
@@ -63,7 +63,7 @@ export async function generateMetadata(
       images: previousImages,
     },
     alternates: {
-      canonical: `/docs/${canonicalSlug}`,
+      canonical: `/learn/${canonicalSlug}`,
     },
   };
 }

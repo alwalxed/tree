@@ -32,7 +32,7 @@ export function useDocsSidebar(docsTree: DocNode[]) {
   const isCurrentPage = useCallback(
     (fullPath: string) => {
       if (fullPath === "__home") return pathname === "/";
-      return pathname === `/docs/${fullPath}/`;
+      return pathname === `/learn/${fullPath}/`;
     },
     [pathname]
   );

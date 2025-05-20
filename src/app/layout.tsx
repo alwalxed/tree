@@ -53,7 +53,7 @@ export default async function RootLayout({
                 <header className="mb-4 flex items-center">
                   <SidebarTrigger />
                 </header>
-                <main>{children}</main>
+                <main className="pb-16">{children}</main>
               </SidebarInset>
             </SidebarProvider>
           </ThemeProvider>

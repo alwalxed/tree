@@ -109,7 +109,7 @@ export function DocsSidebar({ docsTree }: Props) {
                         className={cn("pr-[calc(0.5rem*var(--level))]")}
                         style={{ "--level": 1 + level } as React.CSSProperties}
                       >
-                        <Link href={`/docs/${fullPath}`}>
+                        <Link href={`/learn/${fullPath}`}>
                           <FileText className="h-4 w-4 shrink-0" />
                           <span>{node.title}</span>
                         </Link>

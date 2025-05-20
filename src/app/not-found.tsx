@@ -60,7 +60,7 @@ export default async function NotFound() {
         </Button>
 
         <Button variant="outline" asChild>
-          <Link href="/docs">
+          <Link href="/learn">
             <Search className="mr-2 h-4 w-4" />
             Browse All Docs
           </Link>
@@ -77,7 +77,7 @@ export default async function NotFound() {
             {suggestedDocs.map((doc) => (
               <Link
                 key={doc.slug}
-                href={`/docs/${getFullSlug(doc)}`}
+                href={`/learn/${getFullSlug(doc)}`}
                 className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <h3 className="font-medium">{doc.title}</h3>
