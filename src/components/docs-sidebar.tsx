@@ -48,7 +48,7 @@ export function DocsSidebar({ docsTree }: Props) {
                           isActive &&
                             "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         )}
-                        style={{ "--level": level } as React.CSSProperties}
+                        style={{ "--level": 1 + level } as React.CSSProperties}
                         onClick={() => toggleSection(fullPath)}
                       >
                         <Folder className="h-4 w-4 shrink-0" />
@@ -64,7 +64,7 @@ export function DocsSidebar({ docsTree }: Props) {
                         asChild
                         isActive={isActive}
                         className={cn("pr-[calc(0.5rem*var(--level))]")}
-                        style={{ "--level": level } as React.CSSProperties}
+                        style={{ "--level": 1 + level } as React.CSSProperties}
                       >
                         <Link href={`/docs/${fullPath}`}>
                           <FileText className="h-4 w-4 shrink-0" />
