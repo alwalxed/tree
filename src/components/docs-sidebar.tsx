@@ -4,6 +4,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -13,7 +14,14 @@ import {
 import { useDocsSidebar } from "@/hooks/use-docs-sidebar";
 import type { DocNode } from "@/lib/docs";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, FileText, Folder } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronsDownUp,
+  FileText,
+  Folder,
+  Home,
+} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 
@@ -22,29 +30,63 @@ type Props = {
 };
 
 export function DocsSidebar({ docsTree }: Props) {
-  const { flatItems, expandedSections, toggleSection, isCurrentPage } =
-    useDocsSidebar(docsTree);
+  const {
+    flatItems,
+    expandedSections,
+    toggleSection,
+    isCurrentPage,
+    toggleAll,
+  } = useDocsSidebar(docsTree);
 
   return (
     <Sidebar side="right">
-      <SidebarContent>
+      <SidebarContent
+        className={cn(
+          "overflow-y-scroll",
+          "[&::-webkit-scrollbar]:w-0",
+          "[&::-webkit-scrollbar-track]:bg-transparent",
+          "[&::-webkit-scrollbar-thumb]:bg-transparent",
+          "dark:[&::-webkit-scrollbar-track]:bg-transparent",
+          "dark:[&::-webkit-scrollbar-thumb]:bg-transparent"
+        )}
+      >
         <SidebarGroup>
           <SidebarGroupLabel>النحو الرقمي</SidebarGroupLabel>
+          <SidebarGroupAction onClick={toggleAll} title="طي وبسط">
+            <ChevronsDownUp /> <span className="sr-only">طي</span>
+          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Static Home item */}
+              <SidebarMenuItem key="__home">
+                <SidebarMenuButton
+                  asChild
+                  isActive={isCurrentPage("__home")}
+                  className="pl-1.5"
+                >
+                  <Link href="/">
+                    <Home className="h-4 w-4 shrink-0" />
+                    <span>الرئسية</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Dynamic doc items */}
               {flatItems.map(({ node, level }) => {
                 const fullPathParts = [...node.parentPath, node.slug];
                 const fullPath = fullPathParts.join("/");
                 const hasChildren = node.children.length > 0;
                 const isExpanded = expandedSections[fullPath] || false;
                 const isActive = isCurrentPage(fullPath);
+                console.log(isActive);
+                console.log(fullPath);
 
                 return (
                   <SidebarMenuItem key={fullPath}>
                     {hasChildren ? (
                       <SidebarMenuButton
                         className={cn(
-                          "pr-[calc(0.5rem*var(--level))]",
+                          "pl-1.5 pr-[calc(0.5rem*var(--level))]",
                           isActive &&
                             "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         )}
@@ -56,7 +98,7 @@ export function DocsSidebar({ docsTree }: Props) {
                         {isExpanded ? (
                           <ChevronDown className="mr-auto h-4 w-4" />
                         ) : (
-                          <ChevronRight className="mr-auto h-4 w-4" />
+                          <ChevronLeft className="mr-auto h-4 w-4" />
                         )}
                       </SidebarMenuButton>
                     ) : (

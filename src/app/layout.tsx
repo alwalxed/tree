@@ -32,9 +32,14 @@ export default async function RootLayout({
     <>
       <html dir="rtl" lang="ar" suppressHydrationWarning>
         <body
-          className={cn(ibmPlexSansArabic.className, {
-            "debug-screens": isDev,
-          })}
+          className={cn(
+            ibmPlexSansArabic.className,
+            "overflow-y-scroll",
+            "overflow-x-hidden",
+            {
+              "debug-screens": isDev,
+            }
+          )}
         >
           <ThemeProvider
             attribute="class"
@@ -46,8 +51,8 @@ export default async function RootLayout({
               <DocsSidebar docsTree={docsTree} />
               <SidebarInset className="px-4 py-6 md:px-8">
                 <header className="mb-4 flex items-center">
-                  <SidebarTrigger className="mr-4" />
-                  <h1 className="text-2xl font-bold">Documentation</h1>
+                  <SidebarTrigger className="ml-4" />
+                  <h1 className="text-2xl font-bold">النحو الرقمي</h1>
                 </header>
                 <main>{children}</main>
               </SidebarInset>

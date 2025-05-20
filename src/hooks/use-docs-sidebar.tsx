@@ -1,5 +1,3 @@
-"use client";
-
 import type { DocNode } from "@/lib/docs";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -10,7 +8,7 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     Record<string, boolean>
   >({});
 
-  // Initialize expanded sections based on current path
+  console.log(pathname);
   useEffect(() => {
     if (!pathname) return;
 
@@ -26,7 +24,6 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     setExpandedSections((prev) => ({ ...prev, ...newExpanded }));
   }, [pathname]);
 
-  // Toggle section expanded state
   const toggleSection = useCallback((fullPath: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -34,13 +31,16 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     }));
   }, []);
 
-  // Check if a path is the current page
   const isCurrentPage = useCallback(
-    (fullPath: string) => pathname === `/docs/${fullPath}`,
+    (fullPath: string) => {
+      if (fullPath === "__home") {
+        return pathname === "/";
+      }
+      return pathname === `/docs/${fullPath}/`;
+    },
     [pathname]
   );
 
-  // Flatten the tree into a list of items with their level
   const flattenTree = useCallback(
     (nodes: DocNode[], level = 0): { node: DocNode; level: number }[] => {
       let result: { node: DocNode; level: number }[] = [];
@@ -61,7 +61,43 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     [expandedSections]
   );
 
-  // Get the flattened items
+  const getAllPaths = useCallback((nodes: DocNode[]): string[] => {
+    let paths: string[] = [];
+
+    for (const node of nodes) {
+      const fullPath = [...node.parentPath, node.slug].join("/");
+      if (node.children.length > 0) {
+        paths.push(fullPath);
+        paths = paths.concat(getAllPaths(node.children));
+      }
+    }
+
+    return paths;
+  }, []);
+
+  const expandAll = useCallback(() => {
+    const allPaths = getAllPaths(docsTree);
+    const expanded: Record<string, boolean> = {};
+    allPaths.forEach((path) => {
+      expanded[path] = true;
+    });
+    setExpandedSections(expanded);
+  }, [docsTree, getAllPaths]);
+
+  const collapseAll = useCallback(() => {
+    setExpandedSections({});
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    const allPaths = getAllPaths(docsTree);
+    const someExpanded = allPaths.some((path) => expandedSections[path]);
+    if (someExpanded) {
+      collapseAll();
+    } else {
+      expandAll();
+    }
+  }, [expandedSections, collapseAll, expandAll, getAllPaths, docsTree]);
+
   const flatItems = flattenTree(docsTree);
 
   return {
@@ -69,5 +105,8 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     expandedSections,
     toggleSection,
     isCurrentPage,
+    expandAll,
+    collapseAll,
+    toggleAll,
   };
 }
