@@ -49,39 +49,149 @@ export function getAllDocFilePaths(
   return files;
 }
 
+// Extract slug from file path, removing numeric prefixes
+function slugFromFilePath(filePath: string): string {
+  // Remove .md extension
+  let slug = filePath.replace(/\.md$/, "");
+
+  // Handle index files
+  if (slug.endsWith("/index")) {
+    slug = slug.replace(/\/index$/, "");
+  }
+
+  // Split the path into segments
+  const segments = slug.split("/");
+
+  // Process each segment to remove numeric prefixes
+  const cleanedSegments = segments.map((segment) => {
+    // Remove patterns like "1-", "01-", "001-" etc. from the beginning of the segment
+    return segment.replace(/^(\d+)[-_]/, "");
+  });
+
+  // Join the segments back together
+  return cleanedSegments.join("/");
+}
+
 export function getAllDocSlugs() {
   const filePaths = getAllDocFilePaths();
 
   return filePaths.map((filePath) => {
-    // Convert file path to slug
-    // e.g., "getting-started/installation.md" -> "getting-started/installation"
-    // Special case for index.md files
-    let slug = filePath.replace(/\.md$/, "");
-    if (slug.endsWith("/index")) {
-      slug = slug.replace(/\/index$/, "");
-    }
-
+    // Convert file path to slug, removing numeric prefixes
+    const slug = slugFromFilePath(filePath);
     return { slug };
   });
 }
 
+// Get the original file path from a slug
+function getFilePathFromSlug(slug: string): string | null {
+  // Handle empty slug (root)
+  if (slug === "") {
+    if (fs.existsSync(path.join(docsDirectory, "index.md"))) {
+      return "index.md";
+    }
+    return null;
+  }
+
+  // Split the slug into segments
+  const slugSegments = slug.split("/");
+
+  // Current directory we're checking
+  let currentDir = docsDirectory;
+  let currentPath = "";
+
+  // Process each segment
+  for (let i = 0; i < slugSegments.length; i++) {
+    const segment = slugSegments[i];
+    const isLast = i === slugSegments.length - 1;
+
+    if (!isLast) {
+      // This is a directory segment
+      // Find the directory that matches this segment (possibly with numeric prefix)
+      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      const matchingDir = entries.find((entry) => {
+        if (!entry.isDirectory()) return false;
+        // Check if the directory name matches our segment after removing numeric prefix
+        return entry.name.replace(/^(\d+)[-_]/, "") === segment;
+      });
+
+      if (!matchingDir) return null;
+
+      // Update current directory and path
+      currentDir = path.join(currentDir, matchingDir.name);
+      currentPath = currentPath
+        ? `${currentPath}/${matchingDir.name}`
+        : matchingDir.name;
+    } else {
+      // This is the file segment
+      // Check for direct file match first
+      const mdFile = `${segment}.md`;
+      if (fs.existsSync(path.join(currentDir, mdFile))) {
+        return currentPath ? `${currentPath}/${mdFile}` : mdFile;
+      }
+
+      // Check for file with numeric prefix
+      const entries = fs.readdirSync(currentDir);
+      const matchingFile = entries.find((entry) => {
+        if (!entry.endsWith(".md")) return false;
+        // Remove .md and check if the name matches our segment after removing numeric prefix
+        const entryName = entry.slice(0, -3);
+        return entryName.replace(/^(\d+)[-_]/, "") === segment;
+      });
+
+      if (matchingFile) {
+        return currentPath ? `${currentPath}/${matchingFile}` : matchingFile;
+      }
+
+      // Check for index.md in a matching directory
+      const dirPath = path.join(currentDir, segment);
+      const indexPath = path.join(dirPath, "index.md");
+      if (
+        fs.existsSync(dirPath) &&
+        fs.statSync(dirPath).isDirectory() &&
+        fs.existsSync(indexPath)
+      ) {
+        return currentPath
+          ? `${currentPath}/${segment}/index.md`
+          : `${segment}/index.md`;
+      }
+
+      // Check for directory with numeric prefix
+      const matchingDir = entries.find((entry) => {
+        const fullEntryPath = path.join(currentDir, entry);
+        if (
+          !fs.existsSync(fullEntryPath) ||
+          !fs.statSync(fullEntryPath).isDirectory()
+        )
+          return false;
+        // Check if the directory name matches our segment after removing numeric prefix
+        return entry.replace(/^(\d+)[-_]/, "") === segment;
+      });
+
+      if (matchingDir) {
+        const indexInMatchingDir = path.join(
+          currentDir,
+          matchingDir,
+          "index.md"
+        );
+        if (fs.existsSync(indexInMatchingDir)) {
+          return currentPath
+            ? `${currentPath}/${matchingDir}/index.md`
+            : `${matchingDir}/index.md`;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 export async function getDocBySlug(slug: string): Promise<DocItem | null> {
   try {
-    // Handle index files
-    let filePath = `${slug}.md`;
-    if (slug === "" || slug.endsWith("/")) {
-      filePath = `${slug}index.md`;
-    } else {
-      // Check if this is a directory with an index.md file
-      const potentialDirPath = path.join(docsDirectory, slug);
-      const potentialIndexPath = path.join(potentialDirPath, "index.md");
-      if (
-        fs.existsSync(potentialDirPath) &&
-        fs.statSync(potentialDirPath).isDirectory() &&
-        fs.existsSync(potentialIndexPath)
-      ) {
-        filePath = `${slug}/index.md`;
-      }
+    // Get the actual file path for this slug
+    const filePath = getFilePathFromSlug(slug);
+
+    if (!filePath) {
+      return null;
     }
 
     const fullPath = path.join(docsDirectory, filePath);
@@ -106,6 +216,19 @@ export async function getDocBySlug(slug: string): Promise<DocItem | null> {
       data.excerpt ||
       content.trim().replace(/\s+/g, " ").slice(0, 160).trim() + "...";
 
+    // Extract order from filename if not specified in frontmatter
+    let order = data.order;
+    if (order === undefined) {
+      // Check if the filename has a numeric prefix
+      const filename = path.basename(filePath);
+      const match = filename.match(/^(\d+)[-_]/);
+      if (match) {
+        order = Number.parseInt(match[1], 10);
+      } else {
+        order = 999; // Default order if not specified
+      }
+    }
+
     return {
       slug,
       title: data.title || getDefaultTitleFromSlug(slug),
@@ -115,7 +238,7 @@ export async function getDocBySlug(slug: string): Promise<DocItem | null> {
       author: data.author,
       keywords: data.keywords,
       coverImage: data.coverImage,
-      order: data.order || 999, // Default order if not specified
+      order,
     };
   } catch (error) {
     console.error(`Error loading doc with slug ${slug}:`, error);
