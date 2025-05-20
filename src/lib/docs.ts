@@ -12,9 +12,6 @@ export type DocItem = {
   content: string;
   excerpt?: string;
   date?: string;
-  author?: string;
-  keywords?: string[];
-  coverImage?: string;
   order?: number;
 };
 
@@ -51,24 +48,19 @@ export function getAllDocFilePaths(
 
 // Extract slug from file path, removing numeric prefixes
 function slugFromFilePath(filePath: string): string {
-  // Remove .md extension
   let slug = filePath.replace(/\.md$/, "");
 
-  // Handle index files
   if (slug.endsWith("/index")) {
     slug = slug.replace(/\/index$/, "");
   }
 
-  // Split the path into segments
   const segments = slug.split("/");
 
-  // Process each segment to remove numeric prefixes
   const cleanedSegments = segments.map((segment) => {
-    // Remove patterns like "1-", "01-", "001-" etc. from the beginning of the segment
-    return segment.replace(/^(\d+)[-_]/, "");
+    // Remove leading numbers (Western or Arabic) followed by - or _
+    return segment.replace(/^([\d\u0660-\u0669]+)[-_]+/, "");
   });
 
-  // Join the segments back together
   return cleanedSegments.join("/");
 }
 
@@ -76,7 +68,6 @@ export function getAllDocSlugs() {
   const filePaths = getAllDocFilePaths();
 
   return filePaths.map((filePath) => {
-    // Convert file path to slug, removing numeric prefixes
     const slug = slugFromFilePath(filePath);
     return { slug };
   });
@@ -235,9 +226,6 @@ export async function getDocBySlug(slug: string): Promise<DocItem | null> {
       content: contentHtml,
       excerpt,
       date: data.date ? new Date(data.date).toISOString() : undefined,
-      author: data.author,
-      keywords: data.keywords,
-      coverImage: data.coverImage,
       order,
     };
   } catch (error) {
