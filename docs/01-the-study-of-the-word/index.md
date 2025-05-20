@@ -1,8 +1,8 @@
 ---
-title: "قسمss-الكلام"
+title: "قسم-الكلمة"
 excerpt: "Learn how to get started with our product quickly and efficiently."
 date: "2023-05-15"
-order: 2
+order: 1
 ---
 
 # Getting Started
