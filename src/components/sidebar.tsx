@@ -12,8 +12,8 @@ import {
   Sidebar as UISidebar,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar";
-import type { TreeNode } from "@/lib/markdown/tree-builder";
-import { cn } from "@/lib/tailwind";
+import type { Node } from "@/lib/content/types";
+import { cn } from "@/lib/styles/tailwind";
 import {
   BookOpen,
   ChevronDown,
@@ -26,7 +26,7 @@ import Link from "next/link";
 import React from "react";
 
 type Props = {
-  tree: TreeNode[];
+  tree: Node[];
 };
 
 export function Sidebar({ tree }: Props) {
@@ -38,10 +38,10 @@ export function Sidebar({ tree }: Props) {
     toggleAll,
   } = useSidebar(tree);
 
-  const isVisible = (node: TreeNode): boolean => {
+  const isVisible = (node: Node): boolean => {
     // If all of its parent paths are expanded, it's visible
     let path = "";
-    for (let part of node.parentPath) {
+    for (const part of node.parentPath) {
       path = path ? `${path}/${part}` : part;
       if (!expandedSections[path]) return false;
     }

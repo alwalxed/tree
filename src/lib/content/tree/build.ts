@@ -7,23 +7,14 @@ import {
   extractOrderAndRawName,
   normalizeSlug,
   normalizeTitle,
-} from "../normalization";
+} from "../../text/normalization";
+import type { Node } from "../types";
 
 const MARKDOWN_BASE_PATH = path.join(process.cwd(), "markdown");
 
-export type TreeNode = {
-  title: string;
-  slug: string;
-  order: number;
-  excerpt?: string;
-  contentHtml?: string;
-  children: TreeNode[];
-  parentPath: string[];
-};
-
 /**
  * Recursively reads the markdown directory structure starting from a base path
- * and constructs a hierarchical tree of document nodes (`TreeNode`).
+ * and constructs a hierarchical tree of document nodes (`Node`).
  *
  * Each node contains metadata like title, slug, order, excerpt, HTML content,
  * and references to child nodes representing nested directories.
@@ -33,15 +24,19 @@ export type TreeNode = {
  *
  * @param dir - The starting directory path to scan (defaults to MARKDOWN_BASE_PATH).
  * @param parentPath - An array representing the accumulated slug path of parent directories.
- * @returns A Promise resolving to an ordered array of `TreeNode` objects reflecting the directory tree.
+ * @returns A Promise resolving to an ordered array of `Node` objects reflecting the directory tree.
  */
 export async function buildTree(
   dir = MARKDOWN_BASE_PATH,
   parentPath: string[] = []
-): Promise<TreeNode[]> {
+): Promise<Node[]> {
+  if (typeof window !== "undefined") {
+    throw new Error("This function must not be called on the client.");
+  }
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-  const nodes: TreeNode[] = [];
+  const nodes: Node[] = [];
 
   for (const entry of entries) {
     if (entry.name === "index.md") continue;
@@ -52,7 +47,7 @@ export async function buildTree(
     const slug = normalizeSlug(raw);
     const currentPath = [...parentPath, slug];
 
-    const node: TreeNode = {
+    const node: Node = {
       title,
       slug,
       order,

@@ -1,13 +1,17 @@
-export function CSSGridVisualization({ nodes }: { nodes: TreeNode[] }) {
+import { getLeafNodes } from "@/lib/content/tree/get-leaf-nodes";
+import type { Node } from "@/lib/content/types";
+
+export function CSSGridVisualization({ nodes }: { nodes: Node[] }) {
+  const leafNodes = getLeafNodes(nodes);
   return (
     <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4">
-      {gridItems.map((item) => (
+      {leafNodes.map((node) => (
         <a
-          key={item.slug}
-          href={`/learn/${item.slug}`}
+          key={node.slug}
+          href={`/learn/${node.slug}`}
           className="p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
         >
-          <h2 className="text-base">{item.title}</h2>
+          <h2 className="text-base">{node.title}</h2>
         </a>
       ))}
     </div>

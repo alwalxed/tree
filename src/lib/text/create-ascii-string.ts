@@ -1,4 +1,4 @@
-import type { TreeNode } from "./markdown/tree-builder";
+import type { Node } from "../content/types";
 
 /**
  * Generates an ASCII-style visual representation of a hierarchy of documentation nodes.
@@ -26,7 +26,7 @@ import type { TreeNode } from "./markdown/tree-builder";
  * ```
  */
 export function createASCIIString(
-  docs: TreeNode[],
+  docs: Node[],
   options: {
     indent?: string;
     splitLevel?: number;

@@ -1,15 +1,33 @@
 "use client";
 
-import type { TreeNode } from "@/lib/markdown/tree-builder";
+import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
+
+// Properly typed hierarchical data
+interface TreemapDatum {
+  name: string;
+  value: number;
+  children?: TreemapDatum[];
+}
+
+// Move transformation out of component to avoid re-creation
+function transformData(nodes: Node[]): TreemapDatum[] {
+  return nodes.map(
+    (node): TreemapDatum => ({
+      name: node.title,
+      value: node.children.length ? 0 : 1,
+      children: node.children.length ? transformData(node.children) : undefined,
+    })
+  );
+}
 
 export function TreemapVisualization({
   nodes,
   width = 800,
   height = 600,
 }: {
-  nodes: TreeNode[];
+  nodes: Node[];
   width?: number;
   height?: number;
 }) {
@@ -21,21 +39,19 @@ export function TreemapVisualization({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    // Convert DocNode tree to hierarchical data for d3
     const hierarchyData = d3
-      .hierarchy({ name: "root", children: transformData(nodes) })
+      .hierarchy<TreemapDatum>({ name: "root", children: transformData(nodes) })
       .sum((d) => d.value || 0);
 
-    // Create treemap layout
-    const treemap = d3.treemap().size([width, height]).padding(1).round(true);
-
-    // Apply the treemap layout
+    const treemap = d3
+      .treemap<TreemapDatum>()
+      .size([width, height])
+      .padding(1)
+      .round(true);
     treemap(hierarchyData);
 
-    // Color scale
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-    // Create the treemap cells
     const cell = svg
       .selectAll("g")
       .data(hierarchyData.leaves())
@@ -43,7 +59,6 @@ export function TreemapVisualization({
       .append("g")
       .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
 
-    // Add rectangles
     cell
       .append("rect")
       .attr("width", (d) => d.x1 - d.x0)
@@ -52,32 +67,14 @@ export function TreemapVisualization({
       .attr("opacity", 0.8)
       .attr("stroke", "#fff");
 
-    // Add text labels
     cell
       .append("text")
       .attr("x", 4)
       .attr("y", 14)
       .attr("font-size", "10px")
       .attr("fill", "#000")
-      .text((d) => d.data.name)
-      .attr("clip-path", (d) => `inset(0px 0px 0px 0px)`);
-  }, [nodes, width, height]);
-
-  // Transform DocNode structure to format needed for d3 hierarchy
-  function transformData(nodes: TreeNode[]): any[] {
-    return nodes.map((node) => {
-      const result: any = {
-        name: node.title,
-        value: node.children.length ? 0 : 1, // Leaf nodes have value 1
-      };
-
-      if (node.children.length) {
-        result.children = transformData(node.children);
-      }
-
-      return result;
-    });
-  }
+      .text((d) => d.data.name);
+  }, [nodes, width, height]); // ✅ no transformData in deps
 
   return (
     <div className="w-full overflow-auto bg-white dark:bg-zinc-900 rounded-lg p-4">

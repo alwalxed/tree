@@ -1,12 +1,12 @@
 "use client";
 
-import type { TreeNode as MarkdownTreeNode } from "@/lib/markdown/tree-builder";
+import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-type RootTreeNode = {
+type D3Node = {
   name: string;
-  children?: RootTreeNode[];
+  children?: D3Node[];
 };
 
 export function TreeDiagramVisualization({
@@ -14,7 +14,7 @@ export function TreeDiagramVisualization({
   width = 1000,
   height = 800,
 }: {
-  nodes: MarkdownTreeNode[];
+  nodes: Node[];
   width?: number;
   height?: number;
 }) {
@@ -35,21 +35,21 @@ export function TreeDiagramVisualization({
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Convert DocNode[] to TreeNode[]
-    function toTreeNode(nodes: MarkdownTreeNode[]): TreeNode[] {
+    function toTreeNode(nodes: Node[]): D3Node[] {
       return nodes.map((node) => ({
         name: node.title,
         children: node.children?.length ? toTreeNode(node.children) : undefined,
       }));
     }
 
-    const rootData: RootTreeNode = {
+    const rootData: D3Node = {
       name: "root",
       children: toTreeNode(nodes),
     };
 
-    const root = d3.hierarchy<RootTreeNode>(rootData);
+    const root = d3.hierarchy<D3Node>(rootData);
 
-    const treeLayout = d3.tree<RootTreeNode>().size([innerHeight, innerWidth]);
+    const treeLayout = d3.tree<D3Node>().size([innerHeight, innerWidth]);
     treeLayout(root);
 
     // Draw links (paths)
@@ -61,9 +61,12 @@ export function TreeDiagramVisualization({
       .attr(
         "d",
         d3
-          .linkHorizontal()
-          .x((d: any) => d.y)
-          .y((d: any) => d.x)
+          .linkHorizontal<
+            d3.HierarchyPointLink<D3Node>,
+            d3.HierarchyPointNode<D3Node>
+          >()
+          .x((d) => d.target.y)
+          .y((d) => d.target.x)
       )
       .attr("fill", "none")
       .attr("stroke", "#ccc")

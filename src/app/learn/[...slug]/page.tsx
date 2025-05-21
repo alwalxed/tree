@@ -1,5 +1,6 @@
 import MarkdownRenderer from "@/components/markdown-renderer";
-import { getNodeBySlug, getTreeSlugs } from "@/lib/markdown/tree-helpers";
+import { getNodeBySlug } from "@/lib/content/tree/get-node-by-slug";
+import { getTreeSlugs } from "@/lib/content/tree/get-tree-slugs";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -22,9 +23,9 @@ export async function generateMetadata(
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const doc = await getNodeBySlug(slugPath);
+  const markdown = await getNodeBySlug(slugPath);
 
-  if (!doc) {
+  if (!markdown) {
     return {
       title: "Not Found",
       description: "The requested documentation page could not be found.",
@@ -34,9 +35,9 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
 
   const description =
-    doc.excerpt ||
-    (doc.contentHtml
-      ? doc.contentHtml
+    markdown.excerpt ||
+    (markdown.contentHtml
+      ? markdown.contentHtml
           .replace(/<[^>]*>/g, "")
           .slice(0, 160)
           .trim() + "..."
@@ -45,10 +46,10 @@ export async function generateMetadata(
   const canonicalSlug = slugPath.join("/");
 
   return {
-    title: doc.title,
+    title: markdown.title,
     description,
     openGraph: {
-      title: doc.title,
+      title: markdown.title,
       description,
       type: "article",
       url: `/learn/${canonicalSlug}`,
@@ -56,7 +57,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: doc.title,
+      title: markdown.title,
       description,
       images: previousImages,
     },
@@ -70,18 +71,18 @@ export default async function Page({ params }: Props) {
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const doc = await getNodeBySlug(slugPath);
+  const markdown = await getNodeBySlug(slugPath);
 
-  if (!doc) {
+  if (!markdown) {
     notFound();
   }
 
   return (
     <article className="prose prose-slate dark:prose-invert max-w-none">
-      <h1>{doc.title}</h1>
+      <h1>{markdown.title}</h1>
 
-      {doc.contentHtml ? (
-        <MarkdownRenderer content={doc.contentHtml} />
+      {markdown.contentHtml ? (
+        <MarkdownRenderer content={markdown.contentHtml} />
       ) : (
         <p className="text-muted">No content available for this section.</p>
       )}

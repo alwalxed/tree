@@ -23,7 +23,7 @@ export function extractOrderAndRawName(name: string): {
 } {
   const match = name.match(/^([٠-٩0-9]+)_+(.+)$/);
   if (!match) return { order: 0, raw: name };
-  const [_, arabicNumber, raw] = match;
+  const [, arabicNumber, raw] = match;
   const order = parseInt(transliterateToArabic(arabicNumber), 10);
   return { order, raw };
 }

@@ -1,8 +1,8 @@
 import { Section } from "@/components/section";
 import { Visualization } from "@/components/visualization";
-import { buildTree } from "@/lib/markdown/tree-builder";
+import { buildTree } from "@/lib/content/tree/build";
 
-export default async function Home() {
+export default async function Page() {
   const tree = await buildTree();
 
   return (

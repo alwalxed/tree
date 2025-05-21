@@ -6,8 +6,8 @@ import {
 } from "@/components/ui/sidebar";
 import { isDev } from "@/constants/env";
 import { SITE_URL } from "@/constants/site";
-import { buildTree } from "@/lib/markdown/tree-builder";
-import { cn } from "@/lib/tailwind";
+import { buildTree } from "@/lib/content/tree/build";
+import { cn } from "@/lib/styles/tailwind";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import { ibmPlexSansArabic } from "./fonts";

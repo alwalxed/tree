@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { TreemapVisualization } from "@/components/visualizations/treemap-visualization";
-import type { TreeNode } from "@/lib/markdown/tree-builder";
+import type { Node } from "@/lib/content/types";
 import { Grid, LayoutGrid, List, Network, PieChart } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ASCIITreeVisualization } from "./visualizations/ascii-tree-visualization";
@@ -13,7 +13,7 @@ import { TreeDiagramVisualization } from "./visualizations/tree-diagram-visualiz
 
 type VisualizationType = "tree" | "grid" | "treemap" | "sunburst" | "diagram";
 
-export function Visualization({ nodes }: { nodes: TreeNode[] }) {
+export function Visualization({ nodes }: { nodes: Node[] }) {
   const [visualizationType, setVisualizationType] =
     useState<VisualizationType>("tree");
 

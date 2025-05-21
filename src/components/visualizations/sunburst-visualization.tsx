@@ -1,19 +1,39 @@
 "use client";
 
-import type { TreeNode } from "@/lib/markdown/tree-builder";
+import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+
+// Define the shape of the hierarchical data for D3
+interface HierarchyDatum {
+  name: string;
+  value: number;
+  children?: HierarchyDatum[];
+}
 
 export function SunburstVisualization({
   nodes,
   width = 800,
   height = 800,
 }: {
-  nodes: TreeNode[];
+  nodes: Node[];
   width?: number;
   height?: number;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Transform DocNode structure to format needed for d3 hierarchy
+  const transformData = useCallback((nodes: Node[]): HierarchyDatum[] => {
+    return nodes.map(
+      (node): HierarchyDatum => ({
+        name: node.title,
+        value: node.children.length ? 0 : 1,
+        children: node.children.length
+          ? transformData(node.children)
+          : undefined,
+      })
+    );
+  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !nodes.length) return;
@@ -26,34 +46,32 @@ export function SunburstVisualization({
       .append("g")
       .attr("transform", `translate(${width / 2},${height / 2})`);
 
-    // Convert DocNode tree to hierarchical data for d3
-    const hierarchyData = d3
-      .hierarchy({ name: "root", children: transformData(nodes) })
-      .sum((d) => d.value || 0);
+    const root = d3
+      .hierarchy<HierarchyDatum>({
+        name: "root",
+        children: transformData(nodes),
+      })
+      .sum((d) => d.value);
 
-    // Create partition layout
-    const partition = d3.partition().size([2 * Math.PI, radius]);
+    const partition = d3
+      .partition<HierarchyDatum>()
+      .size([2 * Math.PI, radius]);
+    partition(root);
 
-    // Apply the partition layout
-    partition(hierarchyData);
-
-    // Color scale
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-    // Create arcs
     const arc = d3
-      .arc()
+      .arc<d3.HierarchyRectangularNode<HierarchyDatum>>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .innerRadius((d) => d.y0)
       .outerRadius((d) => d.y1);
 
-    // Add the arcs
     g.selectAll("path")
-      .data(hierarchyData.descendants())
+      .data(root.descendants())
       .enter()
       .append("path")
-      .attr("d", arc as any)
+      .attr("d", arc)
       .style("fill", (d) => colorScale(d.depth.toString()))
       .style("opacity", 0.8)
       .style("stroke", "#fff")
@@ -61,9 +79,8 @@ export function SunburstVisualization({
       .append("title")
       .text((d) => d.data.name);
 
-    // Add text labels for larger arcs
     g.selectAll("text")
-      .data(hierarchyData.descendants().filter((d) => d.x1 - d.x0 > 0.2))
+      .data(root.descendants().filter((d) => d.x1 - d.x0 > 0.2))
       .enter()
       .append("text")
       .attr("transform", (d) => {
@@ -80,23 +97,7 @@ export function SunburstVisualization({
       .attr("font-size", "10px")
       .attr("fill", "#fff")
       .text((d) => d.data.name);
-  }, [nodes, width, height]);
-
-  // Transform DocNode structure to format needed for d3 hierarchy
-  function transformData(nodes: TreeNode[]): any[] {
-    return nodes.map((node) => {
-      const result: any = {
-        name: node.title,
-        value: node.children.length ? 0 : 1, // Leaf nodes have value 1
-      };
-
-      if (node.children.length) {
-        result.children = transformData(node.children);
-      }
-
-      return result;
-    });
-  }
+  }, [nodes, width, height, transformData]);
 
   return (
     <div className="w-full overflow-auto bg-white dark:bg-zinc-900 rounded-lg p-4">

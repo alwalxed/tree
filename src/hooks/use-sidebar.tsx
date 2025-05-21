@@ -1,4 +1,4 @@
-import type { TreeNode } from "@/lib/markdown/tree-builder";
+import type { TreeNode } from "@/lib/content/tree/build";
 import { usePathname } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
