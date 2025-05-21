@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupAction,
@@ -10,10 +9,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  Sidebar as UISidebar,
 } from "@/components/ui/sidebar";
-import { useDocsSidebar } from "@/hooks/use-docs-sidebar";
-import type { DocNode } from "@/lib/docs";
-import { cn } from "@/lib/utils";
+import { useSidebar } from "@/hooks/use-sidebar";
+import type { TreeNode } from "@/lib/markdown/tree-builder";
+import { cn } from "@/lib/tailwind";
 import {
   BookOpen,
   ChevronDown,
@@ -26,19 +26,19 @@ import Link from "next/link";
 import React from "react";
 
 type Props = {
-  docsTree: DocNode[];
+  tree: TreeNode[];
 };
 
-export function DocsSidebar({ docsTree }: Props) {
+export function Sidebar({ tree }: Props) {
   const {
     flatItems,
     expandedSections,
     toggleSection,
     isCurrentPage,
     toggleAll,
-  } = useDocsSidebar(docsTree);
+  } = useSidebar(tree);
 
-  const isVisible = (node: DocNode): boolean => {
+  const isVisible = (node: TreeNode): boolean => {
     // If all of its parent paths are expanded, it's visible
     let path = "";
     for (let part of node.parentPath) {
@@ -49,7 +49,7 @@ export function DocsSidebar({ docsTree }: Props) {
   };
 
   return (
-    <Sidebar side="right">
+    <UISidebar side="right">
       <SidebarContent
         className={cn("overflow-y-scroll", "[&::-webkit-scrollbar]:w-0")}
       >
@@ -122,6 +122,6 @@ export function DocsSidebar({ docsTree }: Props) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
+    </UISidebar>
   );
 }

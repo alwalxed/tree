@@ -1,29 +1,27 @@
 "use client";
 
-import type { DocNode } from "@/lib/docs";
+import type { TreeNode as MarkdownTreeNode } from "@/lib/markdown/tree-builder";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-interface TreeDiagramProps {
-  data: DocNode[];
-  width?: number;
-  height?: number;
-}
-
-interface TreeNode {
+type RootTreeNode = {
   name: string;
-  children?: TreeNode[];
-}
+  children?: RootTreeNode[];
+};
 
 export function TreeDiagramVisualization({
-  data,
+  nodes,
   width = 1000,
   height = 800,
-}: TreeDiagramProps) {
+}: {
+  nodes: MarkdownTreeNode[];
+  width?: number;
+  height?: number;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!svgRef.current || data.length === 0) return;
+    if (!svgRef.current || nodes.length === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous render
@@ -37,21 +35,21 @@ export function TreeDiagramVisualization({
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Convert DocNode[] to TreeNode[]
-    function toTreeNode(nodes: DocNode[]): TreeNode[] {
+    function toTreeNode(nodes: MarkdownTreeNode[]): TreeNode[] {
       return nodes.map((node) => ({
         name: node.title,
         children: node.children?.length ? toTreeNode(node.children) : undefined,
       }));
     }
 
-    const rootData: TreeNode = {
+    const rootData: RootTreeNode = {
       name: "root",
-      children: toTreeNode(data),
+      children: toTreeNode(nodes),
     };
 
-    const root = d3.hierarchy<TreeNode>(rootData);
+    const root = d3.hierarchy<RootTreeNode>(rootData);
 
-    const treeLayout = d3.tree<TreeNode>().size([innerHeight, innerWidth]);
+    const treeLayout = d3.tree<RootTreeNode>().size([innerHeight, innerWidth]);
     treeLayout(root);
 
     // Draw links (paths)
@@ -96,7 +94,7 @@ export function TreeDiagramVisualization({
       .text((d) => d.data.name)
       .attr("font-size", "12px")
       .attr("fill", "#333");
-  }, [data, width, height]);
+  }, [nodes, width, height]);
 
   return (
     <div className="w-full overflow-auto bg-white dark:bg-zinc-900 rounded-lg p-4">

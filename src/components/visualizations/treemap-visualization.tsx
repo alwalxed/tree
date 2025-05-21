@@ -1,31 +1,29 @@
 "use client";
 
-import type { DocNode } from "@/lib/docs";
+import type { TreeNode } from "@/lib/markdown/tree-builder";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-interface TreemapProps {
-  data: DocNode[];
-  width?: number;
-  height?: number;
-}
-
 export function TreemapVisualization({
-  data,
+  nodes,
   width = 800,
   height = 600,
-}: TreemapProps) {
+}: {
+  nodes: TreeNode[];
+  width?: number;
+  height?: number;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!svgRef.current || !data.length) return;
+    if (!svgRef.current || !nodes.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
     // Convert DocNode tree to hierarchical data for d3
     const hierarchyData = d3
-      .hierarchy({ name: "root", children: transformData(data) })
+      .hierarchy({ name: "root", children: transformData(nodes) })
       .sum((d) => d.value || 0);
 
     // Create treemap layout
@@ -63,10 +61,10 @@ export function TreemapVisualization({
       .attr("fill", "#000")
       .text((d) => d.data.name)
       .attr("clip-path", (d) => `inset(0px 0px 0px 0px)`);
-  }, [data, width, height]);
+  }, [nodes, width, height]);
 
   // Transform DocNode structure to format needed for d3 hierarchy
-  function transformData(nodes: DocNode[]): any[] {
+  function transformData(nodes: TreeNode[]): any[] {
     return nodes.map((node) => {
       const result: any = {
         name: node.title,

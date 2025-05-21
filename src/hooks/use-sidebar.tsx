@@ -1,11 +1,11 @@
-import type { DocNode } from "@/lib/docs";
+import type { TreeNode } from "@/lib/markdown/tree-builder";
 import { usePathname } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
-export function useDocsSidebar(docsTree: DocNode[]) {
+export function useSidebar(docsTree: TreeNode[]) {
   const pathname = usePathname();
 
-  const getAllTopLevelPaths = useCallback((nodes: DocNode[]): string[] => {
+  const getAllTopLevelPaths = useCallback((nodes: TreeNode[]): string[] => {
     return nodes
       .filter((node) => node.children.length > 0)
       .map((node) => [...node.parentPath, node.slug].join("/"));
@@ -39,10 +39,10 @@ export function useDocsSidebar(docsTree: DocNode[]) {
 
   const flatItems = useMemo(() => {
     const walk = (
-      nodes: DocNode[],
+      nodes: TreeNode[],
       level = 0
-    ): { node: DocNode; level: number }[] => {
-      let result: { node: DocNode; level: number }[] = [];
+    ): { node: TreeNode; level: number }[] => {
+      let result: { node: TreeNode; level: number }[] = [];
 
       for (const node of nodes) {
         result.push({ node, level });
@@ -55,7 +55,7 @@ export function useDocsSidebar(docsTree: DocNode[]) {
     return walk(docsTree);
   }, [docsTree]);
 
-  const getAllPaths = useCallback((nodes: DocNode[]): string[] => {
+  const getAllPaths = useCallback((nodes: TreeNode[]): string[] => {
     let paths: string[] = [];
     for (const node of nodes) {
       const fullPath = [...node.parentPath, node.slug].join("/");

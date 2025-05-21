@@ -1,4 +1,4 @@
-import { DocsSidebar } from "@/components/docs-sidebar";
+import { Sidebar } from "@/components/sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -6,8 +6,8 @@ import {
 } from "@/components/ui/sidebar";
 import { isDev } from "@/constants/env";
 import { SITE_URL } from "@/constants/site";
-import { getDocsTree } from "@/lib/docs";
-import { cn } from "@/lib/utils";
+import { buildTree } from "@/lib/markdown/tree-builder";
+import { cn } from "@/lib/tailwind";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import { ibmPlexSansArabic } from "./fonts";
@@ -27,7 +27,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const docsTree = await getDocsTree();
+  const tree = await buildTree();
   return (
     <>
       <html dir="rtl" lang="ar" suppressHydrationWarning>
@@ -48,7 +48,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <SidebarProvider>
-              <DocsSidebar docsTree={docsTree} />
+              <Sidebar tree={tree} />
               <SidebarInset className="px-4 py-6 md:px-8">
                 <header className="mb-4 flex items-center">
                   <SidebarTrigger />

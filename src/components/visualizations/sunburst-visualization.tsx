@@ -1,24 +1,22 @@
 "use client";
 
-import type { DocNode } from "@/lib/docs";
+import type { TreeNode } from "@/lib/markdown/tree-builder";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-interface SunburstProps {
-  data: DocNode[];
-  width?: number;
-  height?: number;
-}
-
 export function SunburstVisualization({
-  data,
+  nodes,
   width = 800,
   height = 800,
-}: SunburstProps) {
+}: {
+  nodes: TreeNode[];
+  width?: number;
+  height?: number;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!svgRef.current || !data.length) return;
+    if (!svgRef.current || !nodes.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -30,7 +28,7 @@ export function SunburstVisualization({
 
     // Convert DocNode tree to hierarchical data for d3
     const hierarchyData = d3
-      .hierarchy({ name: "root", children: transformData(data) })
+      .hierarchy({ name: "root", children: transformData(nodes) })
       .sum((d) => d.value || 0);
 
     // Create partition layout
@@ -82,10 +80,10 @@ export function SunburstVisualization({
       .attr("font-size", "10px")
       .attr("fill", "#fff")
       .text((d) => d.data.name);
-  }, [data, width, height]);
+  }, [nodes, width, height]);
 
   // Transform DocNode structure to format needed for d3 hierarchy
-  function transformData(nodes: DocNode[]): any[] {
+  function transformData(nodes: TreeNode[]): any[] {
     return nodes.map((node) => {
       const result: any = {
         name: node.title,

@@ -1,5 +1,5 @@
 import MarkdownRenderer from "@/components/markdown-renderer";
-import { getAllDocSlugs, getDocBySlug } from "@/lib/docs";
+import { getNodeBySlug, getTreeSlugs } from "@/lib/markdown/tree-helpers";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -7,16 +7,14 @@ type Props = {
   params: Promise<{ slug: string[] }>;
 };
 
-// This generates all existing paths at build time
 export async function generateStaticParams() {
-  const slugs = await getAllDocSlugs();
+  const slugs = await getTreeSlugs();
 
   return slugs.map((slugParts) => ({
     slug: slugParts,
   }));
 }
 
-// Generate metadata for SEO
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
@@ -24,7 +22,7 @@ export async function generateMetadata(
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const doc = await getDocBySlug(slugPath);
+  const doc = await getNodeBySlug(slugPath);
 
   if (!doc) {
     return {
@@ -68,11 +66,11 @@ export async function generateMetadata(
   };
 }
 
-export default async function DocPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const doc = await getDocBySlug(slugPath);
+  const doc = await getNodeBySlug(slugPath);
 
   if (!doc) {
     notFound();

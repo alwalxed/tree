@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getDocsTree, type DocNode } from "@/lib/docs";
+import { buildTree, type TreeNode } from "@/lib/markdown/tree-builder";
 import { FileQuestion, Home, Search } from "lucide-react";
 import Link from "next/link";
 
@@ -8,10 +8,10 @@ export const metadata = {
   description: "The page you're looking for doesn't exist or has been moved.",
 };
 
-function flattenDocs(tree: DocNode[]): DocNode[] {
-  const flat: DocNode[] = [];
+function flattenDocs(tree: TreeNode[]): TreeNode[] {
+  const flat: TreeNode[] = [];
 
-  const walk = (nodes: DocNode[]) => {
+  const walk = (nodes: TreeNode[]) => {
     for (const node of nodes) {
       if (node.contentHtml || node.excerpt) {
         flat.push(node);
@@ -26,15 +26,15 @@ function flattenDocs(tree: DocNode[]): DocNode[] {
   return flat;
 }
 
-function getFullSlug(node: DocNode): string {
+function getFullSlug(node: TreeNode): string {
   return [...node.parentPath, node.slug].join("/");
 }
 
 export default async function NotFound() {
-  const tree = await getDocsTree();
-  const flatDocs = flattenDocs(tree);
+  const tree = await buildTree();
+  const flatTree = flattenDocs(tree);
 
-  const suggestedDocs = flatDocs.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const suggestedPages = flatTree.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
@@ -67,25 +67,25 @@ export default async function NotFound() {
         </Button>
       </div>
 
-      {suggestedDocs.length > 0 && (
+      {suggestedPages.length > 0 && (
         <>
           <h2 className="mb-4 text-xl font-semibold">
             You might be interested in:
           </h2>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {suggestedDocs.map((doc) => (
+            {suggestedPages.map((page) => (
               <Link
-                key={doc.slug}
-                href={`/learn/${getFullSlug(doc)}`}
+                key={page.slug}
+                href={`/learn/${getFullSlug(page)}`}
                 className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
-                <h3 className="font-medium">{doc.title}</h3>
-                {doc.excerpt && (
+                <h3 className="font-medium">{page.title}</h3>
+                {page.excerpt && (
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {doc.excerpt.length > 80
-                      ? `${doc.excerpt.substring(0, 80)}...`
-                      : doc.excerpt}
+                    {page.excerpt.length > 80
+                      ? `${page.excerpt.substring(0, 80)}...`
+                      : page.excerpt}
                   </p>
                 )}
               </Link>

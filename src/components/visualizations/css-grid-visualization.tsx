@@ -1,8 +1,4 @@
-export function CSSGridVisualization({
-  gridItems,
-}: {
-  gridItems: { title: string; slug: string }[];
-}) {
+export function CSSGridVisualization({ nodes }: { nodes: TreeNode[] }) {
   return (
     <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4">
       {gridItems.map((item) => (

@@ -3,9 +3,9 @@
 import type React from "react";
 
 import { TreemapVisualization } from "@/components/visualizations/treemap-visualization";
-import type { DocNode } from "@/lib/docs";
+import type { TreeNode } from "@/lib/markdown/tree-builder";
 import { Grid, LayoutGrid, List, Network, PieChart } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ASCIITreeVisualization } from "./visualizations/ascii-tree-visualization";
 import { CSSGridVisualization } from "./visualizations/css-grid-visualization";
 import { SunburstVisualization } from "./visualizations/sunburst-visualization";
@@ -13,58 +13,45 @@ import { TreeDiagramVisualization } from "./visualizations/tree-diagram-visualiz
 
 type VisualizationType = "tree" | "grid" | "treemap" | "sunburst" | "diagram";
 
-type VisualizationSelectorProps = {
-  title: string;
-  headerClassName: string;
-  treeContent: string;
-  gridItems: { title: string; slug: string }[];
-  docData: DocNode[];
-};
-
-export function VisualizationSelector({
-  title,
-  headerClassName,
-  treeContent,
-  gridItems,
-  docData,
-}: VisualizationSelectorProps) {
+export function Visualization({ nodes }: { nodes: TreeNode[] }) {
   const [visualizationType, setVisualizationType] =
     useState<VisualizationType>("tree");
 
+  const selectedVisualization = useMemo(() => {
+    switch (visualizationType) {
+      case "tree":
+        return <ASCIITreeVisualization nodes={nodes} />;
+      case "grid":
+        return <CSSGridVisualization nodes={nodes} />;
+      case "treemap":
+        return <TreemapVisualization nodes={nodes} />;
+      case "sunburst":
+        return <SunburstVisualization nodes={nodes} />;
+      case "diagram":
+        return <TreeDiagramVisualization nodes={nodes} />;
+      default:
+        return null;
+    }
+  }, [visualizationType, nodes]);
+
+  const handleToggle = (type: VisualizationType) => {
+    setVisualizationType(type);
+  };
+
   return (
     <>
-      <SectionHeader
-        title={title}
-        headerClassName={headerClassName}
+      <VisualizationToggleButton
         visualizationType={visualizationType}
-        onToggle={setVisualizationType}
+        onClick={handleToggle}
       />
       <div className="transition-opacity duration-300">
-        {visualizationType === "tree" && (
-          <ASCIITreeVisualization content={treeContent} />
-        )}
-
-        {visualizationType === "grid" && (
-          <CSSGridVisualization gridItems={gridItems} />
-        )}
-
-        {visualizationType === "treemap" && (
-          <TreemapVisualization data={docData} />
-        )}
-
-        {visualizationType === "sunburst" && (
-          <SunburstVisualization data={docData} />
-        )}
-
-        {visualizationType === "diagram" && (
-          <TreeDiagramVisualization data={docData} />
-        )}
+        {selectedVisualization}
       </div>
     </>
   );
 }
 
-function ToggleButton({
+function VisualizationToggleButton({
   visualizationType,
   onClick,
 }: {
@@ -127,25 +114,6 @@ function ToggleButton({
           <span className="hidden sm:inline">{button.label}</span>
         </button>
       ))}
-    </div>
-  );
-}
-
-function SectionHeader({
-  title,
-  headerClassName,
-  visualizationType,
-  onToggle,
-}: {
-  title: string;
-  headerClassName: string;
-  visualizationType: VisualizationType;
-  onToggle: (type: VisualizationType) => void;
-}) {
-  return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <h2 className={headerClassName}>{title}</h2>
-      <ToggleButton visualizationType={visualizationType} onClick={onToggle} />
     </div>
   );
 }
