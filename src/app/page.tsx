@@ -1,29 +1,50 @@
-import { getDocsTree, getLeafDocs } from "@/lib/docs";
+import { ToggleableSection } from "@/components/toggleable-section";
+import { TreeDisplay } from "@/components/tree-display";
+import { getDocsTree, getLeafDocs, printFolderTree } from "@/lib/docs";
 import { Info } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default async function Home() {
-  const tree = await getDocsTree();
-  const leafDocs = getLeafDocs(tree);
-  const splitIndex = leafDocs.findIndex((doc) => doc.title.trim() === "المبني");
+  const fullDocs = await getDocsTree();
+  const leafDocs = getLeafDocs(fullDocs);
+  const gridSplitIndex = leafDocs.findIndex(
+    (doc) => doc.title.trim() === "المبني"
+  );
 
-  const firstPart =
-    splitIndex >= 0 ? leafDocs.slice(0, splitIndex + 1) : leafDocs;
-  const secondPart = splitIndex >= 0 ? leafDocs.slice(splitIndex + 1) : [];
+  const parts = {
+    first: {
+      grid:
+        gridSplitIndex >= 0 ? leafDocs.slice(0, gridSplitIndex + 1) : leafDocs,
+      tree: printFolderTree(fullDocs, {
+        splitLevel: 0,
+        splitString: "الكلمة",
+      }),
+    },
+    second: {
+      grid: gridSplitIndex >= 0 ? leafDocs.slice(gridSplitIndex + 1) : [],
+      tree: printFolderTree(fullDocs, {
+        splitLevel: 0,
+        splitString: "الكلام",
+      }),
+    },
+  };
 
-  const headerClassname = "text-3xl font-bold";
-  const paragraphClassname = "text-lg";
-  const gridClassname =
-    "grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4";
-  const gridItemClassname =
-    "p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors";
-  const gridItemTitleClassname = "text-base";
+  const styles = {
+    headerClassname: "text-3xl font-bold",
+    paragraphClassname: "text-lg",
+    gridClassname:
+      "grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4",
+    gridItemClassname:
+      "p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors",
+    gridItemTitleClassname: "text-base",
+  };
+
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-12">
       <Section>
-        <h2 className={headerClassname}>{`مقدمة`}</h2>
-        <p className={paragraphClassname}>
+        <h2 className={styles.headerClassname}>{`مقدمة`}</h2>
+        <p className={styles.paragraphClassname}>
           {`النحو مكون من جزأين كبيرين لا ثالث لهما. فيدرس في الجزء الأول الكلمة: (أنواع الكلمة. وانقسام الاسم إلى نكرة ومعرفة. وانقسام الكلمة إلى معرب ومبني) ويدرس في الجزء الثاني الكلام: (الجملة الفعلية. الجملة الاسمية. مكملات الجملة الفعلية والاسمية. وإعراب الفعل المضارع)`}
         </p>
       </Section>
@@ -31,35 +52,47 @@ export default async function Home() {
       <Separator />
 
       <Section>
-        <h2 className={headerClassname}>{`الجزء الأول (الكلمة)`}</h2>
-        <div className={gridClassname}>
-          {firstPart.map((doc) => (
-            <Link
-              key={doc.slug}
-              href={`/learn/${doc.slug}`}
-              className={gridItemClassname}
-            >
-              <h2 className={gridItemTitleClassname}>{doc.title}</h2>
-            </Link>
-          ))}
-        </div>
+        <ToggleableSection
+          title={`الجزء الأول (الكلمة)`}
+          headerClassName={styles.headerClassname}
+          treeView={<TreeDisplay content={parts.first.tree} />}
+          gridView={
+            <div className={styles.gridClassname}>
+              {parts.first.grid.map((doc) => (
+                <Link
+                  key={doc.slug}
+                  href={`/learn/${doc.slug}`}
+                  className={styles.gridItemClassname}
+                >
+                  <h2 className={styles.gridItemTitleClassname}>{doc.title}</h2>
+                </Link>
+              ))}
+            </div>
+          }
+        />
       </Section>
 
       <Separator />
 
       <Section>
-        <h2 className={headerClassname}>{`الجزء الثاني (الكلام)`}</h2>
-        <div className={gridClassname}>
-          {secondPart.map((doc) => (
-            <Link
-              key={doc.slug}
-              href={`/learn/${doc.slug}`}
-              className={gridItemClassname}
-            >
-              <h2 className={gridItemTitleClassname}>{doc.title}</h2>
-            </Link>
-          ))}
-        </div>
+        <ToggleableSection
+          title={`الجزء الثاني (الكلام)`}
+          headerClassName={styles.headerClassname}
+          treeView={<TreeDisplay content={parts.second.tree} />}
+          gridView={
+            <div className={styles.gridClassname}>
+              {parts.second.grid.map((doc) => (
+                <Link
+                  key={doc.slug}
+                  href={`/learn/${doc.slug}`}
+                  className={styles.gridItemClassname}
+                >
+                  <h2 className={styles.gridItemTitleClassname}>{doc.title}</h2>
+                </Link>
+              ))}
+            </div>
+          }
+        />
       </Section>
 
       <Separator />

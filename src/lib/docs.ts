@@ -195,6 +195,66 @@ export function getLeafDocs(
   return leaves;
 }
 
+/**
+ * Prints a normalized ASCII folder tree from DocNodes.
+ * @param docs The document tree (from getDocsTree).
+ * @param options Options for tree rendering.
+ */
+export function printFolderTree(
+  docs: DocNode[],
+  options: {
+    indent?: string;
+    splitLevel?: number;
+    splitString?: string;
+    currentLevel?: number;
+  } = {}
+): string {
+  const {
+    indent = "",
+    splitLevel = Infinity,
+    splitString = "",
+    currentLevel = 0,
+  } = options;
+
+  let result = "";
+
+  docs.forEach((node, index) => {
+    const isLast = index === docs.length - 1;
+    const branch = isLast ? "└── " : "├── ";
+    const nextIndent = indent + (isLast ? "    " : "│   ");
+
+    const cleanTitle = node.title.replace(/_/g, " ");
+
+    if (currentLevel === splitLevel) {
+      // Only include the node matching splitString
+      if (cleanTitle === splitString) {
+        result += `${indent}${branch}${cleanTitle}\n`;
+        if (node.children.length > 0) {
+          result += printFolderTree(node.children, {
+            indent: nextIndent,
+            splitLevel: Infinity, // Prevent further filtering
+            splitString,
+            currentLevel: currentLevel + 1,
+          });
+        }
+      }
+    } else {
+      // Normal printing until splitLevel
+      result += `${indent}${branch}${cleanTitle}\n`;
+      if (node.children.length > 0) {
+        result += printFolderTree(node.children, {
+          indent: nextIndent,
+          splitLevel,
+          splitString,
+          currentLevel: currentLevel + 1,
+        });
+      }
+    }
+  });
+
+  return result;
+}
+
 function getBreadcrumbs(
   node: DocNode,
   fullTree: DocNode[]
