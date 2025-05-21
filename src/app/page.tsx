@@ -1,8 +1,5 @@
-import { ToggleableSection } from "@/components/toggleable-section";
-import { TreeDisplay } from "@/components/tree-display";
+import { VisualizationSelector } from "@/components/visualization-selector";
 import { getDocsTree, getLeafDocs, printFolderTree } from "@/lib/docs";
-import { Info } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default async function Home() {
@@ -12,6 +9,9 @@ export default async function Home() {
     (doc) => doc.title.trim() === "المبني"
   );
 
+  const firstPartDocs = fullDocs.filter((doc) => doc.title.includes("الكلمة"));
+  const secondPartDocs = fullDocs.filter((doc) => doc.title.includes("الكلام"));
+
   const parts = {
     first: {
       grid:
@@ -20,6 +20,7 @@ export default async function Home() {
         splitLevel: 0,
         splitString: "الكلمة",
       }),
+      docs: firstPartDocs,
     },
     second: {
       grid: gridSplitIndex >= 0 ? leafDocs.slice(gridSplitIndex + 1) : [],
@@ -27,17 +28,13 @@ export default async function Home() {
         splitLevel: 0,
         splitString: "الكلام",
       }),
+      docs: secondPartDocs,
     },
   };
 
   const styles = {
     headerClassname: "text-3xl font-bold",
     paragraphClassname: "text-lg",
-    gridClassname:
-      "grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4",
-    gridItemClassname:
-      "p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors",
-    gridItemTitleClassname: "text-base",
   };
 
   return (
@@ -52,59 +49,28 @@ export default async function Home() {
       <Separator />
 
       <Section>
-        <ToggleableSection
+        <VisualizationSelector
           title={`الجزء الأول (الكلمة)`}
           headerClassName={styles.headerClassname}
-          treeView={<TreeDisplay content={parts.first.tree} />}
-          gridView={
-            <div className={styles.gridClassname}>
-              {parts.first.grid.map((doc) => (
-                <Link
-                  key={doc.slug}
-                  href={`/learn/${doc.slug}`}
-                  className={styles.gridItemClassname}
-                >
-                  <h2 className={styles.gridItemTitleClassname}>{doc.title}</h2>
-                </Link>
-              ))}
-            </div>
-          }
+          treeContent={parts.first.tree}
+          gridItems={parts.first.grid}
+          docData={parts.first.docs}
         />
       </Section>
 
       <Separator />
 
       <Section>
-        <ToggleableSection
+        <VisualizationSelector
           title={`الجزء الثاني (الكلام)`}
           headerClassName={styles.headerClassname}
-          treeView={<TreeDisplay content={parts.second.tree} />}
-          gridView={
-            <div className={styles.gridClassname}>
-              {parts.second.grid.map((doc) => (
-                <Link
-                  key={doc.slug}
-                  href={`/learn/${doc.slug}`}
-                  className={styles.gridItemClassname}
-                >
-                  <h2 className={styles.gridItemTitleClassname}>{doc.title}</h2>
-                </Link>
-              ))}
-            </div>
-          }
+          treeContent={parts.second.tree}
+          gridItems={parts.second.grid}
+          docData={parts.second.docs}
         />
       </Section>
 
       <Separator />
-
-      <Section>
-        <div className="flex items-start gap-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 p-4 rounded-md">
-          <Info className="w-5 h-5 mt-1 text-green-600 dark:text-green-300" />
-          <p className="text-sm leading-relaxed text-green-800 dark:text-green-200">
-            {`أُنشئ مشروع النحو الرقمي لتيسير فهم النحو بتشجير واضح، معتمدا في تقسيمه على كتاب النحو الصغير للشيخ د. سليمان العيوني - بإذنه عبر البريد، ومن غير إشراف مباشر. الموقع مفتوح المصدر، ومساهمتك مرحّب بها.`}
-          </p>
-        </div>
-      </Section>
     </div>
   );
 }

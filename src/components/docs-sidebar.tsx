@@ -15,12 +15,12 @@ import { useDocsSidebar } from "@/hooks/use-docs-sidebar";
 import type { DocNode } from "@/lib/docs";
 import { cn } from "@/lib/utils";
 import {
+  BookOpen,
   ChevronDown,
   ChevronLeft,
   ChevronsDownUp,
   FileText,
   Folder,
-  Hash,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -67,8 +67,8 @@ export function DocsSidebar({ docsTree }: Props) {
                   className="pl-1.5"
                 >
                   <Link href="/">
-                    <Hash className="h-4 w-4 shrink-0" />
-                    <span>الرئسية</span>
+                    <BookOpen className="h-4 w-4 shrink-0" />
+                    <span>مقدمة</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
