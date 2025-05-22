@@ -1,107 +1,176 @@
 "use client";
 
-import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-type D3Node = {
-  name: string;
-  children?: D3Node[];
+export type Node = {
+  title: string;
+  slug: string;
+  order: number;
+  excerpt?: string;
+  contentHtml?: string;
+  children: Node[];
+  parentPath: string[];
 };
 
-export function TreeDiagramVisualization({
-  nodes,
-  width = 1000,
-  height = 800,
-}: {
+interface TreeNode {
+  id: string;
+  name: string;
+  children?: TreeNode[];
+}
+
+interface TreeVisualizationProps {
   nodes: Node[];
   width?: number;
   height?: number;
-}) {
-  const svgRef = useRef<SVGSVGElement>(null);
+}
+
+export function TreeDiagramVisualization({
+  nodes,
+  width = 800,
+  height = 600,
+}: TreeVisualizationProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!svgRef.current || nodes.length === 0) return;
+    if (!containerRef.current || nodes.length === 0) return;
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous render
+    // Clear previous visualization
+    containerRef.current.innerHTML = "";
 
-    const margin = { top: 40, right: 90, bottom: 40, left: 90 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    const svg = d3
+      .select(containerRef.current)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
 
-    const g = svg
+    const contentGroup = svg
       .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("class", "content")
+      .attr("transform", "translate(90, 20)");
 
-    // Convert DocNode[] to TreeNode[]
-    function toTreeNode(nodes: Node[]): D3Node[] {
-      return nodes.map((node) => ({
+    const transformNodes = (inputNodes: Node[]): TreeNode[] => {
+      return inputNodes.map((node, index) => ({
+        id: node.slug || `node-${index}`,
         name: node.title,
-        children: node.children?.length ? toTreeNode(node.children) : undefined,
+        children: node.children?.length
+          ? transformNodes(node.children)
+          : undefined,
       }));
-    }
-
-    const rootData: D3Node = {
-      name: "root",
-      children: toTreeNode(nodes),
     };
 
-    const root = d3.hierarchy<D3Node>(rootData);
+    // Instead of creating a root node, use the first node as root
+    const treeData: TreeNode[] = transformNodes(nodes);
+    const root = d3.hierarchy(treeData[0]); // Use the first node directly
 
-    const treeLayout = d3.tree<D3Node>().size([innerHeight, innerWidth]);
+    const treeLayout = d3
+      .tree<TreeNode>()
+      .size([height - 40, width - 180])
+      .separation((a, b) => (a.parent === b.parent ? 1 : 1.2));
+
     treeLayout(root);
 
-    // Draw links (paths)
-    g.selectAll(".link")
+    contentGroup
+      .selectAll("path.link")
       .data(root.links())
-      .enter()
-      .append("path")
+      .join("path")
       .attr("class", "link")
       .attr(
         "d",
         d3
           .linkHorizontal<
-            d3.HierarchyPointLink<D3Node>,
-            d3.HierarchyPointNode<D3Node>
+            d3.HierarchyLink<TreeNode>,
+            d3.HierarchyPointNode<TreeNode>
           >()
-          .x((d) => d.target.y)
-          .y((d) => d.target.x)
+          .x((d) => d.y)
+          .y((d) => d.x)
       )
-      .attr("fill", "none")
-      .attr("stroke", "#ccc")
-      .attr("stroke-width", 1.5);
+      .style("fill", "none")
+      .style("stroke", "#555")
+      .style("stroke-width", 1.5);
 
-    // Draw nodes (groups)
-    const node = g
-      .selectAll(".node")
+    const nodeGroups = contentGroup
+      .selectAll("g.node")
       .data(root.descendants())
-      .enter()
-      .append("g")
-      .attr(
-        "class",
-        (d) => `node ${d.children ? "node--internal" : "node--leaf"}`
-      )
+      .join("g")
+      .attr("class", "node")
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
-    node
+    nodeGroups
       .append("circle")
-      .attr("r", 5)
-      .attr("fill", (d) => (d.children ? "#555" : "#999"));
+      .attr("r", 6)
+      .style("fill", (d: d3.HierarchyNode<TreeNode>) =>
+        d.children ? "#555" : "#999"
+      )
+      .style("stroke", "#fff")
+      .style("stroke-width", 2);
 
-    node
+    // Adjust text position to prevent overlap
+    nodeGroups
       .append("text")
-      .attr("dy", "0.32em")
-      .attr("x", (d) => (d.children ? -10 : 10))
-      .style("text-anchor", (d) => (d.children ? "end" : "start"))
-      .text((d) => d.data.name)
-      .attr("font-size", "12px")
-      .attr("fill", "#333");
+      .attr("dy", "-1.2em") // Move text above the node
+      .attr("x", 0) // Center text horizontally
+      .style("text-anchor", "middle") // Center text alignment
+      .text((d: d3.HierarchyNode<TreeNode>) => d.data.name)
+      .style("font-size", "12px")
+      .style("font-family", "sans-serif")
+      .style("fill", "#333");
+
+    nodeGroups
+      .on(
+        "mouseover",
+        function (event: MouseEvent, d: d3.HierarchyNode<TreeNode>) {
+          d3.select(this)
+            .select("circle")
+            .transition()
+            .duration(200)
+            .attr("r", 8)
+            .style("fill", "#0066cc");
+
+          d3.select(this).select("text").style("font-weight", "bold");
+        }
+      )
+      .on(
+        "mouseout",
+        function (event: MouseEvent, d: d3.HierarchyNode<TreeNode>) {
+          d3.select(this)
+            .select("circle")
+            .transition()
+            .duration(200)
+            .attr("r", 6)
+            .style("fill", d.children ? "#555" : "#999");
+
+          d3.select(this).select("text").style("font-weight", "normal");
+        }
+      );
+
+    const zoom = d3
+      .zoom()
+      .scaleExtent([0.3, 3])
+      .on("zoom", (event) => {
+        contentGroup.attr("transform", event.transform);
+      });
+
+    svg.call(zoom as any);
+
+    const bounds = contentGroup.node()?.getBBox();
+    if (bounds) {
+      const scale = Math.min(width / bounds.width, height / bounds.height, 0.9);
+      const x = (width - bounds.width * scale) / 2;
+      const y = (height - bounds.height * scale) / 2;
+
+      svg.call(
+        zoom.transform as any,
+        d3.zoomIdentity.translate(x, y).scale(scale)
+      );
+    }
   }, [nodes, width, height]);
 
   return (
-    <div className="w-full overflow-auto bg-white dark:bg-zinc-900 rounded-lg p-4">
-      <svg ref={svgRef} width={width} height={height} />
-    </div>
+    <div
+      ref={containerRef}
+      className="w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900 ring-1 ring-zinc-200 shadow shadow-zinc-200 p-4"
+      style={{ minHeight: height }}
+    />
   );
 }
