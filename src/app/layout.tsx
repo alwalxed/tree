@@ -31,12 +31,16 @@ export default async function RootLayout({
   const tree = await buildTree();
   return (
     <>
-      <html dir="rtl" lang="ar" suppressHydrationWarning>
+      <html
+        dir="rtl"
+        lang="ar"
+        className={cn(ibmPlexSansArabic.variable)}
+        suppressHydrationWarning
+      >
         <body
           className={cn(
-            ibmPlexSansArabic.className,
-            "overflow-y-scroll",
-            "overflow-x-hidden",
+            "overflow-y-scroll overflow-x-hidden",
+            "font-ibmPlexSansArabic antialiased",
             {
               "debug-screens": isDev,
             }

@@ -10,6 +10,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --font-ibmPlexSansArabic: var(--font-ibmPlexSansArabic);
+}
+
+@theme {
   --breakpoint-*: initial;
   --breakpoint-xxs: 20rem; /* 320px */
   --breakpoint-xs: 30rem; /* 480px */
