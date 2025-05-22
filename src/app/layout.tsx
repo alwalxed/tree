@@ -1,3 +1,4 @@
+import { DevDebuggers } from "@/components/debug";
 import { Sidebar } from "@/components/sidebar";
 import {
   SidebarInset,
@@ -47,6 +48,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <DevDebuggers tree={tree} />
             <SidebarProvider>
               <Sidebar tree={tree} />
               <SidebarInset className="px-4 py-6 md:px-8">

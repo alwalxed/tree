@@ -25,11 +25,7 @@ import {
 import Link from "next/link";
 import React, { memo, useCallback } from "react";
 
-type Props = {
-  tree: Node[];
-};
-
-function SidebarComponent({ tree }: Props) {
+function SidebarComponent({ tree }: { tree: Node[] }) {
   const {
     flatItems,
     expandedSections,
