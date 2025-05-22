@@ -1,29 +1,20 @@
 "use client";
 
+import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-export type Node = {
-  title: string;
-  slug: string;
-  order: number;
-  excerpt?: string;
-  contentHtml?: string;
-  children: Node[];
-  parentPath: string[];
-};
-
-interface TreeNode {
+type TreeNode = {
   id: string;
   name: string;
   children?: TreeNode[];
-}
+};
 
-interface TreeVisualizationProps {
+type TreeVisualizationProps = {
   nodes: Node[];
   width?: number;
   height?: number;
-}
+};
 
 export function TreeDiagramVisualization({
   nodes,

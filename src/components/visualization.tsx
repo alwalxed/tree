@@ -9,6 +9,7 @@ import {
   GitBranch,
   Grid,
   Network,
+  Package,
   PieChart,
 } from "lucide-react";
 import { memo, useMemo, useState } from "react";
@@ -16,6 +17,7 @@ import { ASCIITreeVisualization } from "./visualizations/ascii-tree-visualizatio
 import { BoxesVisualization } from "./visualizations/boxes-visualization";
 import { CSSGridVisualization } from "./visualizations/css-grid-visualization";
 import { HTMLTreeVisualization } from "./visualizations/html-tree-visualization";
+import { PackVisualization } from "./visualizations/pack-visualization";
 import { SunburstVisualization } from "./visualizations/sunburst-visualization";
 import { TreeDiagramVisualization } from "./visualizations/tree-diagram-visualization";
 
@@ -25,7 +27,8 @@ type VisualizationType =
   | "boxes"
   | "css-grid"
   | "sunburst"
-  | "diagram";
+  | "diagram"
+  | "pack";
 
 export const Visualization = memo(({ nodes }: { nodes: Node[] }) => {
   const [visualizationType, setVisualizationType] =
@@ -41,11 +44,12 @@ export const Visualization = memo(({ nodes }: { nodes: Node[] }) => {
         return <BoxesVisualization nodes={nodes} />;
       case "css-grid":
         return <CSSGridVisualization nodes={nodes} />;
-
       case "sunburst":
         return <SunburstVisualization nodes={nodes} />;
       case "diagram":
         return <TreeDiagramVisualization nodes={nodes} />;
+      case "pack":
+        return <PackVisualization nodes={nodes} />;
       default:
         return null;
     }
@@ -111,6 +115,11 @@ const VisualizationToggleButton = memo(
         type: "diagram",
         icon: <Network className="w-4 h-4" />,
         label: "مخطط",
+      },
+      {
+        type: "pack",
+        icon: <Package className="w-4 h-4" />,
+        label: "شحنة",
       },
     ];
 
