@@ -1,26 +1,13 @@
-import type { TreeNode } from "@/lib/content/tree/build";
+import type { Node } from "@/lib/content/types";
 import { usePathname } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
-export function useSidebar(docsTree: TreeNode[]) {
+export function useSidebar(docsTree: Node[]) {
   const pathname = usePathname();
-
-  const getAllTopLevelPaths = useCallback((nodes: TreeNode[]): string[] => {
-    return nodes
-      .filter((node) => node.children.length > 0)
-      .map((node) => [...node.parentPath, node.slug].join("/"));
-  }, []);
 
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
-  >(() => {
-    const topLevel = getAllTopLevelPaths(docsTree);
-    const defaultExpanded: Record<string, boolean> = {};
-    topLevel.forEach((path) => {
-      defaultExpanded[path] = true;
-    });
-    return defaultExpanded;
-  });
+  >(() => ({}));
 
   const toggleSection = useCallback((path: string) => {
     setExpandedSections((prev) => ({
@@ -39,10 +26,10 @@ export function useSidebar(docsTree: TreeNode[]) {
 
   const flatItems = useMemo(() => {
     const walk = (
-      nodes: TreeNode[],
+      nodes: Node[],
       level = 0
-    ): { node: TreeNode; level: number }[] => {
-      let result: { node: TreeNode; level: number }[] = [];
+    ): { node: Node; level: number }[] => {
+      let result: { node: Node; level: number }[] = [];
 
       for (const node of nodes) {
         result.push({ node, level });
@@ -55,7 +42,7 @@ export function useSidebar(docsTree: TreeNode[]) {
     return walk(docsTree);
   }, [docsTree]);
 
-  const getAllPaths = useCallback((nodes: TreeNode[]): string[] => {
+  const getAllPaths = useCallback((nodes: Node[]): string[] => {
     let paths: string[] = [];
     for (const node of nodes) {
       const fullPath = [...node.parentPath, node.slug].join("/");
@@ -85,11 +72,14 @@ export function useSidebar(docsTree: TreeNode[]) {
     else expandAll();
   }, [expandedSections, collapseAll, expandAll, getAllPaths, docsTree]);
 
-  return {
-    flatItems,
-    expandedSections,
-    toggleSection,
-    isCurrentPage,
-    toggleAll,
-  };
+  return useMemo(
+    () => ({
+      flatItems,
+      expandedSections,
+      toggleSection,
+      isCurrentPage,
+      toggleAll,
+    }),
+    [flatItems, expandedSections, toggleSection, isCurrentPage, toggleAll]
+  );
 }

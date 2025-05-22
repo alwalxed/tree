@@ -23,13 +23,13 @@ import {
   Folder,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { memo, useCallback } from "react";
 
 type Props = {
   tree: Node[];
 };
 
-export function Sidebar({ tree }: Props) {
+function SidebarComponent({ tree }: Props) {
   const {
     flatItems,
     expandedSections,
@@ -38,15 +38,17 @@ export function Sidebar({ tree }: Props) {
     toggleAll,
   } = useSidebar(tree);
 
-  const isVisible = (node: Node): boolean => {
-    // If all of its parent paths are expanded, it's visible
-    let path = "";
-    for (const part of node.parentPath) {
-      path = path ? `${path}/${part}` : part;
-      if (!expandedSections[path]) return false;
-    }
-    return true;
-  };
+  const isVisible = useCallback(
+    (node: Node): boolean => {
+      let path = "";
+      for (const part of node.parentPath) {
+        path = path ? `${path}/${part}` : part;
+        if (!expandedSections[path]) return false;
+      }
+      return true;
+    },
+    [expandedSections]
+  );
 
   return (
     <UISidebar side="right">
@@ -125,3 +127,5 @@ export function Sidebar({ tree }: Props) {
     </UISidebar>
   );
 }
+
+export const Sidebar = memo(SidebarComponent);

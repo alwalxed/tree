@@ -5,14 +5,17 @@ import { createASCIIString } from "@/lib/text/create-ascii-string";
 
 export function ASCIITreeVisualization({ nodes }: { nodes: Node[] }) {
   return (
-    <div className="prose max-w-none rounded-xl p-4 overflow-x-auto text-sm bg-green-200">
-      <pre className="m-0">
-        <code
-          className={cn(kawkabMonoArabic.className, "whitespace-pre text-base")}
-        >
-          {createASCIIString(nodes)}
-        </code>
-      </pre>
+    <div className="max-w-none rounded-xl overflow-hidden p-4 bg-zinc-50">
+      <p
+        className={cn(
+          kawkabMonoArabic.className,
+          "whitespace-pre text-base p-4 rounded-lg ring-1 ring-zinc-200 text-zinc-700 font-normal"
+        )}
+      >
+        {createASCIIString(nodes, {
+          indent: "",
+        })}
+      </p>
     </div>
   );
 }

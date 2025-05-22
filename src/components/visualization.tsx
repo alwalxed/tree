@@ -102,7 +102,7 @@ function VisualizationToggleButton({
         <button
           key={button.type}
           onClick={() => onClick(button.type)}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+          className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
             visualizationType === button.type
               ? "bg-zinc-200 dark:bg-zinc-700"
               : "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700"
