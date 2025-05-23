@@ -1,6 +1,6 @@
 "use client";
 
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import * as d3 from "d3";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -31,7 +31,7 @@ export const RadialSunburstRenderer = memo(
     initialWidth = 1000,
     initialHeight = 1000,
   }: {
-    nodes: Node[];
+    nodes: SummaryNode[];
     initialWidth?: number;
     initialHeight?: number;
   }) => {
@@ -48,21 +48,24 @@ export const RadialSunburstRenderer = memo(
     });
 
     // Transform nodes data to hierarchical format for D3
-    const transformData = useCallback((nodes: Node[]): HierarchyDatum[] => {
-      const transform = (nodes: Node[]): HierarchyDatum[] => {
-        return nodes.map(
-          (node): HierarchyDatum => ({
-            name: node.title,
-            value: node.children.length ? 0 : 1,
-            children: node.children.length
-              ? transform(node.children)
-              : undefined,
-          })
-        );
-      };
+    const transformData = useCallback(
+      (nodes: SummaryNode[]): HierarchyDatum[] => {
+        const transform = (nodes: SummaryNode[]): HierarchyDatum[] => {
+          return nodes.map(
+            (node): HierarchyDatum => ({
+              name: node.title,
+              value: node.children.length ? 0 : 1,
+              children: node.children.length
+                ? transform(node.children)
+                : undefined,
+            })
+          );
+        };
 
-      return transform(nodes);
-    }, []);
+        return transform(nodes);
+      },
+      []
+    );
 
     // Handle dimensions based on container size
     useEffect(() => {

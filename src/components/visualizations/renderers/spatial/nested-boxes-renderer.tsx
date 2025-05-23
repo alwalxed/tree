@@ -1,7 +1,7 @@
 "use client";
 
 import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
 import Link from "next/link";
 import { memo, useId } from "react";
@@ -77,16 +77,18 @@ const ANIMATIONS = {
   fontWeight: "group-hover:font-semibold",
 } as const;
 
-export const NestedBoxesRenderer = memo(({ nodes }: { nodes: Node[] }) => {
-  return (
-    <div className={CONTAINER_STYLES.wrapper}>
-      <BoxView nodes={nodes} />
-    </div>
-  );
-});
+export const NestedBoxesRenderer = memo(
+  ({ nodes }: { nodes: SummaryNode[] }) => {
+    return (
+      <div className={CONTAINER_STYLES.wrapper}>
+        <BoxView nodes={nodes} />
+      </div>
+    );
+  }
+);
 
 const BoxView = memo(
-  ({ nodes, depth = 0 }: { nodes: Node[]; depth?: number }) => {
+  ({ nodes, depth = 0 }: { nodes: SummaryNode[]; depth?: number }) => {
     const scheme = COLOR_SCHEMES[depth % COLOR_SCHEMES.length];
     const uniqueId = useId();
 

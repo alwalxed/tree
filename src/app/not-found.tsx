@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { buildContentTree } from "@/lib/content/operations/build-tree";
-import { flattenTree } from "@/lib/content/operations/flatten-tree";
+import { flattenTree } from "@/lib/content/helpers/flatten-tree";
+import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
 import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
 import { FileQuestion, Home, Search } from "lucide-react";
 import Link from "next/link";
@@ -11,8 +11,8 @@ export const metadata = {
 };
 
 export default async function NotFound() {
-  const tree = await buildContentTree();
-  const flatTree = flattenTree(tree);
+  const summaryTree = await buildSummaryTree();
+  const flatTree = flattenTree(summaryTree);
 
   const suggestedPages = flatTree.sort(() => 0.5 - Math.random()).slice(0, 3);
 
@@ -61,13 +61,6 @@ export default async function NotFound() {
                 className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <h3 className="font-medium">{page.title}</h3>
-                {page.excerpt && (
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {page.excerpt.length > 80
-                      ? `${page.excerpt.substring(0, 80)}...`
-                      : page.excerpt}
-                  </p>
-                )}
               </Link>
             ))}
           </div>

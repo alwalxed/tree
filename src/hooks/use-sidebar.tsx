@@ -1,8 +1,8 @@
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import { usePathname } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
-export function useSidebar(docsTree: Node[]) {
+export function useSidebar(summaryTree: SummaryNode[]) {
   const pathname = usePathname();
 
   const [expandedSections, setExpandedSections] = useState<
@@ -26,10 +26,10 @@ export function useSidebar(docsTree: Node[]) {
 
   const flatItems = useMemo(() => {
     const walk = (
-      nodes: Node[],
+      nodes: SummaryNode[],
       level = 0
-    ): { node: Node; level: number }[] => {
-      let result: { node: Node; level: number }[] = [];
+    ): { node: SummaryNode; level: number }[] => {
+      let result: { node: SummaryNode; level: number }[] = [];
 
       for (const node of nodes) {
         result.push({ node, level });
@@ -39,10 +39,10 @@ export function useSidebar(docsTree: Node[]) {
       return result;
     };
 
-    return walk(docsTree);
-  }, [docsTree]);
+    return walk(summaryTree);
+  }, [summaryTree]);
 
-  const getAllPaths = useCallback((nodes: Node[]): string[] => {
+  const getAllPaths = useCallback((nodes: SummaryNode[]): string[] => {
     let paths: string[] = [];
     for (const node of nodes) {
       const fullPath = [...node.parentPath, node.slug].join("/");
@@ -55,22 +55,22 @@ export function useSidebar(docsTree: Node[]) {
   }, []);
 
   const expandAll = useCallback(() => {
-    const all = getAllPaths(docsTree);
+    const all = getAllPaths(summaryTree);
     const expanded: Record<string, boolean> = {};
     all.forEach((p) => (expanded[p] = true));
     setExpandedSections(expanded);
-  }, [docsTree, getAllPaths]);
+  }, [summaryTree, getAllPaths]);
 
   const collapseAll = useCallback(() => {
     setExpandedSections({});
   }, []);
 
   const toggleAll = useCallback(() => {
-    const allPaths = getAllPaths(docsTree);
+    const allPaths = getAllPaths(summaryTree);
     const someExpanded = allPaths.some((path) => expandedSections[path]);
     if (someExpanded) collapseAll();
     else expandAll();
-  }, [expandedSections, collapseAll, expandAll, getAllPaths, docsTree]);
+  }, [expandedSections, collapseAll, expandAll, getAllPaths, summaryTree]);
 
   return useMemo(
     () => ({

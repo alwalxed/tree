@@ -1,6 +1,6 @@
 "use client";
 
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import * as React from "react";
 
 export interface TreeDebuggerState {
@@ -23,9 +23,9 @@ export interface TreeDebuggerActions {
 
 export interface TreeDebuggerHelpers {
   formattedTree: string;
-  countNodes: (nodes: Node[]) => number;
-  calculateMaxDepth: (nodes: Node[], currentDepth?: number) => number;
-  matchesSearch: (node: Node, term: string) => boolean;
+  countNodes: (nodes: SummaryNode[]) => number;
+  calculateMaxDepth: (nodes: SummaryNode[], currentDepth?: number) => number;
+  matchesSearch: (node: SummaryNode, term: string) => boolean;
 }
 
 export interface UseTreeDebuggerResult {
@@ -34,7 +34,9 @@ export interface UseTreeDebuggerResult {
   helpers: TreeDebuggerHelpers;
 }
 
-export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
+export function useTreeStructureDebugger(
+  tree: SummaryNode[]
+): UseTreeDebuggerResult {
   // State
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
@@ -68,7 +70,7 @@ export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
     if (!expandAll) {
       // Collect all possible paths
       const allPaths: string[] = [];
-      const collectPaths = (nodes: Node[], currentPath = "") => {
+      const collectPaths = (nodes: SummaryNode[], currentPath = "") => {
         nodes.forEach((node) => {
           const nodePath = currentPath
             ? `${currentPath}.${node.slug}`
@@ -87,7 +89,7 @@ export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
   }, [expandAll, tree]);
 
   // Helper functions
-  const countNodes = React.useCallback((nodes: Node[]): number => {
+  const countNodes = React.useCallback((nodes: SummaryNode[]): number => {
     let count = nodes.length;
     for (const node of nodes) {
       count += countNodes(node.children);
@@ -96,7 +98,7 @@ export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
   }, []);
 
   const calculateMaxDepth = React.useCallback(
-    (nodes: Node[], currentDepth = 1): number => {
+    (nodes: SummaryNode[], currentDepth = 1): number => {
       if (nodes.length === 0) return currentDepth - 1;
 
       let maxDepth = currentDepth;
@@ -113,7 +115,7 @@ export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
   );
 
   const matchesSearch = React.useCallback(
-    (node: Node, term: string): boolean => {
+    (node: SummaryNode, term: string): boolean => {
       if (!term) return true;
 
       const nodeMatches =

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import { isDev } from "@/config/env";
 import { SITE_URL } from "@/config/site";
-import { buildContentTree } from "@/lib/content/operations/build-tree";
+import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
 import { cn } from "@/lib/styles/tailwind";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
@@ -28,7 +28,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const tree = await buildContentTree();
+  const summaryTree = await buildSummaryTree();
   return (
     <>
       <html
@@ -52,9 +52,9 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <DevDebuggers tree={tree} />
+            <DevDebuggers summaryTree={summaryTree} />
             <SidebarProvider>
-              <Sidebar tree={tree} />
+              <Sidebar summaryTree={summaryTree} />
               <SidebarInset className="px-4 py-6 md:px-8">
                 <header className="mb-4 flex items-center">
                   <SidebarTrigger />

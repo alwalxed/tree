@@ -1,9 +1,9 @@
 import { Section } from "@/components/common/section";
 import { VisualizationSwitcher } from "@/components/visualizations/visualization-switcher";
-import { buildContentTree } from "@/lib/content/operations/build-tree";
+import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
 
 export default async function Page() {
-  const tree = await buildContentTree();
+  const summaryTree = await buildSummaryTree();
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-12">
@@ -17,14 +17,14 @@ export default async function Page() {
       <Section>
         <Section.H level={2}>{`الجزء الأول (الكلمة)`}</Section.H>
         <VisualizationSwitcher
-          nodes={tree.filter((node) => node.title.includes("الكلمة"))}
+          nodes={summaryTree.filter((node) => node.title.includes("الكلمة"))}
         />
       </Section>
 
       <Section>
         <Section.H level={2}>{`الجزء الثاني (الكلام)`}</Section.H>
         <VisualizationSwitcher
-          nodes={tree.filter((node) => node.title.includes("الكلام"))}
+          nodes={summaryTree.filter((node) => node.title.includes("الكلام"))}
         />
       </Section>
     </div>

@@ -1,4 +1,4 @@
-import MarkdownRenderer from "@/components/common/markdown-renderer";
+import { MarkdownRenderer } from "@/components/common/markdown-renderer";
 import { getContentNode } from "@/lib/content/operations/get-content-node";
 import { getTreeSlugs } from "@/lib/content/operations/get-tree-slugs";
 import type { Metadata, ResolvingMetadata } from "next";

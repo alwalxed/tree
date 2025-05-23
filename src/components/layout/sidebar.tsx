@@ -12,7 +12,7 @@ import {
   Sidebar as UISidebar,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar";
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
 import {
   BookOpen,
@@ -25,17 +25,17 @@ import {
 import Link from "next/link";
 import React, { memo, useCallback } from "react";
 
-function SidebarComponent({ tree }: { tree: Node[] }) {
+function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
   const {
     flatItems,
     expandedSections,
     toggleSection,
     isCurrentPage,
     toggleAll,
-  } = useSidebar(tree);
+  } = useSidebar(summaryTree);
 
   const isVisible = useCallback(
-    (node: Node): boolean => {
+    (node: SummaryNode): boolean => {
       let path = "";
       for (const part of node.parentPath) {
         path = path ? `${path}/${part}` : part;

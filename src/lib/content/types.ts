@@ -1,11 +1,21 @@
-export type Node = {
+type BaseNode = {
   title: string;
   slug: string;
+};
+
+type HierarchyMeta = {
   order: number;
-  excerpt?: string;
-  contentHtml?: string;
-  children: Node[];
   parentPath: string[];
 };
 
-export type LeafNode = { title: string; slug: string };
+export type SummaryNode = BaseNode &
+  HierarchyMeta & {
+    children: SummaryNode[];
+  };
+
+export type ContentNode = SummaryNode & {
+  excerpt?: string;
+  contentHtml: string;
+};
+
+export type LeafNode = BaseNode;

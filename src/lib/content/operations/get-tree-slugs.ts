@@ -1,5 +1,5 @@
-import type { Node } from "../types";
-import { buildContentTree } from "./build-tree";
+import type { SummaryNode } from "../types";
+import { buildSummaryTree } from "./build-summary-tree";
 
 /**
  * Retrieves all document slug paths from the markdown tree.
@@ -10,10 +10,10 @@ import { buildContentTree } from "./build-tree";
  * @returns A promise resolving to an array of slug paths.
  */
 export async function getTreeSlugs(): Promise<string[][]> {
-  const tree = await buildContentTree();
+  const tree = await buildSummaryTree();
   const slugs: string[][] = [];
 
-  function traverse(node: Node, path: string[] = []) {
+  function traverse(node: SummaryNode, path: string[] = []) {
     const currentPath = [...path, node.slug];
     slugs.push(currentPath);
     node.children.forEach((child) => traverse(child, currentPath));

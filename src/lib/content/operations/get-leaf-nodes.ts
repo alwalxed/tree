@@ -1,16 +1,16 @@
-import type { LeafNode, Node } from "../types";
+import type { LeafNode, SummaryNode } from "../types";
 
 /**
  * Extracts all leaf-level document nodes (nodes without children)
  * from a given tree, returning their titles and slug paths joined by "/".
  *
- * @param tree - The root array of Node objects to scan.
+ * @param tree - The root array of SummaryNode objects to scan.
  * @returns An array of objects with `title` and `slug` properties for leaf docs.
  */
-export function getLeafNodes(tree: Node[]): LeafNode[] {
+export function getLeafNodes(tree: SummaryNode[]): LeafNode[] {
   const leaves: LeafNode[] = [];
 
-  function walk(node: Node, path: string[] = []) {
+  function walk(node: SummaryNode, path: string[] = []) {
     const fullPath = [...path, node.slug];
     if (node.children.length === 0) {
       leaves.push({ title: node.title, slug: fullPath.join("/") });

@@ -3,13 +3,13 @@
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
-interface Node {
+interface SummaryNode {
   title: string;
-  children: Node[];
+  children: SummaryNode[];
 }
 
 interface PackVisualizationProps {
-  nodes: Node[];
+  nodes: SummaryNode[];
   width?: number;
   height?: number;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import * as d3 from "d3";
 import { memo, useEffect, useRef, useState } from "react";
 
@@ -11,7 +11,7 @@ type TreeNode = {
 };
 
 type TreeVisualizationProps = {
-  nodes: Node[];
+  nodes: SummaryNode[];
   height?: number;
 };
 
@@ -62,7 +62,7 @@ export const NodeLinkDiagramRenderer = memo(
 
       const contentGroup = svg.append("g").attr("class", "content");
 
-      const transformNodes = (inputNodes: Node[]): TreeNode[] => {
+      const transformNodes = (inputNodes: SummaryNode[]): TreeNode[] => {
         return inputNodes.map((node, index) => ({
           id: node.slug || `node-${index}`,
           name: node.title,

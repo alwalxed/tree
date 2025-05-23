@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import {
   Boxes,
   GitBranch,
@@ -34,7 +34,7 @@ interface VisualizationConfig {
   type: VisualizationType;
   label: string;
   icon: React.ReactNode;
-  component: React.ComponentType<{ nodes: Node[] }>;
+  component: React.ComponentType<{ nodes: SummaryNode[] }>;
 }
 
 const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
@@ -82,35 +82,36 @@ const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   },
 ];
 
-export const VisualizationSwitcher = memo(({ nodes }: { nodes: Node[] }) => {
-  const [visualizationType, setVisualizationType] = useState<VisualizationType>(
-    VISUALIZATION_CONFIGS[0].type
-  );
+export const VisualizationSwitcher = memo(
+  ({ nodes }: { nodes: SummaryNode[] }) => {
+    const [visualizationType, setVisualizationType] =
+      useState<VisualizationType>(VISUALIZATION_CONFIGS[0].type);
 
-  const currentVisualization = useMemo(() => {
-    const config = VISUALIZATION_CONFIGS.find(
-      (cfg) => cfg.type === visualizationType
+    const currentVisualization = useMemo(() => {
+      const config = VISUALIZATION_CONFIGS.find(
+        (cfg) => cfg.type === visualizationType
+      );
+      if (config) {
+        const Component = config.component;
+        return <Component nodes={nodes} />;
+      }
+      return null;
+    }, [visualizationType, nodes]);
+
+    return (
+      <>
+        <VisualizationTypeSelector
+          visualizationType={visualizationType}
+          onVisualizationChange={setVisualizationType}
+          configs={VISUALIZATION_CONFIGS}
+        />
+        <div className="transition-opacity duration-300">
+          {currentVisualization}
+        </div>
+      </>
     );
-    if (config) {
-      const Component = config.component;
-      return <Component nodes={nodes} />;
-    }
-    return null;
-  }, [visualizationType, nodes]);
-
-  return (
-    <>
-      <VisualizationTypeSelector
-        visualizationType={visualizationType}
-        onVisualizationChange={setVisualizationType}
-        configs={VISUALIZATION_CONFIGS}
-      />
-      <div className="transition-opacity duration-300">
-        {currentVisualization}
-      </div>
-    </>
-  );
-});
+  }
+);
 
 VisualizationSwitcher.displayName = "VisualizationSwitcher";
 

@@ -16,7 +16,7 @@ import { DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import {
   ChevronRight,
   Copy,
@@ -29,8 +29,12 @@ import {
 import { memo } from "react";
 import { useTreeStructureDebugger } from "./tree-structure.hook";
 
-function TreeStructureDebuggerComponent({ tree }: { tree: Node[] }) {
-  const { state, actions, helpers } = useTreeStructureDebugger(tree);
+function TreeStructureDebuggerComponent({
+  summaryTree,
+}: {
+  summaryTree: SummaryNode[];
+}) {
+  const { state, actions, helpers } = useTreeStructureDebugger(summaryTree);
   const { open, copied, searchTerm, expandedNodes, expandAll, activeTab } =
     state;
   const {
@@ -126,7 +130,7 @@ function TreeStructureDebuggerComponent({ tree }: { tree: Node[] }) {
             >
               <ScrollArea className="h-full rounded-md border bg-background">
                 <div className="p-4">
-                  {tree.map((node) => (
+                  {summaryTree.map((node) => (
                     <TreeNode
                       key={node.slug}
                       node={node}
@@ -157,8 +161,9 @@ function TreeStructureDebuggerComponent({ tree }: { tree: Node[] }) {
           <div className="px-6 py-3 border-t bg-muted/10 text-xs text-muted-foreground">
             <div className="flex justify-between items-center">
               <div>
-                Total nodes: {countNodes(tree)} • Root nodes: {tree.length} •
-                Max depth: {calculateMaxDepth(tree)}
+                Total nodes: {countNodes(summaryTree)} • Root nodes:{" "}
+                {summaryTree.length} • Max depth:{" "}
+                {calculateMaxDepth(summaryTree)}
               </div>
               <div>
                 <span className="font-mono">
@@ -175,13 +180,13 @@ function TreeStructureDebuggerComponent({ tree }: { tree: Node[] }) {
 
 // TreeNode component remains the same
 interface TreeNodeProps {
-  node: Node;
+  node: SummaryNode;
   level: number;
   searchTerm: string;
   expandedNodes: string[];
   toggleNode: (path: string) => void;
   expandAll: boolean;
-  matchesSearch: (node: Node, term: string) => boolean;
+  matchesSearch: (node: SummaryNode, term: string) => boolean;
   parentPath?: string;
 }
 
@@ -247,11 +252,6 @@ function TreeNode({
             {node.order && (
               <Badge variant="outline" className="text-xs">
                 Order: {node.order}
-              </Badge>
-            )}
-            {node.excerpt && (
-              <Badge variant="secondary" className="text-xs">
-                Has content
               </Badge>
             )}
           </div>

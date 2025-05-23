@@ -1,0 +1,998 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where comments have been removed, empty lines have been removed, content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Code comments have been removed from supported file types
+- Empty lines have been removed from all files
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+app/
+  learn/
+    [...slug]/
+      page.tsx
+  fonts.ts
+  globals.css
+  layout.tsx
+  not-found.tsx
+  page.tsx
+components/
+  common/
+    markdown-renderer.tsx
+    section.tsx
+    theme-mode-toggle.tsx
+  debug/
+    index.tsx
+    tree-structure.hook.ts
+    tree-structure.view.tsx
+  layout/
+    sidebar.tsx
+  ui/
+    badge.tsx
+    button.tsx
+    collapsible.tsx
+    custom-dialog.tsx
+    dialog.tsx
+    dropdown-menu.tsx
+    input.tsx
+    scroll-area.tsx
+    separator.tsx
+    sheet.tsx
+    sidebar.tsx
+    skeleton.tsx
+    table.tsx
+    tabs.tsx
+    tooltip.tsx
+  visualizations/
+    renderers/
+      radial/
+        radial-sunburst-renderer.tsx
+      spatial/
+        circle-pack-renderer.tsx
+        grid-layout-renderer.tsx
+        nested-boxes-renderer.tsx
+      tree/
+        ascii-tree-renderer.tsx
+        collapsible-tree-renderer.tsx
+        node-link-diagram-renderer.tsx
+    visualization-switcher.tsx
+config/
+  env.ts
+  site.ts
+constants/
+  arabic-to-english-map.ts
+hooks/
+  use-mobile.ts
+  use-sidebar.tsx
+lib/
+  content/
+    operations/
+      build-tree.ts
+      flatten-tree.ts
+      get-breadcrumbs.ts
+      get-content-node.ts
+      get-deepest-node.ts
+      get-leaf-nodes.ts
+      get-node-slug-path.ts
+      get-tree-slugs.ts
+      walk-tree.ts
+    types.ts
+  styles/
+    tailwind.ts
+  text/
+    ascii-generator.ts
+    normalization.ts
+    to-arabic-numerals.ts
+    transliteration.ts
+providers/
+  theme-provider.tsx
+
+================================================================
+Files
+================================================================
+
+================
+File: app/learn/[...slug]/page.tsx
+================
+import MarkdownRenderer from "@/components/common/markdown-renderer";
+import { getContentNode } from "@/lib/content/operations/get-content-node";
+import { getTreeSlugs } from "@/lib/content/operations/get-tree-slugs";
+import type { Metadata, ResolvingMetadata } from "next";
+import { notFound } from "next/navigation";
+type Props = {
+  params: Promise<{ slug: string[] }>;
+};
+export async function generateStaticParams()
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata>
+export default async function Page(
+
+================
+File: app/fonts.ts
+================
+import localFont from "next/font/local";
+
+================
+File: app/globals.css
+================
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-debug-screens" {
+⋮----
+@theme {
+⋮----
+@theme inline {
+:root {
+.dark {
+@layer base {
+⋮----
+* {
+body {
+
+================
+File: app/layout.tsx
+================
+import { DevDebuggers } from "@/components/debug";
+import { Sidebar } from "@/components/layout/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { isDev } from "@/config/env";
+import { SITE_URL } from "@/config/site";
+import { buildContentTree } from "@/lib/content/operations/build-tree";
+import { cn } from "@/lib/styles/tailwind";
+import { ThemeProvider } from "@/providers/theme-provider";
+import type { Metadata } from "next";
+import { ibmPlexSansArabic } from "./fonts";
+⋮----
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>)
+⋮----
+className=
+
+================
+File: app/not-found.tsx
+================
+import { Button } from "@/components/ui/button";
+import { buildContentTree } from "@/lib/content/operations/build-tree";
+import { flattenTree } from "@/lib/content/operations/flatten-tree";
+import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
+import { FileQuestion, Home, Search } from "lucide-react";
+import Link from "next/link";
+
+================
+File: app/page.tsx
+================
+import { Section } from "@/components/common/section";
+import { VisualizationSwitcher } from "@/components/visualizations/visualization-switcher";
+import { buildContentTree } from "@/lib/content/operations/build-tree";
+export default async function Page()
+
+================
+File: components/common/markdown-renderer.tsx
+================
+export default function MarkdownRenderer(
+
+================
+File: components/common/section.tsx
+================
+import { ReactNode } from "react";
+type SectionProps = {
+  children: ReactNode;
+};
+type SectionTitleProps = {
+  children: ReactNode;
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+};
+type SectionPProps = {
+  children: ReactNode;
+};
+function Section(
+
+================
+File: components/common/theme-mode-toggle.tsx
+================
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+================
+File: components/debug/index.tsx
+================
+import type { Node } from "@/lib/content/types";
+import { TreeStructureDebugger } from "./tree-structure.view";
+import { memo } from 'react';
+function DevDebuggersComponent(
+
+================
+File: components/debug/tree-structure.hook.ts
+================
+import type { Node } from "@/lib/content/types";
+⋮----
+export interface TreeDebuggerState {
+  open: boolean;
+  copied: boolean;
+  searchTerm: string;
+  expandedNodes: string[];
+  expandAll: boolean;
+  activeTab: string;
+}
+export interface TreeDebuggerActions {
+  setOpen: (open: boolean) => void;
+  handleCopy: () => void;
+  toggleNode: (path: string) => void;
+  toggleExpandAll: () => void;
+  setSearchTerm: (term: string) => void;
+  setActiveTab: (tab: string) => void;
+}
+export interface TreeDebuggerHelpers {
+  formattedTree: string;
+  countNodes: (nodes: Node[]) => number;
+  calculateMaxDepth: (nodes: Node[], currentDepth?: number) => number;
+  matchesSearch: (node: Node, term: string) => boolean;
+}
+export interface UseTreeDebuggerResult {
+  state: TreeDebuggerState;
+  actions: TreeDebuggerActions;
+  helpers: TreeDebuggerHelpers;
+}
+export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult
+⋮----
+const collectPaths = (nodes: Node[], currentPath = "") =>
+
+================
+File: components/debug/tree-structure.view.tsx
+================
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  CustomDialog,
+  CustomDialogContent,
+  CustomDialogHeader,
+  CustomDialogTitle,
+} from "@/components/ui/custom-dialog";
+import { DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Node } from "@/lib/content/types";
+import {
+  ChevronRight,
+  Copy,
+  FolderTreeIcon as FileTree,
+  Maximize2,
+  Minimize2,
+  Search,
+  X,
+} from "lucide-react";
+import { memo } from "react";
+import { useTreeStructureDebugger } from "./tree-structure.hook";
+⋮----
+Total nodes:
+Max depth:
+⋮----
+function TreeNode({
+  node,
+  level,
+  searchTerm,
+  expandedNodes,
+  toggleNode,
+  expandAll,
+  matchesSearch,
+  parentPath = "",
+}: TreeNodeProps)
+
+================
+File: components/layout/sidebar.tsx
+================
+import {
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  Sidebar as UISidebar,
+} from "@/components/ui/sidebar";
+import { useSidebar } from "@/hooks/use-sidebar";
+import type { Node } from "@/lib/content/types";
+import { cn } from "@/lib/styles/tailwind";
+import {
+  BookOpen,
+  ChevronDown,
+  ChevronLeft,
+  ChevronsDownUp,
+  FileText,
+  Folder,
+} from "lucide-react";
+import Link from "next/link";
+import React, { memo, useCallback } from "react";
+⋮----
+isActive=
+
+================
+File: components/ui/badge.tsx
+================
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/styles/tailwind"
+⋮----
+className=
+
+================
+File: components/ui/button.tsx
+================
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+⋮----
+import { cn } from "@/lib/styles/tailwind";
+
+================
+File: components/ui/collapsible.tsx
+================
+function Collapsible({
+  ...props
+}: React.ComponentProps<typeof CollapsiblePrimitive.Root>)
+function CollapsibleTrigger({
+  ...props
+}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>)
+function CollapsibleContent({
+  ...props
+}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>)
+
+================
+File: components/ui/custom-dialog.tsx
+================
+import { cn } from "@/lib/styles/tailwind";
+
+================
+File: components/ui/dialog.tsx
+================
+import { XIcon } from "lucide-react"
+import { cn } from "@/lib/styles/tailwind"
+function Dialog({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>)
+function DialogTrigger({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>)
+function DialogPortal({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Portal>)
+function DialogClose({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close>)
+⋮----
+function DialogContent({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Content>)
+⋮----
+className=
+
+================
+File: components/ui/dropdown-menu.tsx
+================
+import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+⋮----
+import { cn } from "@/lib/styles/tailwind";
+function DropdownMenu({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>)
+function DropdownMenuPortal({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>)
+function DropdownMenuTrigger({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>)
+⋮----
+function DropdownMenuCheckboxItem({
+  className,
+  children,
+  checked,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>)
+⋮----
+className=
+⋮----
+function DropdownMenuRadioGroup({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>)
+function DropdownMenuRadioItem({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>)
+⋮----
+function DropdownMenuSub({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>)
+function DropdownMenuSubTrigger({
+  className,
+  inset,
+  children,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
+  inset?: boolean;
+})
+
+================
+File: components/ui/input.tsx
+================
+import { cn } from "@/lib/styles/tailwind";
+function Input(
+⋮----
+className=
+
+================
+File: components/ui/scroll-area.tsx
+================
+import { cn } from "@/lib/styles/tailwind"
+function ScrollArea({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>)
+⋮----
+className=
+⋮----
+function ScrollBar({
+  className,
+  orientation = "vertical",
+  ...props
+}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>)
+
+================
+File: components/ui/separator.tsx
+================
+import { cn } from "@/lib/styles/tailwind";
+⋮----
+className={cn(
+        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        className
+      )}
+      {...props}
+    />
+  );
+
+================
+File: components/ui/sheet.tsx
+================
+import { XIcon } from "lucide-react";
+⋮----
+import { cn } from "@/lib/styles/tailwind";
+function Sheet(
+function SheetTrigger({
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Trigger>)
+function SheetClose({
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Close>)
+function SheetPortal({
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Portal>)
+⋮----
+function SheetContent({
+  className,
+  children,
+  side = "right",
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Content> & {
+  side?: "top" | "right" | "bottom" | "left";
+})
+⋮----
+className=
+
+================
+File: components/ui/sidebar.tsx
+================
+import { Slot } from "@radix-ui/react-slot";
+import { VariantProps, cva } from "class-variance-authority";
+import { PanelRightIcon } from "lucide-react";
+⋮----
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/styles/tailwind";
+⋮----
+type SidebarContextProps = {
+  state: "expanded" | "collapsed";
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  openMobile: boolean;
+  setOpenMobile: (open: boolean) => void;
+  isMobile: boolean;
+  toggleSidebar: () => void;
+};
+⋮----
+function useSidebar()
+⋮----
+const handleKeyDown = (event: KeyboardEvent) =>
+⋮----
+className=
+
+================
+File: components/ui/skeleton.tsx
+================
+import { cn } from "@/lib/styles/tailwind";
+⋮----
+className={cn("bg-accent animate-pulse rounded-md", className)}
+      {...props}
+    />
+  );
+
+================
+File: components/ui/table.tsx
+================
+import { cn } from "@/lib/styles/tailwind"
+function Table(
+⋮----
+className=
+
+================
+File: components/ui/tabs.tsx
+================
+import { cn } from "@/lib/styles/tailwind"
+⋮----
+className=
+
+================
+File: components/ui/tooltip.tsx
+================
+import { cn } from "@/lib/styles/tailwind";
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>)
+function Tooltip({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>)
+function TooltipTrigger({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>)
+function TooltipContent({
+  className,
+  sideOffset = 0,
+  children,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>)
+⋮----
+className=
+
+================
+File: components/visualizations/renderers/radial/radial-sunburst-renderer.tsx
+================
+import type { Node } from "@/lib/content/types";
+⋮----
+import { ZoomIn, ZoomOut } from "lucide-react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+type HierarchyDatum = {
+  name: string;
+  value: number;
+  children?: HierarchyDatum[];
+};
+⋮----
+const transform = (nodes: Node[]): HierarchyDatum[] =>
+⋮----
+const updateDimensions = () =>
+⋮----
+// Handle multiple words
+⋮----
+اضبط
+
+================
+File: components/visualizations/renderers/spatial/circle-pack-renderer.tsx
+================
+import { useEffect, useRef } from "react";
+interface Node {
+  title: string;
+  children: Node[];
+}
+interface PackVisualizationProps {
+  nodes: Node[];
+  width?: number;
+  height?: number;
+}
+type HierarchyData = {
+  title: string;
+  children?: HierarchyData[];
+};
+⋮----
+function wrap(
+      text: d3.Selection<SVGTextElement, any, any, any>,
+      width: number
+)
+function getTextPosition(d: d3.HierarchyCircularNode<HierarchyData>)
+const hasChildren = (
+      d: d3.HierarchyCircularNode<HierarchyData>
+): boolean =>
+
+================
+File: components/visualizations/renderers/spatial/grid-layout-renderer.tsx
+================
+import { getLeafNodes } from "@/lib/content/operations/get-leaf-nodes";
+import type { Node } from "@/lib/content/types";
+import { memo } from "react";
+
+================
+File: components/visualizations/renderers/spatial/nested-boxes-renderer.tsx
+================
+import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
+import type { Node } from "@/lib/content/types";
+import { cn } from "@/lib/styles/tailwind";
+import Link from "next/link";
+import { memo, useId } from "react";
+⋮----
+const getFontSize = (depth: number): string =>
+const getPadding = (depth: number): string =>
+⋮----
+className=
+
+================
+File: components/visualizations/renderers/tree/ascii-tree-renderer.tsx
+================
+import type { Node } from "@/lib/content/types";
+import { cn } from "@/lib/styles/tailwind";
+import { generateASCIITree } from "@/lib/text/ascii-generator";
+import { memo } from "react";
+
+================
+File: components/visualizations/renderers/tree/collapsible-tree-renderer.tsx
+================
+import type { Node } from "@/lib/content/types";
+import { cn } from "@/lib/styles/tailwind";
+import { toArabicNumerals } from "@/lib/text/to-arabic-numerals";
+import { memo } from "react";
+⋮----
+const getColorsForLevel = (level: number) =>
+⋮----
+className={cn(
+        LAYOUT.containerBase,
+        CONTAINER_COLORS.background,
+        CONTAINER_COLORS.ring,
+        CONTAINER_COLORS.shadow,
+        SPACING.container
+      )}
+    >
+      <TreeView nodes={nodes} />
+    </div>
+  );
+
+================
+File: components/visualizations/renderers/tree/node-link-diagram-renderer.tsx
+================
+import type { Node } from "@/lib/content/types";
+⋮----
+import { memo, useEffect, useRef, useState } from "react";
+type TreeNode = {
+  id: string;
+  name: string;
+  children?: TreeNode[];
+};
+type TreeVisualizationProps = {
+  nodes: Node[];
+  height?: number;
+};
+⋮----
+const updateDimensions = () =>
+⋮----
+const transformNodes = (inputNodes: Node[]): TreeNode[] =>
+
+================
+File: components/visualizations/visualization-switcher.tsx
+================
+import type React from "react";
+import type { Node } from "@/lib/content/types";
+import {
+  Boxes,
+  GitBranch,
+  Grid,
+  Network,
+  PieChart,
+  Target,
+  Terminal,
+} from "lucide-react";
+import { memo, useMemo, useState } from "react";
+import { RadialSunburstRenderer } from "./renderers/radial/radial-sunburst-renderer";
+import { CirclePackRenderer } from "./renderers/spatial/circle-pack-renderer";
+import { GridLayoutRenderer } from "./renderers/spatial/grid-layout-renderer";
+import { NestedBoxesRenderer } from "./renderers/spatial/nested-boxes-renderer";
+import { ASCIITreeRenderer } from "./renderers/tree/ascii-tree-renderer";
+import { CollapsibleTreeRenderer } from "./renderers/tree/collapsible-tree-renderer";
+import { NodeLinkDiagramRenderer } from "./renderers/tree/node-link-diagram-renderer";
+type VisualizationType =
+  | "collapsible-tree"
+  | "ascii-tree"
+  | "nested-boxes"
+  | "grid-layout"
+  | "radial-sunburst"
+  | "node-diagram"
+  | "circle-pack";
+interface VisualizationConfig {
+  type: VisualizationType;
+  label: string;
+  icon: React.ReactNode;
+  component: React.ComponentType<{ nodes: Node[] }>;
+}
+
+================
+File: config/env.ts
+================
+
+
+================
+File: config/site.ts
+================
+
+
+================
+File: constants/arabic-to-english-map.ts
+================
+// numbers
+
+================
+File: hooks/use-mobile.ts
+================
+export function useIsMobile()
+⋮----
+const onChange = () =>
+
+================
+File: hooks/use-sidebar.tsx
+================
+import type { Node } from "@/lib/content/types";
+import { usePathname } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+export function useSidebar(docsTree: Node[])
+⋮----
+const walk = (
+      nodes: Node[],
+      level = 0
+):
+
+================
+File: lib/content/operations/build-tree.ts
+================
+import fs from "fs";
+import matter from "gray-matter";
+import path from "path";
+import { remark } from "remark";
+import html from "remark-html";
+import {
+  normalizeSlug,
+  normalizeTitle,
+  parseFileOrder,
+} from "../../text/normalization";
+import type { Node } from "../types";
+⋮----
+export async function buildContentTree(
+  dir = MARKDOWN_BASE_PATH,
+  parentPath: string[] = []
+): Promise<Node[]>
+
+================
+File: lib/content/operations/flatten-tree.ts
+================
+import type { Node } from "../types";
+import { walkTree } from "./walk-tree";
+export function flattenTree(tree: Node[]): Node[]
+
+================
+File: lib/content/operations/get-breadcrumbs.ts
+================
+import type { Node } from "../types";
+import { findDeepestNode } from "./get-deepest-node";
+export function getBreadcrumbs(
+  node: Node,
+  tree: Node[]
+):
+
+================
+File: lib/content/operations/get-content-node.ts
+================
+import type { Node } from "../types";
+import { buildContentTree } from "./build-tree";
+import { findDeepestNode } from "./get-deepest-node";
+export async function getContentNode(slugPath: string[]): Promise<Node | null>
+
+================
+File: lib/content/operations/get-deepest-node.ts
+================
+import type { Node } from "../types";
+export function findDeepestNode(tree: Node[], slugPath: string[]): Node | null
+
+================
+File: lib/content/operations/get-leaf-nodes.ts
+================
+import type { LeafNode, Node } from "../types";
+export function getLeafNodes(tree: Node[]): LeafNode[]
+⋮----
+function walk(node: Node, path: string[] = [])
+
+================
+File: lib/content/operations/get-node-slug-path.ts
+================
+import { Node } from "../types";
+export function getNodeSlugPath(node: Node): string
+
+================
+File: lib/content/operations/get-tree-slugs.ts
+================
+import type { Node } from "../types";
+import { buildContentTree } from "./build-tree";
+export async function getTreeSlugs(): Promise<string[][]>
+⋮----
+function traverse(node: Node, path: string[] = [])
+
+================
+File: lib/content/operations/walk-tree.ts
+================
+export function walkTree<T extends { slug: string; children: T[] }>(
+  nodes: T[],
+  callback: (node: T, path: string[], level: number) => void,
+  path: string[] = [],
+  level: number = 0
+): void
+
+================
+File: lib/content/types.ts
+================
+export type Node = {
+  title: string;
+  slug: string;
+  order: number;
+  excerpt?: string;
+  contentHtml?: string;
+  children: Node[];
+  parentPath: string[];
+};
+export type LeafNode = { title: string; slug: string };
+
+================
+File: lib/styles/tailwind.ts
+================
+import clsx, { type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+export function cn(...inputs: ClassValue[]): string
+
+================
+File: lib/text/ascii-generator.ts
+================
+import type { Node } from "../content/types";
+export function generateASCIITree(
+  docs: Node[],
+  options: {
+    indent?: string;
+    splitLevel?: number;
+    splitString?: string;
+    currentLevel?: number;
+  } = {}
+): string
+
+================
+File: lib/text/normalization.ts
+================
+import { transliterateToArabic } from "./transliteration";
+export function parseFileOrder(name: string):
+export function normalizeSlug(raw: string): string
+/**
+ * Generates a readable title in Arabic from a raw file or folder name.
+ *
+ * Removes non-Arabic characters (e.g., numerals, dashes), and replaces underscores with spaces
+ * to make a clean, human-friendly Arabic title for UI display.
+ *
+ * @param raw - A raw string like "مقدمة_الدورة.md" or "٣__الكلمة".
+ * @returns An Arabic title like "مقدمة الدورة" or "الكلمة".
+ *
+ * @example
+ * ```ts
+ * normalizeTitle("مقدمة_الدورة.md")
+ * normalizeTitle("٣__الكلمة")
+ * ```
+ */
+export function normalizeTitle(raw: string): string
+
+================
+File: lib/text/to-arabic-numerals.ts
+================
+export function toArabicNumerals(input: string | number): string
+
+================
+File: lib/text/transliteration.ts
+================
+import { arabicToEnglishMap } from "@/constants/arabic-to-english-map";
+export function transliterateToArabic(text: string): string
+
+================
+File: providers/theme-provider.tsx
+================
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+⋮----
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>)
+
+
+
+================================================================
+End of Codebase
+================================================================

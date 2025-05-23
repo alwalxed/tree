@@ -1,4 +1,4 @@
-import type { Node } from "../content/types";
+import type { SummaryNode } from "../content/types";
 
 /**
  * Generates an ASCII-style visual representation of a hierarchy of documentation nodes.
@@ -26,7 +26,7 @@ import type { Node } from "../content/types";
  * ```
  */
 export function generateASCIITree(
-  docs: Node[],
+  docs: SummaryNode[],
   options: {
     indent?: string;
     splitLevel?: number;

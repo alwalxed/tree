@@ -1,8 +1,8 @@
 "use client";
 
-import type { Node } from "@/lib/content/types";
+import type { SummaryNode } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
-import { toArabicNumerals } from "@/lib/text/to-arabic-numerals";
+import { transliterate } from "@/lib/text/transliteration";
 import { memo } from "react";
 
 // Zinc shade progression for hierarchy levels
@@ -82,24 +82,26 @@ const getColorsForLevel = (level: number) => {
   return ZINC_SHADES[level % ZINC_SHADES.length];
 };
 
-export const CollapsibleTreeRenderer = memo(({ nodes }: { nodes: Node[] }) => {
-  return (
-    <div
-      className={cn(
-        LAYOUT.containerBase,
-        CONTAINER_COLORS.background,
-        CONTAINER_COLORS.ring,
-        CONTAINER_COLORS.shadow,
-        SPACING.container
-      )}
-    >
-      <TreeView nodes={nodes} />
-    </div>
-  );
-});
+export const CollapsibleTreeRenderer = memo(
+  ({ nodes }: { nodes: SummaryNode[] }) => {
+    return (
+      <div
+        className={cn(
+          LAYOUT.containerBase,
+          CONTAINER_COLORS.background,
+          CONTAINER_COLORS.ring,
+          CONTAINER_COLORS.shadow,
+          SPACING.container
+        )}
+      >
+        <TreeView nodes={nodes} />
+      </div>
+    );
+  }
+);
 
 const TreeView = memo(
-  ({ nodes, level = 0 }: { nodes: Node[]; level?: number }) => {
+  ({ nodes, level = 0 }: { nodes: SummaryNode[]; level?: number }) => {
     const levelColors = getColorsForLevel(level);
 
     return (
@@ -138,7 +140,7 @@ const TreeView = memo(
                 </div>
               )}
 
-              {/* Node title */}
+              {/* SummaryNode title */}
               <div
                 className={cn(
                   LAYOUT.nodeBase,
@@ -159,7 +161,10 @@ const TreeView = memo(
                         "bg-white/20 dark:bg-black/20"
                       )}
                     >
-                      {toArabicNumerals(node.children.length)}
+                      {transliterate({
+                        input: node.children.length,
+                        mode: "latin-numbers-to-arabic-digits",
+                      })}
                     </span>
                   )}
                 </div>
