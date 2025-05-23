@@ -20,7 +20,7 @@ type HierarchyData = {
   children?: HierarchyData[];
 };
 
-export function PackVisualization({
+export function CirclePackRenderer({
   nodes,
   width = 800,
   height = 800,

@@ -36,7 +36,7 @@ const GRADIENT_DEFINITIONS = [
   { id: "gradient-9", from: "#27272a", to: "#18181b" }, // zinc-800 to zinc-900
 ] as const;
 
-export const SunburstVisualization = memo(
+export const RadialSunburstRenderer = memo(
   ({
     nodes,
     initialWidth = 4000,
@@ -55,7 +55,7 @@ export const SunburstVisualization = memo(
     const { zoomBehaviorRef, handleZoomIn, handleZoomOut, handleResetZoom } =
       useZoomBehavior(svgRef, dimensions);
 
-    useSunburstVisualization(
+    useRadialSunburstRenderer(
       svgRef,
       nodes,
       dimensions,
@@ -92,7 +92,7 @@ export const SunburstVisualization = memo(
   }
 );
 
-const useSunburstVisualization = (
+const useRadialSunburstRenderer = (
   svgRef: RefObject<SVGSVGElement | null>,
   nodes: Node[],
   dimensions: Dimensions,

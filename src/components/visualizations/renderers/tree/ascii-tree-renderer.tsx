@@ -3,7 +3,7 @@ import { cn } from "@/lib/styles/tailwind";
 import { generateASCIITree } from "@/lib/text/ascii-generator";
 import { memo } from "react";
 
-export const ASCIITreeVisualization = memo(({ nodes }: { nodes: Node[] }) => {
+export const ASCIITreeRenderer = memo(({ nodes }: { nodes: Node[] }) => {
   return (
     <div className="max-w-none rounded-lg overflow-hidden bg-zinc-100/80 ring-zinc-200 ring-1 shadow shadow-zinc-100">
       <p

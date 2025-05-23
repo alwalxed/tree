@@ -77,7 +77,7 @@ const ANIMATIONS = {
   fontWeight: "group-hover:font-semibold",
 } as const;
 
-export const BoxesVisualization = memo(({ nodes }: { nodes: Node[] }) => {
+export const NestedBoxesRenderer = memo(({ nodes }: { nodes: Node[] }) => {
   return (
     <div className={CONTAINER_STYLES.wrapper}>
       <BoxView nodes={nodes} />

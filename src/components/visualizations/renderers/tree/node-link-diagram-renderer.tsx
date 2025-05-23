@@ -16,7 +16,7 @@ type TreeVisualizationProps = {
   height?: number;
 };
 
-export const TreeDiagramVisualization = memo(
+export const NodeLinkDiagramRenderer = memo(
   ({ nodes, width = 800, height = 600 }: TreeVisualizationProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
 

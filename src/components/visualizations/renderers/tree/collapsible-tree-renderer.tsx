@@ -82,7 +82,7 @@ const getColorsForLevel = (level: number) => {
   return ZINC_SHADES[level % ZINC_SHADES.length];
 };
 
-export const HTMLTreeVisualization = memo(({ nodes }: { nodes: Node[] }) => {
+export const CollapsibleTreeRenderer = memo(({ nodes }: { nodes: Node[] }) => {
   return (
     <div
       className={cn(

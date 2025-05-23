@@ -2,7 +2,7 @@ import { getLeafNodes } from "@/lib/content/operations/get-leaf-nodes";
 import type { Node } from "@/lib/content/types";
 import { memo } from "react";
 
-export const CSSGridVisualization = memo(({ nodes }: { nodes: Node[] }) => {
+export const GridLayoutRenderer = memo(({ nodes }: { nodes: Node[] }) => {
   const leafNodes = getLeafNodes(nodes);
   return (
     <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-4">

@@ -1,5 +1,5 @@
 import { Section } from "@/components/common/section";
-import { Visualizations } from "@/components/visualizations/visualizations";
+import { VisualizationSwitcher } from "@/components/visualizations/visualization-switcher";
 import { buildContentTree } from "@/lib/content/operations/build-tree";
 
 export default async function Page() {
@@ -16,14 +16,14 @@ export default async function Page() {
 
       <Section>
         <Section.H level={2}>{`الجزء الأول (الكلمة)`}</Section.H>
-        <Visualizations
+        <VisualizationSwitcher
           nodes={tree.filter((node) => node.title.includes("الكلمة"))}
         />
       </Section>
 
       <Section>
         <Section.H level={2}>{`الجزء الثاني (الكلام)`}</Section.H>
-        <Visualizations
+        <VisualizationSwitcher
           nodes={tree.filter((node) => node.title.includes("الكلام"))}
         />
       </Section>
