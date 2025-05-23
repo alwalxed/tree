@@ -2,7 +2,7 @@
 
 import type { Node } from "@/lib/content/types";
 import * as d3 from "d3";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 type TreeNode = {
   id: string;
@@ -12,24 +12,53 @@ type TreeNode = {
 
 type TreeVisualizationProps = {
   nodes: Node[];
-  width?: number;
   height?: number;
 };
 
 export const NodeLinkDiagramRenderer = memo(
-  ({ nodes, width = 800, height = 600 }: TreeVisualizationProps) => {
+  ({ nodes, height = 600 }: TreeVisualizationProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [dimensions, setDimensions] = useState({ width: 0, height });
 
     useEffect(() => {
-      if (!containerRef.current || nodes.length === 0) return;
+      if (!containerRef.current) return;
+
+      const updateDimensions = () => {
+        if (containerRef.current) {
+          const { width } = containerRef.current.getBoundingClientRect();
+          setDimensions({ width, height });
+        }
+      };
+
+      // Initial measurement
+      updateDimensions();
+
+      // Set up resize observer to handle container size changes
+      const resizeObserver = new ResizeObserver(updateDimensions);
+      resizeObserver.observe(containerRef.current);
+
+      // Clean up
+      return () => {
+        if (containerRef.current) {
+          resizeObserver.unobserve(containerRef.current);
+        }
+        resizeObserver.disconnect();
+      };
+    }, [height]);
+
+    useEffect(() => {
+      if (!containerRef.current || nodes.length === 0 || dimensions.width === 0)
+        return;
 
       containerRef.current.innerHTML = "";
 
       const svg = d3
         .select(containerRef.current)
         .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", "100%")
+        .attr("height", dimensions.height)
+        .attr("viewBox", `0 0 ${dimensions.width} ${dimensions.height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
       const contentGroup = svg.append("g").attr("class", "content");
 
@@ -52,8 +81,8 @@ export const NodeLinkDiagramRenderer = memo(
         .tree<TreeNode>()
         .size(
           isMobile
-            ? [height - 100, width - 100] // Mobile: give some padding
-            : [height - 40, width - 180] // Desktop: original layout
+            ? [dimensions.height - 100, dimensions.width - 100]
+            : [dimensions.height - 40, dimensions.width - 180]
         )
         .separation((a, b) => (a.parent === b.parent ? 1 : 1.2));
 
@@ -154,8 +183,8 @@ export const NodeLinkDiagramRenderer = memo(
         const scale = 1.0;
 
         // Calculate translation to center the root node
-        const viewportCenterX = width / 2;
-        const viewportCenterY = height / 2;
+        const viewportCenterX = dimensions.width / 2;
+        const viewportCenterY = dimensions.height / 2;
 
         // Transform: viewport_center - (node_position * scale)
         const translateX = viewportCenterX - rootX * scale;
@@ -170,12 +199,12 @@ export const NodeLinkDiagramRenderer = memo(
         const bounds = contentGroup.node()?.getBBox();
         if (bounds) {
           const scale = Math.min(
-            width / bounds.width,
-            height / bounds.height,
+            dimensions.width / bounds.width,
+            dimensions.height / bounds.height,
             0.9
           );
-          const x = (width - bounds.width * scale) / 2;
-          const y = (height - bounds.height * scale) / 2;
+          const x = (dimensions.width - bounds.width * scale) / 2;
+          const y = (dimensions.height - bounds.height * scale) / 2;
 
           svg.call(
             zoom.transform as any,
@@ -183,12 +212,12 @@ export const NodeLinkDiagramRenderer = memo(
           );
         }
       }
-    }, [nodes, width, height]);
+    }, [nodes, dimensions.width, dimensions.height]);
 
     return (
       <div
         ref={containerRef}
-        className="w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900 ring-1 ring-zinc-200 shadow shadow-zinc-200"
+        className="w-full h-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900 ring-1 ring-zinc-200 shadow shadow-zinc-200"
         style={{ minHeight: height }}
       />
     );
