@@ -1,5 +1,5 @@
 import type { Node } from "../types";
-import { buildTree } from "./build";
+import { buildContentTree } from "./build-tree";
 import { findDeepestNode } from "./get-deepest-node";
 
 /**
@@ -8,7 +8,7 @@ import { findDeepestNode } from "./get-deepest-node";
  * @param slugPath - An array of slugs that uniquely identifies the document.
  * @returns A promise resolving to the matched Node or null if not found.
  */
-export async function getNodeBySlug(slugPath: string[]): Promise<Node | null> {
-  const tree = await buildTree();
+export async function getContentNode(slugPath: string[]): Promise<Node | null> {
+  const tree = await buildContentTree();
   return findDeepestNode(tree, slugPath);
 }

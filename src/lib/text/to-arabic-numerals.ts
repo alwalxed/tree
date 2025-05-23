@@ -3,7 +3,7 @@
  * @param input - String or number containing English numerals
  * @returns String with Arabic-Indic numerals
  */
-export function convertToArabicNumerals(input: string | number): string {
+export function toArabicNumerals(input: string | number): string {
   // Mapping of English digits to Arabic-Indic digits
   const ENGLISH_TO_ARABIC_DIGITS = {
     "0": "٠",

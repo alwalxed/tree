@@ -1,13 +1,13 @@
 import { DevDebuggers } from "@/components/debug";
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { isDev } from "@/constants/env";
-import { SITE_URL } from "@/constants/site";
-import { buildTree } from "@/lib/content/tree/build";
+import { isDev } from "@/config/env";
+import { SITE_URL } from "@/config/site";
+import { buildContentTree } from "@/lib/content/operations/build-tree";
 import { cn } from "@/lib/styles/tailwind";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
@@ -28,7 +28,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const tree = await buildTree();
+  const tree = await buildContentTree();
   return (
     <>
       <html

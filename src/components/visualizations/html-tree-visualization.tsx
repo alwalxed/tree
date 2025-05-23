@@ -2,7 +2,7 @@
 
 import type { Node } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
-import { convertToArabicNumerals } from "@/lib/text/to-arabic-numerals";
+import { toArabicNumerals } from "@/lib/text/to-arabic-numerals";
 import { memo } from "react";
 
 // Zinc shade progression for hierarchy levels
@@ -159,7 +159,7 @@ const TreeView = memo(
                         "bg-white/20 dark:bg-black/20"
                       )}
                     >
-                      {convertToArabicNumerals(node.children.length)}
+                      {toArabicNumerals(node.children.length)}
                     </span>
                   )}
                 </div>

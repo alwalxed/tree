@@ -1,6 +1,6 @@
 "use client";
 
-import { getNodeSlugPath } from "@/lib/content/tree/get-node-slug-path";
+import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
 import type { Node } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
 import Link from "next/link";

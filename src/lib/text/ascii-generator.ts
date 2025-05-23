@@ -25,7 +25,7 @@ import type { Node } from "../content/types";
  * //     └── المضارع
  * ```
  */
-export function createASCIIString(
+export function generateASCIITree(
   docs: Node[],
   options: {
     indent?: string;
@@ -57,7 +57,7 @@ export function createASCIIString(
       output += `${indent}${branch}${label}\n`;
 
       if (node.children.length > 0) {
-        output += createASCIIString(node.children, {
+        output += generateASCIITree(node.children, {
           indent: nextIndent,
           splitLevel,
           splitString,

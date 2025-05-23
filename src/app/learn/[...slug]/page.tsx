@@ -1,6 +1,6 @@
-import MarkdownRenderer from "@/components/markdown-renderer";
-import { getNodeBySlug } from "@/lib/content/tree/get-node-by-slug";
-import { getTreeSlugs } from "@/lib/content/tree/get-tree-slugs";
+import MarkdownRenderer from "@/components/common/markdown-renderer";
+import { getContentNode } from "@/lib/content/operations/get-content-node";
+import { getTreeSlugs } from "@/lib/content/operations/get-tree-slugs";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -23,7 +23,7 @@ export async function generateMetadata(
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const markdown = await getNodeBySlug(slugPath);
+  const markdown = await getContentNode(slugPath);
 
   if (!markdown) {
     return {
@@ -71,7 +71,7 @@ export default async function Page({ params }: Props) {
   const resolvedParams = await params;
   const slugPath = resolvedParams.slug;
 
-  const markdown = await getNodeBySlug(slugPath);
+  const markdown = await getContentNode(slugPath);
 
   if (!markdown) {
     notFound();

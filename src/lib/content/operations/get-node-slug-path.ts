@@ -1,4 +1,4 @@
-import { Node } from "./../types";
+import { Node } from "../types";
 
 /**
  * Constructs the full slug path for a given Node by combining

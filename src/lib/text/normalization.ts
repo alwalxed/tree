@@ -13,11 +13,11 @@ import { transliterateToArabic } from "./transliteration";
  *
  * @example
  * ```ts
- * extractOrderAndRawName("٠٢_الضمير.md") // { order: 2, raw: "الضمير.md" }
- * extractOrderAndRawName("03_example")   // { order: 3, raw: "example" }
+ * parseFileOrder("٠٢_الضمير.md") // { order: 2, raw: "الضمير.md" }
+ * parseFileOrder("03_example")   // { order: 3, raw: "example" }
  * ```
  */
-export function extractOrderAndRawName(name: string): {
+export function parseFileOrder(name: string): {
   order: number;
   raw: string;
 } {

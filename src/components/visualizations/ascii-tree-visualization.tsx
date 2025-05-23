@@ -1,6 +1,6 @@
 import type { Node } from "@/lib/content/types";
 import { cn } from "@/lib/styles/tailwind";
-import { createASCIIString } from "@/lib/text/create-ascii-string";
+import { generateASCIITree } from "@/lib/text/ascii-generator";
 import { memo } from "react";
 
 export const ASCIITreeVisualization = memo(({ nodes }: { nodes: Node[] }) => {
@@ -11,7 +11,7 @@ export const ASCIITreeVisualization = memo(({ nodes }: { nodes: Node[] }) => {
           "whitespace-pre text-base p-6 text-zinc-700 overflow-auto"
         )}
       >
-        {createASCIIString(nodes, {
+        {generateASCIITree(nodes, {
           indent: "",
         })}
       </p>

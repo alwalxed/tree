@@ -13,13 +13,13 @@ import {
   PieChart,
 } from "lucide-react";
 import { memo, useMemo, useState } from "react";
-import { ASCIITreeVisualization } from "./visualizations/ascii-tree-visualization";
-import { BoxesVisualization } from "./visualizations/boxes-visualization";
-import { CSSGridVisualization } from "./visualizations/css-grid-visualization";
-import { HTMLTreeVisualization } from "./visualizations/html-tree-visualization";
-import { PackVisualization } from "./visualizations/pack-visualization";
-import { SunburstVisualization } from "./visualizations/sunburst-visualization";
-import { TreeDiagramVisualization } from "./visualizations/tree-diagram-visualization";
+import { ASCIITreeVisualization } from "./ascii-tree-visualization";
+import { BoxesVisualization } from "./boxes-visualization";
+import { CSSGridVisualization } from "./css-grid-visualization";
+import { HTMLTreeVisualization } from "./html-tree-visualization";
+import { PackVisualization } from "./pack-visualization";
+import { SunburstVisualization } from "./sunburst-visualization";
+import { TreeDiagramVisualization } from "./tree-diagram-visualization";
 
 type VisualizationType =
   | "html-tree"
@@ -30,7 +30,7 @@ type VisualizationType =
   | "diagram"
   | "pack";
 
-export const Visualization = memo(({ nodes }: { nodes: Node[] }) => {
+export const Visualizations = memo(({ nodes }: { nodes: Node[] }) => {
   const [visualizationType, setVisualizationType] =
     useState<VisualizationType>("ascii-tree");
 

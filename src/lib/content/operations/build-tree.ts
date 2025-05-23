@@ -4,9 +4,9 @@ import path from "path";
 import { remark } from "remark";
 import html from "remark-html";
 import {
-  extractOrderAndRawName,
   normalizeSlug,
   normalizeTitle,
+  parseFileOrder,
 } from "../../text/normalization";
 import type { Node } from "../types";
 
@@ -26,7 +26,7 @@ const MARKDOWN_BASE_PATH = path.join(process.cwd(), "markdown");
  * @param parentPath - An array representing the accumulated slug path of parent directories.
  * @returns A Promise resolving to an ordered array of `Node` objects reflecting the directory tree.
  */
-export async function buildTree(
+export async function buildContentTree(
   dir = MARKDOWN_BASE_PATH,
   parentPath: string[] = []
 ): Promise<Node[]> {
@@ -42,7 +42,7 @@ export async function buildTree(
     if (entry.name === "index.md") continue;
 
     const fullPath = path.join(dir, entry.name);
-    const { order, raw } = extractOrderAndRawName(entry.name);
+    const { order, raw } = parseFileOrder(entry.name);
     const title = normalizeTitle(raw);
     const slug = normalizeSlug(raw);
     const currentPath = [...parentPath, slug];
@@ -64,7 +64,7 @@ export async function buildTree(
         node.excerpt = data.excerpt || "";
         node.contentHtml = processed.toString();
       }
-      node.children = await buildTree(fullPath, currentPath);
+      node.children = await buildContentTree(fullPath, currentPath);
     }
 
     nodes.push(node);
