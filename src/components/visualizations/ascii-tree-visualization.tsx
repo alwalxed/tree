@@ -5,7 +5,7 @@ import { memo } from "react";
 
 export const ASCIITreeVisualization = memo(({ nodes }: { nodes: Node[] }) => {
   return (
-    <div className="max-w-none rounded-lg overflow-hidden bg-zinc-100/80 ring-zinc-200 ring-1">
+    <div className="max-w-none rounded-lg overflow-hidden bg-zinc-100/80 ring-zinc-200 ring-1 shadow shadow-zinc-100">
       <p
         className={cn(
           "whitespace-pre text-base p-6 text-zinc-700 overflow-auto"

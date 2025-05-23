@@ -23,6 +23,19 @@ type Dimensions = {
   height: number;
 };
 
+// Gradient definitions with zinc shades
+const GRADIENT_DEFINITIONS = [
+  { id: "gradient-1", from: "#fafafa", to: "#f4f4f5" }, // zinc-50 to zinc-100
+  { id: "gradient-2", from: "#f4f4f5", to: "#e4e4e7" }, // zinc-100 to zinc-200
+  { id: "gradient-3", from: "#e4e4e7", to: "#d4d4d8" }, // zinc-200 to zinc-300
+  { id: "gradient-4", from: "#d4d4d8", to: "#a1a1aa" }, // zinc-300 to zinc-400
+  { id: "gradient-5", from: "#a1a1aa", to: "#71717a" }, // zinc-400 to zinc-500
+  { id: "gradient-6", from: "#71717a", to: "#52525b" }, // zinc-500 to zinc-600
+  { id: "gradient-7", from: "#52525b", to: "#3f3f46" }, // zinc-600 to zinc-700
+  { id: "gradient-8", from: "#3f3f46", to: "#27272a" }, // zinc-700 to zinc-800
+  { id: "gradient-9", from: "#27272a", to: "#18181b" }, // zinc-800 to zinc-900
+] as const;
+
 export const SunburstVisualization = memo(
   ({
     nodes,
@@ -98,6 +111,27 @@ const useSunburstVisualization = (
 
     svg.attr("width", width).attr("height", height);
 
+    // Create gradient definitions
+    const defs = svg.append("defs");
+    GRADIENT_DEFINITIONS.forEach((gradientDef) => {
+      const gradient = defs
+        .append("radialGradient")
+        .attr("id", gradientDef.id)
+        .attr("cx", "50%")
+        .attr("cy", "50%")
+        .attr("r", "50%");
+
+      gradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", gradientDef.from);
+
+      gradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", gradientDef.to);
+    });
+
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 5])
@@ -126,7 +160,7 @@ const useSunburstVisualization = (
       .size([2 * Math.PI, radius * 0.95]);
 
     const rootWithPartition = partition(root);
-    const colorScale = createColorScale();
+    const gradientScale = createGradientScale();
 
     const arc = d3
       .arc<d3.HierarchyRectangularNode<HierarchyDatum>>()
@@ -142,7 +176,7 @@ const useSunburstVisualization = (
       .enter()
       .append("path")
       .attr("d", (d) => arc(d as d3.HierarchyRectangularNode<HierarchyDatum>))
-      .style("fill", (d) => colorScale(d.depth.toString()))
+      .style("fill", (d) => `url(#${gradientScale(d.depth)})`)
       .style("opacity", 0.9)
       .style("stroke", "#ffffff")
       .style("stroke-width", "1px")
@@ -352,24 +386,20 @@ function useZoomBehavior(
   };
 }
 
-function createColorScale() {
-  const colorPalette = [
-    "#3b82f6", // blue-500
-    "#8b5cf6", // violet-500
-    "#ec4899", // pink-500
-    "#f97316", // orange-500
-    "#10b981", // emerald-500
-    "#06b6d4", // cyan-500
-    "#6366f1", // indigo-500
-    "#f59e0b", // amber-500
-    "#ef4444", // red-500
-    "#14b8a6", // teal-500
-  ];
+function createGradientScale() {
+  const gradientIds = GRADIENT_DEFINITIONS.map((def) => def.id);
 
   return d3
-    .scaleOrdinal<string>()
-    .domain([...Array(10).keys()].map(String))
-    .range(colorPalette);
+    .scaleOrdinal<number, string>()
+    .domain([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    .range(gradientIds);
+}
+
+// Helper function to determine text color based on depth
+function getTextColorForDepth(depth: number): string {
+  // For lighter gradients (depth 1-4), use dark text
+  // For darker gradients (depth 5+), use white text
+  return depth <= 4 ? "#18181b" : "#ffffff";
 }
 
 function renderText(
@@ -416,7 +446,8 @@ function renderText(
       rotation += 180;
     }
 
-    const textColor = d.depth > 2 ? "#ffffff" : "#000000";
+    // Get text color based on depth
+    const textColor = getTextColorForDepth(d.depth);
 
     const textElement = d3
       .select(this)
@@ -427,9 +458,12 @@ function renderText(
       .attr("fill", textColor)
       .attr("font-size", `${fontSize}px`)
       .attr("font-family", "var(--font-ibmPlexSansArabic)")
+      .attr("font-weight", "600")
       .style(
         "text-shadow",
-        d.depth > 2 ? "1px 1px 2px rgba(0,0,0,0.5)" : "none"
+        textColor === "#ffffff"
+          ? "1px 1px 3px rgba(0,0,0,0.8)"
+          : "1px 1px 3px rgba(255,255,255,0.8)"
       );
 
     const words = d.data.name.split(/\s+/);
@@ -511,5 +545,3 @@ function renderText(
     }
   });
 }
-
-// Main Component

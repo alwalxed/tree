@@ -6,9 +6,80 @@ import { cn } from "@/lib/styles/tailwind";
 import Link from "next/link";
 import { memo, useId } from "react";
 
+// Color scheme constants
+const COLOR_SCHEMES = [
+  {
+    bg: "bg-gradient-to-br from-zinc-50 to-zinc-100",
+    border: "border-zinc-200",
+    text: "text-zinc-700",
+  },
+  {
+    bg: "bg-gradient-to-br from-zinc-100 to-zinc-200",
+    border: "border-zinc-300",
+    text: "text-zinc-800",
+  },
+  {
+    bg: "bg-gradient-to-br from-zinc-200 to-zinc-300",
+    border: "border-zinc-400",
+    text: "text-zinc-900",
+  },
+  {
+    bg: "bg-gradient-to-br from-zinc-300 to-zinc-400",
+    border: "border-zinc-500",
+    text: "text-white",
+  },
+  {
+    bg: "bg-gradient-to-br from-zinc-400 to-zinc-500",
+    border: "border-zinc-600",
+    text: "text-white",
+  },
+] as const;
+
+// Font size constants
+const FONT_SIZES = {
+  0: "text-lg md:text-xl",
+  1: "text-base md:text-lg",
+  2: "text-sm md:text-base",
+  default: "text-xs md:text-sm",
+} as const;
+
+// Padding constants
+const PADDINGS = {
+  0: "py-3 px-4 md:py-4 md:px-5",
+  1: "py-2 px-3 md:py-3 md:px-4",
+  default: "py-1.5 px-2 md:py-2 md:px-3",
+} as const;
+
+// Gap constants
+const GAPS = {
+  container: "gap-2 md:gap-4",
+  margin: "mt-2 md:mt-4",
+} as const;
+
+// Container styling constants
+const CONTAINER_STYLES = {
+  wrapper: "w-full bg-zinc-100 rounded-lg ring-1 ring-zinc-200 overflow-hidden",
+  flexContainer: "w-full flex flex-wrap",
+  centerContent: "justify-center",
+} as const;
+
+// Box styling constants
+const BOX_STYLES = {
+  base: "w-full rounded-lg border transition-all duration-200",
+  interactive: "group cursor-pointer",
+  textBase: "font-medium transition-all duration-200",
+  linkBase: "transition-all duration-200 block truncate",
+} as const;
+
+// Animation constants
+const ANIMATIONS = {
+  duration: "duration-200",
+  fontWeight: "group-hover:font-semibold",
+} as const;
+
 export const BoxesVisualization = memo(({ nodes }: { nodes: Node[] }) => {
   return (
-    <div className="w-full bg-zinc-100 rounded-lg ring-1 ring-blue-200 overflow-hidden">
+    <div className={CONTAINER_STYLES.wrapper}>
       <BoxView nodes={nodes} />
     </div>
   );
@@ -16,64 +87,39 @@ export const BoxesVisualization = memo(({ nodes }: { nodes: Node[] }) => {
 
 const BoxView = memo(
   ({ nodes, depth = 0 }: { nodes: Node[]; depth?: number }) => {
-    const colorSchemes = [
-      {
-        bg: "bg-gradient-to-br from-blue-50 to-indigo-100",
-        border: "border-blue-200",
-        text: "text-blue-800",
-      },
-      {
-        bg: "bg-gradient-to-br from-emerald-50 to-teal-100",
-        border: "border-emerald-200",
-        text: "text-emerald-800",
-      },
-      {
-        bg: "bg-gradient-to-br from-amber-50 to-orange-100",
-        border: "border-amber-200",
-        text: "text-amber-800",
-      },
-      {
-        bg: "bg-gradient-to-br from-rose-50 to-pink-100",
-        border: "border-rose-200",
-        text: "text-rose-800",
-      },
-      {
-        bg: "bg-gradient-to-br from-violet-50 to-purple-100",
-        border: "border-violet-200",
-        text: "text-violet-800",
-      },
-    ];
-
-    const scheme = colorSchemes[depth % colorSchemes.length];
+    const scheme = COLOR_SCHEMES[depth % COLOR_SCHEMES.length];
     const uniqueId = useId();
 
-    // Calculate responsive sizing based on depth
-    const getFontSize = (depth: number) => {
-      if (depth === 0) return "text-lg md:text-xl";
-      if (depth === 1) return "text-base md:text-lg";
-      if (depth === 2) return "text-sm md:text-base";
-      return "text-xs md:text-sm";
+    // Get responsive font size based on depth
+    const getFontSize = (depth: number): string => {
+      if (depth in FONT_SIZES) {
+        return FONT_SIZES[depth as keyof typeof FONT_SIZES];
+      }
+      return FONT_SIZES.default;
     };
 
-    const getPadding = (depth: number) => {
-      if (depth === 0) return "py-3 px-4 md:py-4 md:px-5";
-      if (depth === 1) return "py-2 px-3 md:py-3 md:px-4";
-      return "py-1.5 px-2 md:py-2 md:px-3";
+    // Get responsive padding based on depth
+    const getPadding = (depth: number): string => {
+      if (depth in PADDINGS) {
+        return PADDINGS[depth as keyof typeof PADDINGS];
+      }
+      return PADDINGS.default;
     };
 
     return (
       <div
         className={cn(
-          "w-full flex flex-wrap gap-2 md:gap-4",
-          depth > 0 ? "mt-2 md:mt-4" : "justify-center"
+          CONTAINER_STYLES.flexContainer,
+          GAPS.container,
+          depth > 0 ? GAPS.margin : CONTAINER_STYLES.centerContent
         )}
       >
         {nodes.map((node) => (
           <div
             key={`${uniqueId}-${node.slug}`}
             className={cn(
-              "w-full rounded-lg border transition-all duration-200",
-              "group",
+              BOX_STYLES.base,
+              BOX_STYLES.interactive,
               scheme.bg,
               scheme.border,
               getPadding(depth)
@@ -81,15 +127,15 @@ const BoxView = memo(
           >
             <div
               className={cn(
-                "font-medium",
+                BOX_STYLES.textBase,
                 scheme.text,
-                "group-hover:font-semibold",
+                ANIMATIONS.fontWeight,
                 getFontSize(depth)
               )}
             >
               <Link
                 href={`/learn/${getNodeSlugPath(node)}`}
-                className="transition-all duration-200 block truncate"
+                className={BOX_STYLES.linkBase}
               >
                 {node.title}
               </Link>
