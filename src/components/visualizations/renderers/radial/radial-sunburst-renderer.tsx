@@ -229,21 +229,21 @@ function ZoomControls({
     <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
       <button
         onClick={onZoomIn}
-        className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600 flex justify-center items-center"
+        className="p-2 bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 flex justify-center items-center"
         title="Zoom In"
       >
-        <ZoomIn className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+        <ZoomIn className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
       </button>
       <button
         onClick={onZoomOut}
-        className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600 flex justify-center items-center"
+        className="p-2 bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 flex justify-center items-center"
         title="Zoom Out"
       >
-        <ZoomOut className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+        <ZoomOut className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
       </button>
       <button
         onClick={onResetZoom}
-        className="px-3 py-2 font-bold bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300"
+        className="px-3 py-2 font-bold bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 text-xs text-zinc-600 dark:text-zinc-300"
         title="Reset Zoom"
       >
         اضبط
@@ -254,8 +254,8 @@ function ZoomControls({
 
 function ZoomLevelIndicator({ zoomLevel }: { zoomLevel: number }) {
   return (
-    <div className="absolute bottom-4 right-4 z-10 px-3 py-1 bg-white dark:bg-slate-700 rounded-lg shadow-md border border-slate-200 dark:border-slate-600">
-      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+    <div className="absolute bottom-4 right-4 z-10 px-3 py-1 bg-white dark:bg-zinc-700 rounded-lg shadow-xs border border-zinc-200 dark:border-zinc-600">
+      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
         {Math.round(zoomLevel * 100)}%
       </span>
     </div>

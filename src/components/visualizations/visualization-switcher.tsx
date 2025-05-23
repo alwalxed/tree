@@ -4,13 +4,13 @@ import type React from "react";
 
 import type { Node } from "@/lib/content/types";
 import {
-  Circle,
-  FileText,
+  Boxes,
   GitBranch,
-  Grid3X3,
-  LayoutGrid,
+  Grid,
   Network,
-  Sun,
+  PieChart,
+  Target,
+  Terminal,
 } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { RadialSunburstRenderer } from "./renderers/radial/radial-sunburst-renderer";
@@ -89,38 +89,38 @@ const VisualizationTypeSelector = memo(
     }> = [
       {
         type: "ascii-tree",
-        label: "نصي",
-        icon: <FileText className="w-4 h-4" />,
+        label: "تفرع",
+        icon: <Terminal className="w-4 h-4" />,
       },
       {
         type: "collapsible-tree",
+        label: "سلسلة",
         icon: <GitBranch className="w-4 h-4" />,
-        label: "شجرة",
       },
       {
         type: "nested-boxes",
-        icon: <LayoutGrid className="w-4 h-4" />,
-        label: "صناديق",
+        label: "وعاء",
+        icon: <Boxes className="w-4 h-4" />,
       },
       {
         type: "grid-layout",
-        icon: <Grid3X3 className="w-4 h-4" />,
-        label: "شبكة",
+        label: "مصفوفة",
+        icon: <Grid className="w-4 h-4" />,
       },
       {
         type: "radial-sunburst",
-        icon: <Sun className="w-4 h-4" />,
-        label: "شعاعي",
+        label: "شعاع",
+        icon: <PieChart className="w-4 h-4" />,
       },
       {
         type: "node-diagram",
+        label: "شبكة",
         icon: <Network className="w-4 h-4" />,
-        label: "مخطط",
       },
       {
         type: "circle-pack",
-        icon: <Circle className="w-4 h-4" />,
-        label: "دوائر",
+        label: "تراص",
+        icon: <Target className="w-4 h-4" />,
       },
     ];
 
