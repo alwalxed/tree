@@ -1,4 +1,4 @@
-import type { SummaryNode } from "../types";
+import type { SummaryNode } from '../types';
 export function getNodeSlugPath(node: SummaryNode): string {
-  return [...node.parentPath, node.slug].join("/");
+  return [...node.parentPath, node.slug].join('/');
 }

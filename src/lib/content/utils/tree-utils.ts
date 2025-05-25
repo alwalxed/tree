@@ -1,4 +1,4 @@
-import type { SummaryNode } from "../types";
+import type { SummaryNode } from '../types';
 export function walkTree<T extends { slug: string; children: T[] }>(
   nodes: T[],
   callback: (node: T, path: string[], level: number) => void,

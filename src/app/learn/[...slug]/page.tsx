@@ -1,8 +1,8 @@
-import { MarkdownRenderer } from "@/components/common/markdown-renderer";
-import { getContentNodeBySlugPath } from "@/lib/content/api";
-import { getTreeSlugs } from "@/lib/content/query/get-all-paths";
-import type { Metadata, ResolvingMetadata } from "next";
-import { notFound } from "next/navigation";
+import { MarkdownRenderer } from '@/components/common/markdown-renderer';
+import { getContentNodeBySlugPath } from '@/lib/content/api';
+import { getTreeSlugs } from '@/lib/content/query/get-all-paths';
+import type { Metadata, ResolvingMetadata } from 'next';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: Promise<{ slug: string[] }>;
@@ -27,8 +27,8 @@ export async function generateMetadata(
 
   if (!markdown) {
     return {
-      title: "Not Found",
-      description: "The requested documentation page could not be found.",
+      title: 'Not Found',
+      description: 'The requested documentation page could not be found.',
     };
   }
 
@@ -38,12 +38,12 @@ export async function generateMetadata(
     markdown.excerpt ||
     (markdown.contentHtml
       ? markdown.contentHtml
-          .replace(/<[^>]*>/g, "")
+          .replace(/<[^>]*>/g, '')
           .slice(0, 160)
-          .trim() + "..."
-      : "");
+          .trim() + '...'
+      : '');
 
-  const canonicalSlug = slugPath.join("/");
+  const canonicalSlug = slugPath.join('/');
 
   return {
     title: markdown.title,
@@ -51,12 +51,12 @@ export async function generateMetadata(
     openGraph: {
       title: markdown.title,
       description,
-      type: "article",
+      type: 'article',
       url: `/learn/${canonicalSlug}`,
       images: previousImages,
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: markdown.title,
       description,
       images: previousImages,

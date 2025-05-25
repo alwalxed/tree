@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   SidebarContent,
@@ -10,10 +10,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   Sidebar as UISidebar,
-} from "@/components/ui/sidebar";
-import { useSidebar } from "@/hooks/use-sidebar";
-import type { SummaryNode } from "@/lib/content/types";
-import { cn } from "@/lib/styles/tailwind-utils";
+} from '@/components/ui/sidebar';
+import { useSidebar } from '@/hooks/use-sidebar';
+import type { SummaryNode } from '@/lib/content/types';
+import { cn } from '@/lib/styles/tailwind-utils';
 import {
   BookOpen,
   ChevronDown,
@@ -21,9 +21,9 @@ import {
   ChevronsDownUp,
   FileText,
   Folder,
-} from "lucide-react";
-import Link from "next/link";
-import React, { memo, useCallback } from "react";
+} from 'lucide-react';
+import Link from 'next/link';
+import React, { memo, useCallback } from 'react';
 
 function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
   const {
@@ -36,7 +36,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
 
   const isVisible = useCallback(
     (node: SummaryNode): boolean => {
-      let path = "";
+      let path = '';
       for (const part of node.parentPath) {
         path = path ? `${path}/${part}` : part;
         if (!expandedSections[path]) return false;
@@ -49,7 +49,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
   return (
     <UISidebar side="right">
       <SidebarContent
-        className={cn("overflow-y-scroll", "[&::-webkit-scrollbar]:w-0")}
+        className={cn('overflow-y-scroll', '[&::-webkit-scrollbar]:w-0')}
       >
         <SidebarGroup>
           <SidebarGroupLabel>النحو الرقمي</SidebarGroupLabel>
@@ -61,7 +61,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
               <SidebarMenuItem key="__home">
                 <SidebarMenuButton
                   asChild
-                  isActive={isCurrentPage("__home")}
+                  isActive={isCurrentPage('__home')}
                   className="pl-1.5"
                 >
                   <Link href="/">
@@ -72,7 +72,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
               </SidebarMenuItem>
 
               {flatItems.map(({ node, level }) => {
-                const fullPath = [...node.parentPath, node.slug].join("/");
+                const fullPath = [...node.parentPath, node.slug].join('/');
                 const hasChildren = node.children.length > 0;
                 const isExpanded = expandedSections[fullPath] || false;
                 const isActive = isCurrentPage(fullPath);
@@ -85,11 +85,11 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
                     {hasChildren ? (
                       <SidebarMenuButton
                         className={cn(
-                          "pl-1.5 pr-[calc(0.5rem*var(--level))]",
+                          'pr-[calc(0.5rem*var(--level))] pl-1.5',
                           isActive &&
-                            "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                            'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         )}
-                        style={{ "--level": 1 + level } as React.CSSProperties}
+                        style={{ '--level': 1 + level } as React.CSSProperties}
                         onClick={() => toggleSection(fullPath)}
                       >
                         <Folder className="h-4 w-4 shrink-0" />
@@ -104,8 +104,8 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        className={cn("pr-[calc(0.5rem*var(--level))]")}
-                        style={{ "--level": 1 + level } as React.CSSProperties}
+                        className={cn('pr-[calc(0.5rem*var(--level))]')}
+                        style={{ '--level': 1 + level } as React.CSSProperties}
                       >
                         <Link href={`/learn/${fullPath}`}>
                           <FileText className="h-4 w-4 shrink-0" />

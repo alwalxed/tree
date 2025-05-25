@@ -1,22 +1,22 @@
-"use client";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from '@/components/ui/collapsible';
 import {
   CustomDialog,
   CustomDialogContent,
   CustomDialogHeader,
   CustomDialogTitle,
-} from "@/components/ui/custom-dialog";
-import { DialogClose } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { SummaryNode } from "@/lib/content/types";
+} from '@/components/ui/custom-dialog';
+import { DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { SummaryNode } from '@/lib/content/types';
 import {
   ChevronRight,
   Copy,
@@ -25,9 +25,9 @@ import {
   Minimize2,
   Search,
   X,
-} from "lucide-react";
-import { memo } from "react";
-import { useTreeStructureDebugger } from "./tree-structure.hook";
+} from 'lucide-react';
+import { memo } from 'react';
+import { useTreeStructureDebugger } from './tree-structure.hook';
 
 function TreeStructureDebuggerComponent({
   summaryTree,
@@ -49,7 +49,7 @@ function TreeStructureDebuggerComponent({
     helpers;
 
   // 🔒 Hide in production
-  if (process.env.NODE_ENV === "production") return null;
+  if (process.env.NODE_ENV === 'production') return null;
 
   return (
     <>
@@ -59,41 +59,41 @@ function TreeStructureDebuggerComponent({
         variant="default"
         size="sm"
       >
-        <FileTree className="h-4 w-4 mr-2" />
+        <FileTree className="mr-2 h-4 w-4" />
         Tree Debugger
       </Button>
 
       <CustomDialog open={open} onOpenChange={setOpen}>
         <CustomDialogContent
           dir="ltr"
-          className="max-w-4xl overflow-y-scroll w-[90vw] h-[90vh] p-0 overflow-x-hidden border border-border shadow-lg rounded-lg"
+          className="border-border h-[90vh] w-[90vw] max-w-4xl overflow-x-hidden overflow-y-scroll rounded-lg border p-0 shadow-lg"
         >
-          <CustomDialogHeader className="px-6 pt-6 pb-4 border-b">
+          <CustomDialogHeader className="border-b px-6 pt-6 pb-4">
             <div className="flex items-center justify-between">
-              <CustomDialogTitle className="text-xl font-semibold flex items-center">
-                <FileTree className="h-5 w-5 mr-2 text-primary" />
+              <CustomDialogTitle className="flex items-center text-xl font-semibold">
+                <FileTree className="text-primary mr-2 h-5 w-5" />
                 Tree Structure Debugger
               </CustomDialogTitle>
               <div className="flex items-center gap-2">
-                {activeTab === "visual" && (
+                {activeTab === 'visual' && (
                   <Button size="sm" variant="outline" onClick={toggleExpandAll}>
                     {expandAll ? (
                       <>
-                        <Minimize2 className="h-4 w-4 mr-1" />
+                        <Minimize2 className="mr-1 h-4 w-4" />
                         Collapse All
                       </>
                     ) : (
                       <>
-                        <Maximize2 className="h-4 w-4 mr-1" />
+                        <Maximize2 className="mr-1 h-4 w-4" />
                         Expand All
                       </>
                     )}
                   </Button>
                 )}
-                {activeTab === "json" && (
+                {activeTab === 'json' && (
                   <Button size="sm" variant="outline" onClick={handleCopy}>
-                    <Copy className="h-4 w-4 mr-1" />
-                    {copied ? "Copied!" : "Copy JSON"}
+                    <Copy className="mr-1 h-4 w-4" />
+                    {copied ? 'Copied!' : 'Copy JSON'}
                   </Button>
                 )}
                 <DialogClose asChild>
@@ -103,8 +103,8 @@ function TreeStructureDebuggerComponent({
                 </DialogClose>
               </div>
             </div>
-            <div className="mt-4 relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="relative mt-4">
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
               <Input
                 placeholder="Search nodes..."
                 className="pl-9"
@@ -116,7 +116,7 @@ function TreeStructureDebuggerComponent({
 
           <Tabs
             defaultValue="visual"
-            className="flex flex-col h-[calc(90vh-160px)]"
+            className="flex h-[calc(90vh-160px)] flex-col"
             onValueChange={setActiveTab}
           >
             <TabsList className="mx-6 mt-4 w-auto self-start">
@@ -128,7 +128,7 @@ function TreeStructureDebuggerComponent({
               value="visual"
               className="flex-1 overflow-hidden px-6 pb-6"
             >
-              <ScrollArea className="h-full rounded-md border bg-background">
+              <ScrollArea className="bg-background h-full rounded-md border">
                 <div className="p-4">
                   {summaryTree.map((node) => (
                     <TreeNode
@@ -150,19 +150,19 @@ function TreeStructureDebuggerComponent({
               value="json"
               className="flex-1 overflow-hidden px-6 pb-6"
             >
-              <ScrollArea className="h-full rounded-md border bg-background">
-                <pre className="p-4 text-sm font-mono whitespace-pre-wrap overflow-visible">
+              <ScrollArea className="bg-background h-full rounded-md border">
+                <pre className="overflow-visible p-4 font-mono text-sm whitespace-pre-wrap">
                   {formattedTree}
                 </pre>
               </ScrollArea>
             </TabsContent>
           </Tabs>
 
-          <div className="px-6 py-3 border-t bg-muted/10 text-xs text-muted-foreground">
-            <div className="flex justify-between items-center">
+          <div className="bg-muted/10 text-muted-foreground border-t px-6 py-3 text-xs">
+            <div className="flex items-center justify-between">
               <div>
-                Total nodes: {countNodes(summaryTree)} • Root nodes:{" "}
-                {summaryTree.length} • Max depth:{" "}
+                Total nodes: {countNodes(summaryTree)} • Root nodes:{' '}
+                {summaryTree.length} • Max depth:{' '}
                 {calculateMaxDepth(summaryTree)}
               </div>
               <div>
@@ -198,7 +198,7 @@ function TreeNode({
   toggleNode,
   expandAll,
   matchesSearch,
-  parentPath = "",
+  parentPath = '',
 }: TreeNodeProps) {
   const hasChildren = node.children.length > 0;
   const nodePath = parentPath ? `${parentPath}.${node.slug}` : node.slug;
@@ -210,22 +210,22 @@ function TreeNode({
   if (searchTerm && !isMatch) return null;
 
   return (
-    <div className={`${level > 0 ? `ml-${level * 3}` : ""} my-1`}>
+    <div className={`${level > 0 ? `ml-${level * 3}` : ''} my-1`}>
       <Collapsible
         open={isExpanded}
         onOpenChange={() => hasChildren && toggleNode(nodePath)}
       >
-        <div className="flex items-center group py-1 hover:bg-muted/20 rounded-md px-1">
+        <div className="group hover:bg-muted/20 flex items-center rounded-md px-1 py-1">
           {hasChildren ? (
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 p-0 mr-1 text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground mr-1 h-6 w-6 p-0"
               >
                 <ChevronRight
                   className={`h-4 w-4 transition-transform ${
-                    isExpanded ? "rotate-90" : ""
+                    isExpanded ? 'rotate-90' : ''
                   }`}
                 />
                 <span className="sr-only">Toggle</span>
@@ -235,18 +235,18 @@ function TreeNode({
             <div className="w-7" />
           )}
 
-          <div className="flex items-center flex-1 gap-2">
+          <div className="flex flex-1 items-center gap-2">
             <span
               className={`font-medium ${
                 searchTerm &&
                 node.title.toLowerCase().includes(searchTerm.toLowerCase())
-                  ? "bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded"
-                  : ""
+                  ? 'rounded bg-yellow-100 px-1 dark:bg-yellow-900/30'
+                  : ''
               }`}
             >
               {node.title}
             </span>
-            <span className="text-xs text-muted-foreground font-mono">
+            <span className="text-muted-foreground font-mono text-xs">
               ({node.slug})
             </span>
             {node.order && (
@@ -259,7 +259,7 @@ function TreeNode({
 
         {hasChildren && (
           <CollapsibleContent>
-            <div className="border-l-2 border-muted ml-3 pl-3 mt-1">
+            <div className="border-muted mt-1 ml-3 border-l-2 pl-3">
               {node.children.map((childNode) => (
                 <TreeNode
                   key={childNode.slug}

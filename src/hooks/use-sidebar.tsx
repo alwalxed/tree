@@ -1,6 +1,6 @@
-import type { SummaryNode } from "@/lib/content/types";
-import { usePathname } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import type { SummaryNode } from '@/lib/content/types';
+import { usePathname } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
 
 export function useSidebar(summaryTree: SummaryNode[]) {
   const pathname = usePathname();
@@ -18,7 +18,7 @@ export function useSidebar(summaryTree: SummaryNode[]) {
 
   const isCurrentPage = useCallback(
     (fullPath: string) => {
-      if (fullPath === "__home") return pathname === "/";
+      if (fullPath === '__home') return pathname === '/';
       return pathname === `/learn/${fullPath}/`;
     },
     [pathname]
@@ -45,7 +45,7 @@ export function useSidebar(summaryTree: SummaryNode[]) {
   const getAllPaths = useCallback((nodes: SummaryNode[]): string[] => {
     let paths: string[] = [];
     for (const node of nodes) {
-      const fullPath = [...node.parentPath, node.slug].join("/");
+      const fullPath = [...node.parentPath, node.slug].join('/');
       if (node.children.length > 0) {
         paths.push(fullPath);
         paths = paths.concat(getAllPaths(node.children));

@@ -1,12 +1,12 @@
-import { Section } from "@/components/common/section";
-import { VisualizationSwitcher } from "@/components/visualizations/visualization-switcher";
-import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
+import { Section } from '@/components/common/section';
+import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
+import { buildContentSummaryTree } from '@/lib/content/core/tree-builder';
 
 export default async function Page() {
   const summaryTree = await buildContentSummaryTree();
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-12">
+    <div className="mx-auto flex max-w-4xl flex-col gap-12">
       <Section>
         <Section.H level={2}>{`مقدمة`}</Section.H>
         <Section.P>
@@ -17,14 +17,14 @@ export default async function Page() {
       <Section>
         <Section.H level={2}>{`الجزء الأول (الكلمة)`}</Section.H>
         <VisualizationSwitcher
-          nodes={summaryTree.filter((node) => node.title.includes("الكلمة"))}
+          nodes={summaryTree.filter((node) => node.title.includes('الكلمة'))}
         />
       </Section>
 
       <Section>
         <Section.H level={2}>{`الجزء الثاني (الكلام)`}</Section.H>
         <VisualizationSwitcher
-          nodes={summaryTree.filter((node) => node.title.includes("الكلام"))}
+          nodes={summaryTree.filter((node) => node.title.includes('الكلام'))}
         />
       </Section>
     </div>

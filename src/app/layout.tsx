@@ -1,26 +1,26 @@
-import { DevDebuggers } from "@/components/debug";
-import { Sidebar } from "@/components/layout/sidebar";
+import { DevDebuggers } from '@/components/debug';
+import { Sidebar } from '@/components/layout/sidebar';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { isDev } from "@/config/env";
-import { SITE_URL } from "@/config/site";
-import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
-import { cn } from "@/lib/styles/tailwind-utils";
-import { ThemeProvider } from "@/providers/theme-provider";
-import type { Metadata } from "next";
-import { ibmPlexSansArabic } from "./fonts";
-import "./globals.css";
+} from '@/components/ui/sidebar';
+import { isDev } from '@/config/env';
+import { SITE_URL } from '@/config/site';
+import { buildContentSummaryTree } from '@/lib/content/core/tree-builder';
+import { cn } from '@/lib/styles/tailwind-utils';
+import { ThemeProvider } from '@/providers/theme-provider';
+import type { Metadata } from 'next';
+import { ibmPlexSansArabic } from './fonts';
+import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    template: "%s | Documentation",
-    default: "Documentation",
+    template: '%s | Documentation',
+    default: 'Documentation',
   },
-  description: "Documentation site built with Next.js",
+  description: 'Documentation site built with Next.js',
 };
 
 export default async function RootLayout({
@@ -39,10 +39,10 @@ export default async function RootLayout({
       >
         <body
           className={cn(
-            "overflow-y-scroll overflow-x-hidden",
-            "font-ibmPlexSansArabic antialiased",
+            'overflow-x-hidden overflow-y-scroll',
+            'font-ibmPlexSansArabic antialiased',
             {
-              "debug-screens": isDev,
+              'debug-screens': isDev,
             }
           )}
         >

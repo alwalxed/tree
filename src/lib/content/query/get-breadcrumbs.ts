@@ -1,5 +1,5 @@
-import type { SummaryNode } from "../types";
-import { findDeepestNode } from "./find-node";
+import type { SummaryNode } from '../types';
+import { findDeepestNode } from './find-node';
 export function getBreadcrumbs(
   node: SummaryNode,
   tree: SummaryNode[]

@@ -1,4 +1,4 @@
-import { transliterate } from "../../text/transliteration";
+import { transliterate } from '../../text/transliteration';
 export interface ParsedNameInfo {
   order: number;
   name: string;
@@ -21,7 +21,7 @@ export function parseDirectoryName({
   if (match) {
     const [, numericPrefix, remainder] = match;
     const order = parseInt(
-      transliterate({ input: numericPrefix, mode: "arabic-to-latin" }),
+      transliterate({ input: numericPrefix, mode: 'arabic-to-latin' }),
       10
     );
     if (isNaN(order)) {
@@ -47,14 +47,14 @@ export function parseDirectoryName({
   };
 }
 export function normalizeSlug(raw: string): string {
-  const base = raw.replace(/\.md$/, "");
-  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, "");
+  const base = raw.replace(/\.md$/, '');
+  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, '');
   return transliterate({
     input: arabicOnly,
-    mode: "arabic-to-latin",
-  }).replace(/_+/g, "-");
+    mode: 'arabic-to-latin',
+  }).replace(/_+/g, '-');
 }
 export function normalizeTitle(raw: string): string {
-  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, "");
-  return arabicOnly.replace(/_+/g, " ");
+  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
+  return arabicOnly.replace(/_+/g, ' ');
 }

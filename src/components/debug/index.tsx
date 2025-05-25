@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import type { SummaryNode } from "@/lib/content/types";
-import { memo } from "react";
-import { TreeStructureDebugger } from "./tree-structure.view";
+import type { SummaryNode } from '@/lib/content/types';
+import { memo } from 'react';
+import { TreeStructureDebugger } from './tree-structure.view';
 
 function DevDebuggersComponent({
   summaryTree,

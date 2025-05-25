@@ -4,7 +4,7 @@
  * Options for transliterating Arabic text to Latin script.
  */
 type ArabicToLatinOptions = {
-  mode: "arabic-to-latin";
+  mode: 'arabic-to-latin';
   /** Arbitrary Arabic text (letters + Arabic-Indic digits) */
   input: string;
 };
@@ -13,7 +13,7 @@ type ArabicToLatinOptions = {
  * Options for converting Western digits in Latin text to Arabic-Indic digits.
  */
 type LatinToArabicDigitsOptions = {
-  mode: "latin-to-arabic-digits";
+  mode: 'latin-to-arabic-digits';
   /** Mixed Latin letters + Western digits */
   input: string;
 };
@@ -22,7 +22,7 @@ type LatinToArabicDigitsOptions = {
  * Options for converting Western digits only (string or number) to Arabic-Indic digits.
  */
 type LatinNumbersToArabicDigitsOptions = {
-  mode: "latin-numbers-to-arabic-digits";
+  mode: 'latin-numbers-to-arabic-digits';
   /** Western digits only (string or number) */
   input: string | number;
 };
@@ -31,7 +31,7 @@ type LatinNumbersToArabicDigitsOptions = {
  * Options for transliterating Latin script (letters + digits) to Arabic script.
  */
 type LatinToArabicOptions = {
-  mode: "latin-to-arabic";
+  mode: 'latin-to-arabic';
   /** Mixed Latin letters + Western digits */
   input: string;
 };
@@ -48,16 +48,16 @@ type Options =
 //––– Maps -----------------------------–––––––––––––––––––––––––––––––––––––
 
 const LATIN_TO_ARABIC_DIGITS: Record<string, string> = {
-  "0": "٠",
-  "1": "١",
-  "2": "٢",
-  "3": "٣",
-  "4": "٤",
-  "5": "٥",
-  "6": "٦",
-  "7": "٧",
-  "8": "٨",
-  "9": "٩",
+  '0': '٠',
+  '1': '١',
+  '2': '٢',
+  '3': '٣',
+  '4': '٤',
+  '5': '٥',
+  '6': '٦',
+  '7': '٧',
+  '8': '٨',
+  '9': '٩',
 };
 
 const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
@@ -67,51 +67,51 @@ const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
 const digitSet = new Set(Object.keys(LATIN_TO_ARABIC_DIGITS));
 
 const ARABIC_TO_LATIN_LETTERS: Record<string, string> = {
-  ا: "a",
-  ب: "b",
-  ت: "t",
-  ث: "th",
-  ج: "j",
-  ح: "h",
-  خ: "kh",
-  د: "d",
-  ذ: "dh",
-  ر: "r",
-  ز: "z",
-  س: "s",
-  ش: "sh",
-  ص: "s",
-  ض: "d",
-  ط: "t",
-  ظ: "z",
-  ع: "a",
-  غ: "gh",
-  ف: "f",
-  ق: "q",
-  ك: "k",
-  ل: "l",
-  م: "m",
-  ن: "n",
-  ه: "h",
-  و: "w",
-  ي: "y",
-  ء: "",
-  ى: "a",
-  ئ: "y",
-  ؤ: "w",
-  ة: "h",
-  إ: "i",
-  أ: "a",
-  آ: "aa",
-  "ٓ": "",
-  "َ": "a",
-  "ُ": "u",
-  "ِ": "i",
-  "ّ": "",
-  "ْ": "",
-  "ً": "an",
-  "ٌ": "un",
-  "ٍ": "in",
+  ا: 'a',
+  ب: 'b',
+  ت: 't',
+  ث: 'th',
+  ج: 'j',
+  ح: 'h',
+  خ: 'kh',
+  د: 'd',
+  ذ: 'dh',
+  ر: 'r',
+  ز: 'z',
+  س: 's',
+  ش: 'sh',
+  ص: 's',
+  ض: 'd',
+  ط: 't',
+  ظ: 'z',
+  ع: 'a',
+  غ: 'gh',
+  ف: 'f',
+  ق: 'q',
+  ك: 'k',
+  ل: 'l',
+  م: 'm',
+  ن: 'n',
+  ه: 'h',
+  و: 'w',
+  ي: 'y',
+  ء: '',
+  ى: 'a',
+  ئ: 'y',
+  ؤ: 'w',
+  ة: 'h',
+  إ: 'i',
+  أ: 'a',
+  آ: 'aa',
+  'ٓ': '',
+  'َ': 'a',
+  'ُ': 'u',
+  'ِ': 'i',
+  'ّ': '',
+  'ْ': '',
+  'ً': 'an',
+  'ٌ': 'un',
+  'ٍ': 'in',
 };
 
 const ARABIC_TO_LATIN_MAP = {
@@ -150,21 +150,21 @@ export function transliterate(options: Options): string {
   const inputStr = options.input.toString();
 
   switch (mode) {
-    case "arabic-to-latin":
-      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join("");
+    case 'arabic-to-latin':
+      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join('');
 
-    case "latin-to-arabic-digits":
+    case 'latin-to-arabic-digits':
       return inputStr.replace(/[0-9]/g, (d) => LATIN_TO_ARABIC_DIGITS[d]);
 
-    case "latin-numbers-to-arabic-digits":
+    case 'latin-numbers-to-arabic-digits':
       if (!/^\d+$/.test(inputStr)) {
         throw new Error(
           "Mode 'latin-numbers-to-arabic-digits' requires digits only."
         );
       }
-      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join("");
+      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join('');
 
-    case "latin-to-arabic":
+    case 'latin-to-arabic':
       return transliterateLatinToArabic(inputStr);
 
     default:
@@ -182,7 +182,7 @@ export function transliterate(options: Options): string {
  * @returns Transliterated Arabic string.
  */
 function transliterateLatinToArabic(s: string): string {
-  let result = "";
+  let result = '';
   let i = 0;
   const N = s.length;
   const lower = s.toLowerCase();

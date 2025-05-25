@@ -1,4 +1,4 @@
-import type { SummaryNode } from "../content/types";
+import type { SummaryNode } from '../content/types';
 
 /**
  * Generates an ASCII-style visual representation of a hierarchy of documentation nodes.
@@ -35,23 +35,23 @@ export function generateASCIITree(
   } = {}
 ): string {
   const {
-    indent = "",
+    indent = '',
     splitLevel = Infinity,
-    splitString = "",
+    splitString = '',
     currentLevel = 0,
   } = options;
 
   return docs
     .map((node, index) => {
       const isLast = index === docs.length - 1;
-      const branch = isLast ? "└── " : "├── ";
-      const nextIndent = indent + (isLast ? "    " : "│   ");
-      const label = node.title.replace(/_/g, " ");
+      const branch = isLast ? '└── ' : '├── ';
+      const nextIndent = indent + (isLast ? '    ' : '│   ');
+      const label = node.title.replace(/_/g, ' ');
 
-      let output = "";
+      let output = '';
 
       if (currentLevel === splitLevel && label !== splitString) {
-        return "";
+        return '';
       }
 
       output += `${indent}${branch}${label}\n`;
@@ -67,5 +67,5 @@ export function generateASCIITree(
 
       return output;
     })
-    .join("");
+    .join('');
 }

@@ -1,9 +1,9 @@
-import fs from "fs/promises";
-import matter from "gray-matter";
-import path from "path";
-import { remark } from "remark";
-import html from "remark-html";
-import { normalizeTitle } from "../utils/path-utils";
+import fs from 'fs/promises';
+import matter from 'gray-matter';
+import path from 'path';
+import { remark } from 'remark';
+import html from 'remark-html';
+import { normalizeTitle } from '../utils/path-utils';
 export interface PageSpecificContent {
   pageTitle: string;
   pageOrder?: number;
@@ -11,7 +11,7 @@ export interface PageSpecificContent {
   contentHtml: string;
   frontmatter: Record<string, any>;
 }
-const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
 export async function loadPageSpecificContent(
   slugPath: string[]
 ): Promise<PageSpecificContent | null> {
@@ -19,10 +19,10 @@ export async function loadPageSpecificContent(
   const markdownFilePath = path.join(
     CONTENT_BASE_PATH,
     ...slugPath,
-    "index.md"
+    'index.md'
   );
   try {
-    const rawMarkdown = await fs.readFile(markdownFilePath, "utf-8");
+    const rawMarkdown = await fs.readFile(markdownFilePath, 'utf-8');
     const { data: frontmatter, content: markdownContent } = matter(rawMarkdown);
     const processedHtml = await remark().use(html).process(markdownContent);
     const currentDirSlug = slugPath.at(-1)!;

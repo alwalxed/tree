@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { flattenTree } from "@/lib/content/api";
-import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
-import { getNodeSlugPath } from "@/lib/content/query/get-node-path";
-import { FileQuestion, Home, Search } from "lucide-react";
-import Link from "next/link";
+import { Button } from '@/components/ui/button';
+import { flattenTree } from '@/lib/content/api';
+import { buildContentSummaryTree } from '@/lib/content/core/tree-builder';
+import { getNodeSlugPath } from '@/lib/content/query/get-node-path';
+import { FileQuestion, Home, Search } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata = {
-  title: "Page Not Found | Documentation",
+  title: 'Page Not Found | Documentation',
   description: "The page you're looking for doesn't exist or has been moved.",
 };
 
@@ -17,7 +17,7 @@ export default async function NotFound() {
   const suggestedPages = flatTree.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+    <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
       <div className="mb-8 rounded-full bg-slate-100 p-6 dark:bg-slate-800">
         <FileQuestion className="h-16 w-16 text-slate-500" />
       </div>

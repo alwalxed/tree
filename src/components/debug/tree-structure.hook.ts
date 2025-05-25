@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import type { SummaryNode } from "@/lib/content/types";
-import * as React from "react";
+import type { SummaryNode } from '@/lib/content/types';
+import * as React from 'react';
 
 export interface TreeDebuggerState {
   open: boolean;
@@ -40,10 +40,10 @@ export function useTreeStructureDebugger(
   // State
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState('');
   const [expandedNodes, setExpandedNodes] = React.useState<string[]>([]);
   const [expandAll, setExpandAll] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState("visual");
+  const [activeTab, setActiveTab] = React.useState('visual');
 
   // Memoized values
   const formattedTree = React.useMemo(
@@ -70,7 +70,7 @@ export function useTreeStructureDebugger(
     if (!expandAll) {
       // Collect all possible paths
       const allPaths: string[] = [];
-      const collectPaths = (nodes: SummaryNode[], currentPath = "") => {
+      const collectPaths = (nodes: SummaryNode[], currentPath = '') => {
         nodes.forEach((node) => {
           const nodePath = currentPath
             ? `${currentPath}.${node.slug}`

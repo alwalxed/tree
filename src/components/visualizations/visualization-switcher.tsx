@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import type { SummaryNode } from "@/lib/content/types";
+import type { SummaryNode } from '@/lib/content/types';
 import {
   Boxes,
   GitBranch,
@@ -11,24 +11,24 @@ import {
   PieChart,
   Target,
   Terminal,
-} from "lucide-react";
-import { memo, useMemo, useState } from "react";
-import { RadialSunburstRenderer } from "./renderers/radial/radial-sunburst-renderer";
-import { CirclePackRenderer } from "./renderers/spatial/circle-pack-renderer";
-import { GridLayoutRenderer } from "./renderers/spatial/grid-layout-renderer";
-import { NestedBoxesRenderer } from "./renderers/spatial/nested-boxes-renderer";
-import { ASCIITreeRenderer } from "./renderers/tree/ascii-tree-renderer";
-import { CollapsibleTreeRenderer } from "./renderers/tree/collapsible-tree-renderer";
-import { NodeLinkDiagramRenderer } from "./renderers/tree/node-link-diagram-renderer";
+} from 'lucide-react';
+import { memo, useMemo, useState } from 'react';
+import { RadialSunburstRenderer } from './renderers/radial/radial-sunburst-renderer';
+import { CirclePackRenderer } from './renderers/spatial/circle-pack-renderer';
+import { GridLayoutRenderer } from './renderers/spatial/grid-layout-renderer';
+import { NestedBoxesRenderer } from './renderers/spatial/nested-boxes-renderer';
+import { ASCIITreeRenderer } from './renderers/tree/ascii-tree-renderer';
+import { CollapsibleTreeRenderer } from './renderers/tree/collapsible-tree-renderer';
+import { NodeLinkDiagramRenderer } from './renderers/tree/node-link-diagram-renderer';
 
 type VisualizationType =
-  | "collapsible-tree"
-  | "ascii-tree"
-  | "nested-boxes"
-  | "grid-layout"
-  | "radial-sunburst"
-  | "node-diagram"
-  | "circle-pack";
+  | 'collapsible-tree'
+  | 'ascii-tree'
+  | 'nested-boxes'
+  | 'grid-layout'
+  | 'radial-sunburst'
+  | 'node-diagram'
+  | 'circle-pack';
 
 interface VisualizationConfig {
   type: VisualizationType;
@@ -39,45 +39,45 @@ interface VisualizationConfig {
 
 const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   {
-    type: "node-diagram",
-    label: "شبكة",
-    icon: <Network className="w-4 h-4" />,
+    type: 'node-diagram',
+    label: 'شبكة',
+    icon: <Network className="h-4 w-4" />,
     component: NodeLinkDiagramRenderer,
   },
   {
-    type: "circle-pack",
-    label: "تراص",
-    icon: <Target className="w-4 h-4" />,
+    type: 'circle-pack',
+    label: 'تراص',
+    icon: <Target className="h-4 w-4" />,
     component: CirclePackRenderer,
   },
   {
-    type: "radial-sunburst",
-    label: "شعاع",
-    icon: <PieChart className="w-4 h-4" />,
+    type: 'radial-sunburst',
+    label: 'شعاع',
+    icon: <PieChart className="h-4 w-4" />,
     component: RadialSunburstRenderer,
   },
   {
-    type: "ascii-tree",
-    label: "تفرع",
-    icon: <Terminal className="w-4 h-4" />,
+    type: 'ascii-tree',
+    label: 'تفرع',
+    icon: <Terminal className="h-4 w-4" />,
     component: ASCIITreeRenderer,
   },
   {
-    type: "collapsible-tree",
-    label: "سلسلة",
-    icon: <GitBranch className="w-4 h-4" />,
+    type: 'collapsible-tree',
+    label: 'سلسلة',
+    icon: <GitBranch className="h-4 w-4" />,
     component: CollapsibleTreeRenderer,
   },
   {
-    type: "nested-boxes",
-    label: "وعاء",
-    icon: <Boxes className="w-4 h-4" />,
+    type: 'nested-boxes',
+    label: 'وعاء',
+    icon: <Boxes className="h-4 w-4" />,
     component: NestedBoxesRenderer,
   },
   {
-    type: "grid-layout",
-    label: "مصفوفة",
-    icon: <Grid className="w-4 h-4" />,
+    type: 'grid-layout',
+    label: 'مصفوفة',
+    icon: <Grid className="h-4 w-4" />,
     component: GridLayoutRenderer,
   },
 ];
@@ -113,7 +113,7 @@ export const VisualizationSwitcher = memo(
   }
 );
 
-VisualizationSwitcher.displayName = "VisualizationSwitcher";
+VisualizationSwitcher.displayName = 'VisualizationSwitcher';
 
 const VisualizationTypeSelector = memo(
   ({
@@ -126,15 +126,15 @@ const VisualizationTypeSelector = memo(
     configs: VisualizationConfig[];
   }) => {
     return (
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-wrap gap-2">
         {configs.map((config) => (
           <button
             key={config.type}
             onClick={() => onVisualizationChange(config.type)}
-            className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+            className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
               visualizationType === config.type
-                ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100"
-                : "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300"
+                ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100'
+                : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
             }`}
             aria-label={`تغيير إلى ${config.label}`}
             title={`تغيير إلى ${config.label}`}
@@ -148,4 +148,4 @@ const VisualizationTypeSelector = memo(
   }
 );
 
-VisualizationTypeSelector.displayName = "VisualizationTypeSelector";
+VisualizationTypeSelector.displayName = 'VisualizationTypeSelector';

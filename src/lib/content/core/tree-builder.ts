@@ -1,12 +1,12 @@
-import fs from "fs";
-import path from "path";
-import type { SummaryNode } from "../types";
+import fs from 'fs';
+import path from 'path';
+import type { SummaryNode } from '../types';
 import {
   normalizeSlug,
   normalizeTitle,
   parseDirectoryName,
-} from "../utils/path-utils";
-const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
+} from '../utils/path-utils';
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
 let summaryTreeCache: SummaryNode[] | null = null;
 function isPrefixMandatoryForDepth(depth: number): boolean {
   return depth >= 3;
@@ -21,7 +21,7 @@ async function scanContentDirectory(
   });
   const items: SummaryNode[] = [];
   for (const entry of entries) {
-    if (entry.name.startsWith(".")) continue;
+    if (entry.name.startsWith('.')) continue;
     const fullEntryPath = path.join(currentDirPath, entry.name);
     if (entry.isDirectory()) {
       const { order: dirOrder, name: unprefixedDirName } = parseDirectoryName({

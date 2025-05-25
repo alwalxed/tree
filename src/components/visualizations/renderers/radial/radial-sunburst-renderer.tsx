@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import type { SummaryNode } from "@/lib/content/types";
-import * as d3 from "d3";
-import { ZoomIn, ZoomOut } from "lucide-react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import type { SummaryNode } from '@/lib/content/types';
+import * as d3 from 'd3';
+import { ZoomIn, ZoomOut } from 'lucide-react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // Types for our data structure and dimensions
 type HierarchyDatum = {
@@ -14,15 +14,15 @@ type HierarchyDatum = {
 
 // Gradient definitions with zinc shades
 const GRADIENT_DEFINITIONS = [
-  { id: "gradient-1", from: "#fafafa", to: "#f4f4f5" }, // zinc-50 to zinc-100
-  { id: "gradient-2", from: "#f4f4f5", to: "#e4e4e7" }, // zinc-100 to zinc-200
-  { id: "gradient-3", from: "#e4e4e7", to: "#d4d4d8" }, // zinc-200 to zinc-300
-  { id: "gradient-4", from: "#d4d4d8", to: "#a1a1aa" }, // zinc-300 to zinc-400
-  { id: "gradient-5", from: "#a1a1aa", to: "#71717a" }, // zinc-400 to zinc-500
-  { id: "gradient-6", from: "#71717a", to: "#52525b" }, // zinc-500 to zinc-600
-  { id: "gradient-7", from: "#52525b", to: "#3f3f46" }, // zinc-600 to zinc-700
-  { id: "gradient-8", from: "#3f3f46", to: "#27272a" }, // zinc-700 to zinc-800
-  { id: "gradient-9", from: "#27272a", to: "#18181b" }, // zinc-800 to zinc-900
+  { id: 'gradient-1', from: '#fafafa', to: '#f4f4f5' }, // zinc-50 to zinc-100
+  { id: 'gradient-2', from: '#f4f4f5', to: '#e4e4e7' }, // zinc-100 to zinc-200
+  { id: 'gradient-3', from: '#e4e4e7', to: '#d4d4d8' }, // zinc-200 to zinc-300
+  { id: 'gradient-4', from: '#d4d4d8', to: '#a1a1aa' }, // zinc-300 to zinc-400
+  { id: 'gradient-5', from: '#a1a1aa', to: '#71717a' }, // zinc-400 to zinc-500
+  { id: 'gradient-6', from: '#71717a', to: '#52525b' }, // zinc-500 to zinc-600
+  { id: 'gradient-7', from: '#52525b', to: '#3f3f46' }, // zinc-600 to zinc-700
+  { id: 'gradient-8', from: '#3f3f46', to: '#27272a' }, // zinc-700 to zinc-800
+  { id: 'gradient-9', from: '#27272a', to: '#18181b' }, // zinc-800 to zinc-900
 ] as const;
 
 export const RadialSunburstRenderer = memo(
@@ -87,8 +87,8 @@ export const RadialSunburstRenderer = memo(
       };
 
       updateDimensions();
-      window.addEventListener("resize", updateDimensions);
-      return () => window.removeEventListener("resize", updateDimensions);
+      window.addEventListener('resize', updateDimensions);
+      return () => window.removeEventListener('resize', updateDimensions);
     }, [initialWidth, initialHeight]);
 
     // Zoom control handlers
@@ -131,38 +131,38 @@ export const RadialSunburstRenderer = memo(
       if (!svgRef.current || !nodes.length || !dimensions.width) return;
 
       const svg = d3.select(svgRef.current);
-      svg.selectAll("*").remove();
+      svg.selectAll('*').remove();
 
       const { width, height } = dimensions;
       const radius = Math.min(width, height) / 2.2;
 
       // Create gradient definitions
-      const defs = svg.append("defs");
+      const defs = svg.append('defs');
       GRADIENT_DEFINITIONS.forEach((gradientDef) => {
         const gradient = defs
-          .append("radialGradient")
-          .attr("id", gradientDef.id)
-          .attr("cx", "50%")
-          .attr("cy", "50%")
-          .attr("r", "50%");
+          .append('radialGradient')
+          .attr('id', gradientDef.id)
+          .attr('cx', '50%')
+          .attr('cy', '50%')
+          .attr('r', '50%');
 
         gradient
-          .append("stop")
-          .attr("offset", "0%")
-          .attr("stop-color", gradientDef.from);
+          .append('stop')
+          .attr('offset', '0%')
+          .attr('stop-color', gradientDef.from);
 
         gradient
-          .append("stop")
-          .attr("offset", "100%")
-          .attr("stop-color", gradientDef.to);
+          .append('stop')
+          .attr('offset', '100%')
+          .attr('stop-color', gradientDef.to);
       });
 
       // Set up zoom behavior
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.5, 5])
-        .on("zoom", (event) => {
-          g.attr("transform", event.transform);
+        .on('zoom', (event) => {
+          g.attr('transform', event.transform);
           setZoomLevel(event.transform.k);
         });
 
@@ -171,13 +171,13 @@ export const RadialSunburstRenderer = memo(
 
       // Create main group element
       const g = svg
-        .append("g")
-        .attr("transform", `translate(${width / 2},${height / 2})`);
+        .append('g')
+        .attr('transform', `translate(${width / 2},${height / 2})`);
 
       // Create hierarchy and partition layout
       const root = d3
         .hierarchy<HierarchyDatum>({
-          name: "root",
+          name: 'root',
           value: 0,
           children: transformData(nodes),
         })
@@ -205,24 +205,24 @@ export const RadialSunburstRenderer = memo(
 
       // Create segments
       const segments = g
-        .selectAll("path")
+        .selectAll('path')
         .data(rootWithPartition.descendants().slice(1))
         .enter()
-        .append("path")
-        .attr("d", (d) => arc(d as d3.HierarchyRectangularNode<HierarchyDatum>))
-        .style("fill", (d) => `url(#${gradientScale(d.depth)})`)
-        .style("opacity", 0.9)
-        .style("stroke", "#ffffff")
-        .style("stroke-width", "1px")
-        .style("cursor", "pointer")
-        .on("mouseover", function () {
-          d3.select(this).style("opacity", 1).style("stroke-width", "2px");
+        .append('path')
+        .attr('d', (d) => arc(d as d3.HierarchyRectangularNode<HierarchyDatum>))
+        .style('fill', (d) => `url(#${gradientScale(d.depth)})`)
+        .style('opacity', 0.9)
+        .style('stroke', '#ffffff')
+        .style('stroke-width', '1px')
+        .style('cursor', 'pointer')
+        .on('mouseover', function () {
+          d3.select(this).style('opacity', 1).style('stroke-width', '2px');
         })
-        .on("mouseout", function () {
-          d3.select(this).style("opacity", 0.9).style("stroke-width", "1px");
+        .on('mouseout', function () {
+          d3.select(this).style('opacity', 0.9).style('stroke-width', '1px');
         });
 
-      segments.append("title").text((d) => d.data.name);
+      segments.append('title').text((d) => d.data.name);
 
       // Filter nodes that are large enough for text
       const textNodes = rootWithPartition
@@ -241,11 +241,11 @@ export const RadialSunburstRenderer = memo(
 
       // Create text containers
       const textContainers = g
-        .selectAll(".text-container")
+        .selectAll('.text-container')
         .data(textNodes)
         .enter()
-        .append("g")
-        .attr("class", "text-container");
+        .append('g')
+        .attr('class', 'text-container');
 
       // Render text in segments
       textContainers.each(function (d) {
@@ -286,23 +286,23 @@ export const RadialSunburstRenderer = memo(
         }
 
         // Get text color based on depth
-        const textColor = d.depth <= 4 ? "#18181b" : "#ffffff";
+        const textColor = d.depth <= 4 ? '#18181b' : '#ffffff';
 
         const textElement = d3
           .select(this)
-          .attr("transform", `translate(${x},${y}) rotate(${rotation})`)
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("dominant-baseline", "middle")
-          .attr("fill", textColor)
-          .attr("font-size", `${fontSize}px`)
-          .attr("font-family", "var(--font-ibmPlexSansArabic)")
-          .attr("font-weight", "600")
+          .attr('transform', `translate(${x},${y}) rotate(${rotation})`)
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('fill', textColor)
+          .attr('font-size', `${fontSize}px`)
+          .attr('font-family', 'var(--font-ibmPlexSansArabic)')
+          .attr('font-weight', '600')
           .style(
-            "text-shadow",
-            textColor === "#ffffff"
-              ? "1px 1px 3px rgba(0,0,0,0.8)"
-              : "1px 1px 3px rgba(255,255,255,0.8)"
+            'text-shadow',
+            textColor === '#ffffff'
+              ? '1px 1px 3px rgba(0,0,0,0.8)'
+              : '1px 1px 3px rgba(255,255,255,0.8)'
           );
 
         // Handle text wrapping
@@ -321,7 +321,7 @@ export const RadialSunburstRenderer = memo(
         ) {
           // Handle single long word
           const word = words[0];
-          let currentLine = "";
+          let currentLine = '';
           let lineNumber = 0;
 
           for (let i = 0; i < word.length && lineNumber < maxLines; i++) {
@@ -332,39 +332,39 @@ export const RadialSunburstRenderer = memo(
                 lineNumber === maxLines - 1 || i === word.length - 1;
               const text =
                 isLastLine && i < word.length - 1
-                  ? currentLine + "..."
+                  ? currentLine + '...'
                   : currentLine;
 
               textElement
-                .append("tspan")
-                .attr("x", 0)
+                .append('tspan')
+                .attr('x', 0)
                 .attr(
-                  "y",
+                  'y',
                   lineNumber * lineHeight - ((maxLines - 1) * lineHeight) / 2
                 )
                 .text(text);
 
-              currentLine = "";
+              currentLine = '';
               lineNumber++;
             }
           }
         } else {
           // Handle multiple words
-          let currentLine = "";
+          let currentLine = '';
           let lineNumber = 0;
 
           for (let i = 0; i < words.length && lineNumber < maxLines; i++) {
             const word = words[i];
-            const testLine = currentLine + (currentLine ? " " : "") + word;
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
 
-            if (testLine.length <= charsPerLine || currentLine === "") {
+            if (testLine.length <= charsPerLine || currentLine === '') {
               currentLine = testLine;
             } else {
               textElement
-                .append("tspan")
-                .attr("x", 0)
+                .append('tspan')
+                .attr('x', 0)
                 .attr(
-                  "y",
+                  'y',
                   lineNumber * lineHeight - ((maxLines - 1) * lineHeight) / 2
                 )
                 .text(currentLine);
@@ -378,14 +378,14 @@ export const RadialSunburstRenderer = memo(
               const hasMoreWords = i < words.length - 1;
               const text =
                 isLastPossibleLine && hasMoreWords
-                  ? currentLine + "..."
+                  ? currentLine + '...'
                   : currentLine;
 
               textElement
-                .append("tspan")
-                .attr("x", 0)
+                .append('tspan')
+                .attr('x', 0)
                 .attr(
-                  "y",
+                  'y',
                   lineNumber * lineHeight - ((maxLines - 1) * lineHeight) / 2
                 )
                 .text(text);
@@ -398,27 +398,27 @@ export const RadialSunburstRenderer = memo(
     return (
       <div
         ref={containerRef}
-        className="ring-1 ring-zinc-200 shadow shadow-zinc-100 w-full h-[80vh] bg-zinc-100/80 dark:bg-slate-800 rounded-lg relative"
+        className="relative h-[80vh] w-full rounded-lg bg-zinc-100/80 shadow ring-1 shadow-zinc-100 ring-zinc-200 dark:bg-slate-800"
       >
         {/* Zoom Controls */}
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
           <button
             onClick={handleZoomIn}
-            className="p-2 bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 flex justify-center items-center"
+            className="flex items-center justify-center rounded-lg border border-zinc-200 bg-white p-2 shadow-xs transition-shadow hover:shadow-sm dark:border-zinc-600 dark:bg-zinc-700"
             title="Zoom In"
           >
-            <ZoomIn className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
+            <ZoomIn className="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
           </button>
           <button
             onClick={handleZoomOut}
-            className="p-2 bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 flex justify-center items-center"
+            className="flex items-center justify-center rounded-lg border border-zinc-200 bg-white p-2 shadow-xs transition-shadow hover:shadow-sm dark:border-zinc-600 dark:bg-zinc-700"
             title="Zoom Out"
           >
-            <ZoomOut className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
+            <ZoomOut className="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
           </button>
           <button
             onClick={handleResetZoom}
-            className="px-3 py-2 font-bold bg-white dark:bg-zinc-700 rounded-lg shadow-xs hover:shadow-sm transition-shadow border border-zinc-200 dark:border-zinc-600 text-xs text-zinc-600 dark:text-zinc-300"
+            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-600 shadow-xs transition-shadow hover:shadow-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
             title="Reset Zoom"
           >
             اضبط
@@ -426,14 +426,14 @@ export const RadialSunburstRenderer = memo(
         </div>
 
         {/* Zoom Level Indicator */}
-        <div className="absolute bottom-4 right-4 z-10 px-3 py-1 bg-white dark:bg-zinc-700 rounded-lg shadow-xs border border-zinc-200 dark:border-zinc-600">
+        <div className="absolute right-4 bottom-4 z-10 rounded-lg border border-zinc-200 bg-white px-3 py-1 shadow-xs dark:border-zinc-600 dark:bg-zinc-700">
           <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
             {Math.round(zoomLevel * 100)}%
           </span>
         </div>
 
         {/* SVG Container */}
-        <div className="w-full h-full flex justify-center items-center overflow-hidden">
+        <div className="flex h-full w-full items-center justify-center overflow-hidden">
           <svg
             ref={svgRef}
             className="cursor-grab active:cursor-grabbing"
@@ -448,4 +448,4 @@ export const RadialSunburstRenderer = memo(
   }
 );
 
-RadialSunburstRenderer.displayName = "RadialSunburstRenderer";
+RadialSunburstRenderer.displayName = 'RadialSunburstRenderer';
