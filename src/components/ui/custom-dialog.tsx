@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/styles/tailwind";
+import { cn } from "@/lib/styles/tailwind-utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 

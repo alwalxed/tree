@@ -1,6 +1,6 @@
 import type { SummaryNode } from "@/lib/content/types";
-import { cn } from "@/lib/styles/tailwind";
-import { generateASCIITree } from "@/lib/text/ascii-generator";
+import { cn } from "@/lib/styles/tailwind-utils";
+import { generateASCIITree } from "@/lib/text/ascii-tree-generator";
 import { memo } from "react";
 
 export const ASCIITreeRenderer = memo(({ nodes }: { nodes: SummaryNode[] }) => {

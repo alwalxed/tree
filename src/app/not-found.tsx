@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { flattenTree } from "@/lib/content/helpers/flatten-tree";
-import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
-import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
+import { flattenTree } from "@/lib/content/api";
+import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
+import { getNodeSlugPath } from "@/lib/content/query/get-node-path";
 import { FileQuestion, Home, Search } from "lucide-react";
 import Link from "next/link";
 
@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function NotFound() {
-  const summaryTree = await buildSummaryTree();
+  const summaryTree = await buildContentSummaryTree();
   const flatTree = flattenTree(summaryTree);
 
   const suggestedPages = flatTree.sort(() => 0.5 - Math.random()).slice(0, 3);

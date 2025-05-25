@@ -1,4 +1,4 @@
-import { getLeafNodes } from "@/lib/content/operations/get-leaf-nodes";
+import { getLeafNodes } from "@/lib/content/query/get-leaf-nodes";
 import type { SummaryNode } from "@/lib/content/types";
 import { memo } from "react";
 

@@ -1,0 +1,559 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where comments have been removed, empty lines have been removed.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Code comments have been removed from supported file types
+- Empty lines have been removed from all files
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+content/
+  core/
+    build-summary-tree.ts
+    get-content-node.ts
+  query/
+    find-node.ts
+    get-all-paths.ts
+    get-breadcrumbs.ts
+    get-leaf-nodes.ts
+    get-node-path.ts
+  utils/
+    normalize-slug.ts
+    normalize-title.ts
+    parse-filename-order.ts
+    tree-flattener.ts
+    tree-walker.ts
+  types.ts
+styles/
+  tailwind.ts
+text/
+  ascii-generator.ts
+  transliteration.ts
+
+================================================================
+Files
+================================================================
+
+================
+File: content/core/build-summary-tree.ts
+================
+import fs from "fs";
+import path from "path";
+import type { SummaryNode } from "../types";
+import { normalizeSlug } from "../utils/normalize-slug";
+import { normalizeTitle } from "../utils/normalize-title";
+import { parseFilenameOrder } from "../utils/parse-filename-order";
+const MARKDOWN_BASE_PATH = path.join(process.cwd(), "content");
+let _cache: SummaryNode[] | null = null;
+async function walkDir(
+  dir: string,
+  parentPath: string[] = []
+): Promise<SummaryNode[]> {
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  const items: SummaryNode[] = [];
+  for (const entry of entries) {
+    if (entry.name.startsWith(".")) continue;
+    const fullPath = path.join(dir, entry.name);
+    const isMarkdownFile = entry.name.endsWith(".md");
+    const filenameWithoutExtension = isMarkdownFile
+      ? entry.name.replace(/\.md$/, "")
+      : entry.name;
+    const { fileOrder, rawUnprefixedFilename } = parseFilenameOrder({
+      filename: filenameWithoutExtension,
+    });
+    if (entry.isDirectory()) {
+      const children = await walkDir(fullPath, [
+        ...parentPath,
+        normalizeSlug(rawUnprefixedFilename),
+      ]);
+      items.push({
+        title: normalizeTitle(rawUnprefixedFilename),
+        slug: normalizeSlug(rawUnprefixedFilename),
+        order: fileOrder,
+        parentPath,
+        children,
+      });
+    } else if (isMarkdownFile) {
+      continue;
+    }
+  }
+  return items.sort((a, b) => a.order - b.order);
+}
+export async function buildSummaryTree(): Promise<SummaryNode[]> {
+  if (_cache) return _cache;
+  _cache = await walkDir(MARKDOWN_BASE_PATH);
+  return _cache;
+}
+
+================
+File: content/core/get-content-node.ts
+================
+import fs from "fs/promises";
+import matter from "gray-matter";
+import path from "path";
+import { remark } from "remark";
+import html from "remark-html";
+import type { ContentNode } from "../types";
+import { normalizeSlug } from "../utils/normalize-slug";
+import { normalizeTitle } from "../utils/normalize-title";
+import { parseFilenameOrder } from "../utils/parse-filename-order";
+const MARKDOWN_BASE_PATH = path.join(process.cwd(), "content");
+export async function getContentNode(
+  slugPath: string[]
+): Promise<ContentNode | null> {
+  if (slugPath.length === 0) return null;
+  const normalizedSlugs = slugPath.map(normalizeSlug);
+  const filename = `${normalizedSlugs.at(-1)}.md`;
+  const filePath = path.join(
+    MARKDOWN_BASE_PATH,
+    ...normalizedSlugs.slice(0, -1),
+    filename
+  );
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    const { data, content } = matter(raw);
+    const processed = await remark().use(html).process(content);
+    const slug = normalizedSlugs.at(-1)!;
+    return {
+      title: data.title ?? normalizeTitle(slug),
+      slug,
+      order: data.order ?? parseFilenameOrder({ filename: slug }).fileOrder,
+      parentPath: normalizedSlugs.slice(0, -1),
+      children: [],
+      excerpt: data.excerpt,
+      contentHtml: processed.toString(),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+================
+File: content/query/find-node.ts
+================
+import type { SummaryNode } from "../types";
+export function findDeepestNode(
+  tree: SummaryNode[],
+  slugPath: string[]
+): SummaryNode | null {
+  let current: SummaryNode | undefined;
+  for (const slug of slugPath) {
+    current = (current?.children ?? tree).find((node) => node.slug === slug);
+    if (!current) return null;
+  }
+  return current ?? null;
+}
+
+================
+File: content/query/get-all-paths.ts
+================
+import { buildSummaryTree } from "../core/build-summary-tree";
+import type { SummaryNode } from "../types";
+export async function getTreeSlugs(): Promise<string[][]> {
+  const tree = await buildSummaryTree();
+  const slugs: string[][] = [];
+  function traverse(node: SummaryNode, path: string[] = []) {
+    const currentPath = [...path, node.slug];
+    slugs.push(currentPath);
+    node.children.forEach((child) => traverse(child, currentPath));
+  }
+  tree.forEach((node) => traverse(node));
+  return slugs;
+}
+
+================
+File: content/query/get-breadcrumbs.ts
+================
+import type { SummaryNode } from "../types";
+import { findDeepestNode } from "./find-node";
+export function getBreadcrumbs(
+  node: SummaryNode,
+  tree: SummaryNode[]
+): { title: string; slug: string }[] {
+  const breadcrumbs: { title: string; slug: string }[] = [];
+  let current = findDeepestNode(tree, node.parentPath);
+  while (current) {
+    breadcrumbs.unshift({ title: current.title, slug: current.slug });
+    current = findDeepestNode(tree, current.parentPath);
+  }
+  return breadcrumbs;
+}
+
+================
+File: content/query/get-leaf-nodes.ts
+================
+import type { LeafNode, SummaryNode } from "../types";
+export function getLeafNodes(tree: SummaryNode[]): LeafNode[] {
+  const leaves: LeafNode[] = [];
+  function walk(node: SummaryNode, path: string[] = []) {
+    const fullPath = [...path, node.slug];
+    if (node.children.length === 0) {
+      leaves.push({ title: node.title, slug: fullPath.join("/") });
+    } else {
+      node.children.forEach((child) => walk(child, fullPath));
+    }
+  }
+  tree.forEach((node) => walk(node));
+  return leaves;
+}
+
+================
+File: content/query/get-node-path.ts
+================
+import { SummaryNode } from "../types";
+export function getNodeSlugPath(node: SummaryNode): string {
+  return [...node.parentPath, node.slug].join("/");
+}
+
+================
+File: content/utils/normalize-slug.ts
+================
+import { transliterate } from "@/lib/text/transliteration";
+export function normalizeSlug(raw: string): string {
+  const base = raw.replace(/\.md$/, "");
+  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, "");
+  return transliterate({
+    input: arabicOnly,
+    mode: "arabic-to-latin",
+  }).replace(/_+/g, "-");
+}
+
+================
+File: content/utils/normalize-title.ts
+================
+export function normalizeTitle(raw: string): string {
+  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, "");
+  return arabicOnly.replace(/_+/g, " ");
+}
+
+================
+File: content/utils/parse-filename-order.ts
+================
+import { transliterate } from "@/lib/text/transliteration";
+export function parseFilenameOrder({ filename }: { filename: string }): {
+  fileOrder: number;
+  rawUnprefixedFilename: string;
+} {
+  if (/\.[a-z0-9]+$/i.test(filename)) {
+    throw new Error(
+      `Filename "${filename}" must not contain a file extension.`
+    );
+  }
+  const match = filename.match(/^([٠-٩0-9]+)_+(.+)$/);
+  if (!match) {
+    throw new Error(
+      `Invalid filename format: "${filename}". Expected format: <number>_<name>`
+    );
+  }
+  const [, numericPrefix, remainder] = match;
+  const fileOrder = parseInt(
+    transliterate({ input: numericPrefix, mode: "arabic-to-latin" }),
+    10
+  );
+  if (isNaN(fileOrder)) {
+    throw new Error(
+      `Invalid numeric prefix in filename: "${filename}". Could not parse "${numericPrefix}" to a number.`
+    );
+  }
+  return {
+    fileOrder,
+    rawUnprefixedFilename: remainder,
+  };
+}
+
+================
+File: content/utils/tree-flattener.ts
+================
+import type { SummaryNode } from "../types";
+import { walkTree } from "./tree-walker";
+export function flattenTree(tree: SummaryNode[]): SummaryNode[] {
+  const flattened: SummaryNode[] = [];
+  walkTree(tree, (node) => flattened.push(node));
+  return flattened;
+}
+
+================
+File: content/utils/tree-walker.ts
+================
+export function walkTree<T extends { slug: string; children: T[] }>(
+  nodes: T[],
+  callback: (node: T, path: string[], level: number) => void,
+  path: string[] = [],
+  level: number = 0
+): void {
+  for (const node of nodes) {
+    callback(node, path, level);
+    if (node.children.length > 0) {
+      walkTree(node.children, callback, [...path, node.slug], level + 1);
+    }
+  }
+}
+
+================
+File: content/types.ts
+================
+type BaseNode = {
+  title: string;
+  slug: string;
+};
+type HierarchyMeta = {
+  order: number;
+  parentPath: string[];
+};
+export type SummaryNode = BaseNode &
+  HierarchyMeta & {
+    children: SummaryNode[];
+  };
+export type ContentNode = SummaryNode & {
+  excerpt?: string;
+  contentHtml: string;
+};
+export type LeafNode = BaseNode;
+
+================
+File: styles/tailwind.ts
+================
+import clsx, { type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
+}
+
+================
+File: text/ascii-generator.ts
+================
+import type { SummaryNode } from "../content/types";
+export function generateASCIITree(
+  docs: SummaryNode[],
+  options: {
+    indent?: string;
+    splitLevel?: number;
+    splitString?: string;
+    currentLevel?: number;
+  } = {}
+): string {
+  const {
+    indent = "",
+    splitLevel = Infinity,
+    splitString = "",
+    currentLevel = 0,
+  } = options;
+  return docs
+    .map((node, index) => {
+      const isLast = index === docs.length - 1;
+      const branch = isLast ? "└── " : "├── ";
+      const nextIndent = indent + (isLast ? "    " : "│   ");
+      const label = node.title.replace(/_/g, " ");
+      let output = "";
+      if (currentLevel === splitLevel && label !== splitString) {
+        return "";
+      }
+      output += `${indent}${branch}${label}\n`;
+      if (node.children.length > 0) {
+        output += generateASCIITree(node.children, {
+          indent: nextIndent,
+          splitLevel,
+          splitString,
+          currentLevel: currentLevel + 1,
+        });
+      }
+      return output;
+    })
+    .join("");
+}
+
+================
+File: text/transliteration.ts
+================
+type ArabicToLatinOptions = {
+  mode: "arabic-to-latin";
+  input: string;
+};
+type LatinToArabicDigitsOptions = {
+  mode: "latin-to-arabic-digits";
+  input: string;
+};
+type LatinNumbersToArabicDigitsOptions = {
+  mode: "latin-numbers-to-arabic-digits";
+  input: string | number;
+};
+type LatinToArabicOptions = {
+  mode: "latin-to-arabic";
+  input: string;
+};
+type Options =
+  | ArabicToLatinOptions
+  | LatinToArabicDigitsOptions
+  | LatinNumbersToArabicDigitsOptions
+  | LatinToArabicOptions;
+const LATIN_TO_ARABIC_DIGITS: Record<string, string> = {
+  "0": "٠",
+  "1": "١",
+  "2": "٢",
+  "3": "٣",
+  "4": "٤",
+  "5": "٥",
+  "6": "٦",
+  "7": "٧",
+  "8": "٨",
+  "9": "٩",
+};
+const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
+  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w])
+);
+const digitSet = new Set(Object.keys(LATIN_TO_ARABIC_DIGITS));
+const ARABIC_TO_LATIN_LETTERS: Record<string, string> = {
+  ا: "a",
+  ب: "b",
+  ت: "t",
+  ث: "th",
+  ج: "j",
+  ح: "h",
+  خ: "kh",
+  د: "d",
+  ذ: "dh",
+  ر: "r",
+  ز: "z",
+  س: "s",
+  ش: "sh",
+  ص: "s",
+  ض: "d",
+  ط: "t",
+  ظ: "z",
+  ع: "a",
+  غ: "gh",
+  ف: "f",
+  ق: "q",
+  ك: "k",
+  ل: "l",
+  م: "m",
+  ن: "n",
+  ه: "h",
+  و: "w",
+  ي: "y",
+  ء: "",
+  ى: "a",
+  ئ: "y",
+  ؤ: "w",
+  ة: "h",
+  إ: "i",
+  أ: "a",
+  آ: "aa",
+  "ٓ": "",
+  "َ": "a",
+  "ُ": "u",
+  "ِ": "i",
+  "ّ": "",
+  "ْ": "",
+  "ً": "an",
+  "ٌ": "un",
+  "ٍ": "in",
+};
+const ARABIC_TO_LATIN_MAP = {
+  ...ARABIC_TO_LATIN_LETTERS,
+  ...ARABIC_TO_LATIN_DIGITS,
+};
+const LATIN_TO_ARABIC_LETTERS: Record<string, string> = Object.fromEntries(
+  Object.entries(ARABIC_TO_LATIN_LETTERS)
+    .filter(([_arb, lat]) => lat.length > 0)
+    .map(([arb, lat]) => [lat, arb])
+);
+const LATIN_LETTER_KEYS = Object.keys(LATIN_TO_ARABIC_LETTERS).sort(
+  (a, b) => b.length - a.length
+);
+export function transliterate(options: Options): string {
+  const { mode } = options;
+  const inputStr = options.input.toString();
+  switch (mode) {
+    case "arabic-to-latin":
+      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join("");
+    case "latin-to-arabic-digits":
+      return inputStr.replace(/[0-9]/g, (d) => LATIN_TO_ARABIC_DIGITS[d]);
+    case "latin-numbers-to-arabic-digits":
+      if (!/^\d+$/.test(inputStr)) {
+        throw new Error(
+          "Mode 'latin-numbers-to-arabic-digits' requires digits only."
+        );
+      }
+      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join("");
+    case "latin-to-arabic":
+      return transliterateLatinToArabic(inputStr);
+    default:
+      const _exhaustive: never = mode;
+      throw new Error(`Unsupported mode: ${_exhaustive}`);
+  }
+}
+function transliterateLatinToArabic(s: string): string {
+  let result = "";
+  let i = 0;
+  const N = s.length;
+  const lower = s.toLowerCase();
+  while (i < N) {
+    let matched = false;
+    for (const key of LATIN_LETTER_KEYS) {
+      if (lower.startsWith(key, i)) {
+        result += LATIN_TO_ARABIC_LETTERS[key];
+        i += key.length;
+        matched = true;
+        break;
+      }
+    }
+    if (matched) continue;
+    const ch = s[i];
+    if (digitSet.has(ch)) {
+      result += LATIN_TO_ARABIC_DIGITS[ch];
+    } else {
+      result += ch;
+    }
+    i++;
+  }
+  return result;
+}
+
+
+
+================================================================
+End of Codebase
+================================================================

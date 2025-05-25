@@ -1,8 +1,8 @@
 "use client";
 
-import { getNodeSlugPath } from "@/lib/content/operations/get-node-slug-path";
+import { getNodeSlugPath } from "@/lib/content/query/get-node-path";
 import type { SummaryNode } from "@/lib/content/types";
-import { cn } from "@/lib/styles/tailwind";
+import { cn } from "@/lib/styles/tailwind-utils";
 import Link from "next/link";
 import { memo, useId } from "react";
 

@@ -1,9 +1,9 @@
 import { Section } from "@/components/common/section";
 import { VisualizationSwitcher } from "@/components/visualizations/visualization-switcher";
-import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
+import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
 
 export default async function Page() {
-  const summaryTree = await buildSummaryTree();
+  const summaryTree = await buildContentSummaryTree();
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-12">

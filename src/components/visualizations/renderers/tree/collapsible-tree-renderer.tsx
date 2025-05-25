@@ -1,7 +1,7 @@
 "use client";
 
 import type { SummaryNode } from "@/lib/content/types";
-import { cn } from "@/lib/styles/tailwind";
+import { cn } from "@/lib/styles/tailwind-utils";
 import { transliterate } from "@/lib/text/transliteration";
 import { memo } from "react";
 

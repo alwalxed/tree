@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/sidebar";
 import { isDev } from "@/config/env";
 import { SITE_URL } from "@/config/site";
-import { buildSummaryTree } from "@/lib/content/operations/build-summary-tree";
-import { cn } from "@/lib/styles/tailwind";
+import { buildContentSummaryTree } from "@/lib/content/core/tree-builder";
+import { cn } from "@/lib/styles/tailwind-utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import { ibmPlexSansArabic } from "./fonts";
@@ -28,7 +28,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const summaryTree = await buildSummaryTree();
+  const summaryTree = await buildContentSummaryTree();
   return (
     <>
       <html
