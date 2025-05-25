@@ -1,4 +1,5 @@
-import type { LeafNodeInfo, SummaryNode } from '../types';
+import type { LeafNodeInfo, SummaryNode } from "../types";
+
 export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
   const leaves: LeafNodeInfo[] = [];
   function walk(node: SummaryNode, currentPath: string[] = []) {
@@ -6,7 +7,7 @@ export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
     if (node.children.length === 0) {
       leaves.push({
         title: node.title,
-        fullSlugPath: fullPathSegments.join('/'),
+        fullSlugPath: fullPathSegments.join("/"),
       });
     } else {
       node.children.forEach((child) => walk(child, fullPathSegments));

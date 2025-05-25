@@ -1,7 +1,8 @@
-import type { SummaryNode } from '../types';
+import type { SummaryNode } from "../types";
+
 export function findDeepestNode(
   tree: SummaryNode[],
-  slugPath: string[]
+  slugPath: string[],
 ): SummaryNode | null {
   let currentNodes: SummaryNode[] = tree;
   let foundNode: SummaryNode | null = null;

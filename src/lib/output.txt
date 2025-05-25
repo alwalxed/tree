@@ -51,8 +51,9 @@ Directory Structure
 ================================================================
 content/
   core/
-    build-summary-tree.ts
-    get-content-node.ts
+    content-loader.ts
+    landing-page-loader.ts
+    tree-builder.ts
   query/
     find-node.ts
     get-all-paths.ts
@@ -60,16 +61,14 @@ content/
     get-leaf-nodes.ts
     get-node-path.ts
   utils/
-    normalize-slug.ts
-    normalize-title.ts
-    parse-filename-order.ts
-    tree-flattener.ts
-    tree-walker.ts
+    path-utils.ts
+    tree-utils.ts
+  api.ts
   types.ts
 styles/
-  tailwind.ts
+  tailwind-utils.ts
 text/
-  ascii-generator.ts
+  ascii-tree-generator.ts
   transliteration.ts
 
 ================================================================
@@ -77,93 +76,43 @@ Files
 ================================================================
 
 ================
-File: content/core/build-summary-tree.ts
-================
-import fs from "fs";
-import path from "path";
-import type { SummaryNode } from "../types";
-import { normalizeSlug } from "../utils/normalize-slug";
-import { normalizeTitle } from "../utils/normalize-title";
-import { parseFilenameOrder } from "../utils/parse-filename-order";
-const MARKDOWN_BASE_PATH = path.join(process.cwd(), "content");
-let _cache: SummaryNode[] | null = null;
-async function walkDir(
-  dir: string,
-  parentPath: string[] = []
-): Promise<SummaryNode[]> {
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-  const items: SummaryNode[] = [];
-  for (const entry of entries) {
-    if (entry.name.startsWith(".")) continue;
-    const fullPath = path.join(dir, entry.name);
-    const isMarkdownFile = entry.name.endsWith(".md");
-    const filenameWithoutExtension = isMarkdownFile
-      ? entry.name.replace(/\.md$/, "")
-      : entry.name;
-    const { fileOrder, rawUnprefixedFilename } = parseFilenameOrder({
-      filename: filenameWithoutExtension,
-    });
-    if (entry.isDirectory()) {
-      const children = await walkDir(fullPath, [
-        ...parentPath,
-        normalizeSlug(rawUnprefixedFilename),
-      ]);
-      items.push({
-        title: normalizeTitle(rawUnprefixedFilename),
-        slug: normalizeSlug(rawUnprefixedFilename),
-        order: fileOrder,
-        parentPath,
-        children,
-      });
-    } else if (isMarkdownFile) {
-      continue;
-    }
-  }
-  return items.sort((a, b) => a.order - b.order);
-}
-export async function buildSummaryTree(): Promise<SummaryNode[]> {
-  if (_cache) return _cache;
-  _cache = await walkDir(MARKDOWN_BASE_PATH);
-  return _cache;
-}
-
-================
-File: content/core/get-content-node.ts
+File: content/core/content-loader.ts
 ================
 import fs from "fs/promises";
 import matter from "gray-matter";
 import path from "path";
 import { remark } from "remark";
 import html from "remark-html";
-import type { ContentNode } from "../types";
-import { normalizeSlug } from "../utils/normalize-slug";
-import { normalizeTitle } from "../utils/normalize-title";
-import { parseFilenameOrder } from "../utils/parse-filename-order";
-const MARKDOWN_BASE_PATH = path.join(process.cwd(), "content");
-export async function getContentNode(
-  slugPath: string[]
-): Promise<ContentNode | null> {
+import { normalizeTitle } from "../utils/path-utils";
+export interface PageSpecificContent {
+  pageTitle: string;
+  pageOrder?: number;
+  excerpt?: string;
+  contentHtml: string;
+  frontmatter: Record<string, any>;
+}
+const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
+export async function loadPageSpecificContent(
+  slugPath: string[],
+): Promise<PageSpecificContent | null> {
   if (slugPath.length === 0) return null;
-  const normalizedSlugs = slugPath.map(normalizeSlug);
-  const filename = `${normalizedSlugs.at(-1)}.md`;
-  const filePath = path.join(
-    MARKDOWN_BASE_PATH,
-    ...normalizedSlugs.slice(0, -1),
-    filename
+  const markdownFilePath = path.join(
+    CONTENT_BASE_PATH,
+    ...slugPath,
+    "index.md",
   );
   try {
-    const raw = await fs.readFile(filePath, "utf-8");
-    const { data, content } = matter(raw);
-    const processed = await remark().use(html).process(content);
-    const slug = normalizedSlugs.at(-1)!;
+    const rawMarkdown = await fs.readFile(markdownFilePath, "utf-8");
+    const { data: frontmatter, content: markdownContent } = matter(rawMarkdown);
+    const processedHtml = await remark().use(html).process(markdownContent);
+    const currentDirSlug = slugPath.at(-1)!;
+    const title = frontmatter.title ?? normalizeTitle(currentDirSlug);
     return {
-      title: data.title ?? normalizeTitle(slug),
-      slug,
-      order: data.order ?? parseFilenameOrder({ filename: slug }).fileOrder,
-      parentPath: normalizedSlugs.slice(0, -1),
-      children: [],
-      excerpt: data.excerpt,
-      contentHtml: processed.toString(),
+      pageTitle: title,
+      pageOrder: frontmatter.order,
+      excerpt: frontmatter.excerpt,
+      contentHtml: processedHtml.toString(),
+      frontmatter,
     };
   } catch (error) {
     return null;
@@ -171,33 +120,184 @@ export async function getContentNode(
 }
 
 ================
+File: content/core/landing-page-loader.ts
+================
+import fs from "fs/promises";
+import path from "path";
+import type {
+  BookLandingPageConfigJson,
+  ProcessedBookLandingPageConfig,
+  ProcessedBookLandingSection,
+  ProcessedTextLandingSection,
+  ProcessedVisualizationLandingSection,
+  SummaryNode,
+  VisualizationLandingSectionJson,
+} from "../types";
+const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
+const LANDING_CONFIG_FILENAME = "landing.json";
+export async function loadBookLandingPageConfigForBuild(
+  bookNodeSlugPath: string[],
+  bookChapters: SummaryNode[],
+): Promise<ProcessedBookLandingPageConfig | null> {
+  if (bookNodeSlugPath.length === 0) {
+    return null;
+  }
+  const landingConfigPath = path.join(
+    CONTENT_BASE_PATH,
+    ...bookNodeSlugPath,
+    LANDING_CONFIG_FILENAME,
+  );
+  try {
+    const fileContent = await fs.readFile(landingConfigPath, "utf-8");
+    const rawConfig = JSON.parse(fileContent) as BookLandingPageConfigJson;
+    if (!rawConfig || !Array.isArray(rawConfig.sections)) {
+      console.warn(
+        `Invalid structure in ${landingConfigPath}. 'sections' array is missing.`,
+      );
+      return null;
+    }
+    const processedSections: ProcessedBookLandingSection[] = [];
+    for (const section of rawConfig.sections) {
+      if (section.type === "text") {
+        processedSections.push(section as ProcessedTextLandingSection);
+      } else if (section.type === "visualization") {
+        const vizSectionJson = section as VisualizationLandingSectionJson;
+        const chapterIdentifier = vizSectionJson.chapterIdentifier;
+        const identifiedChapterNode = bookChapters.find((chapter) =>
+          chapter.title.includes(chapterIdentifier),
+        );
+        if (identifiedChapterNode) {
+          processedSections.push({
+            type: "visualization",
+            title: vizSectionJson.title,
+            nodes: identifiedChapterNode.children || [],
+          } as ProcessedVisualizationLandingSection);
+        } else {
+          console.warn(
+            `Could not find chapter with identifier "${chapterIdentifier}" for visualization section "${vizSectionJson.title}" in book ${bookNodeSlugPath.join("/")}. This section will be skipped.`,
+          );
+        }
+      } else {
+        console.warn(
+          `Unknown section type "${(section as any).type}" in ${landingConfigPath}. Section skipped.`,
+        );
+      }
+    }
+    return {
+      sections: processedSections,
+    };
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === "ENOENT") {
+    } else if (error instanceof SyntaxError) {
+      console.warn(`Invalid JSON in ${landingConfigPath}: ${error.message}`);
+    } else {
+      console.warn(
+        `Could not load or parse ${LANDING_CONFIG_FILENAME} for book at ${bookNodeSlugPath.join("/")}. Path: ${landingConfigPath}. Error: ${err.message}`,
+      );
+    }
+    return null;
+  }
+}
+
+================
+File: content/core/tree-builder.ts
+================
+import fs from 'fs';
+import path from 'path';
+import type { SummaryNode } from '../types';
+import {
+  normalizeSlug,
+  normalizeTitle,
+  parseDirectoryName,
+} from '../utils/path-utils';
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
+let summaryTreeCache: SummaryNode[] | null = null;
+function isPrefixMandatoryForDepth(depth: number): boolean {
+  return depth >= 3;
+}
+async function scanContentDirectory(
+  currentDirPath: string,
+  parentSlugPath: string[] = [],
+  currentDepth: number = 0
+): Promise<SummaryNode[]> {
+  const entries = await fs.promises.readdir(currentDirPath, {
+    withFileTypes: true,
+  });
+  const items: SummaryNode[] = [];
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    const fullEntryPath = path.join(currentDirPath, entry.name);
+    if (entry.isDirectory()) {
+      const { order: dirOrder, name: unprefixedDirName } = parseDirectoryName({
+        directoryName: entry.name,
+        isDirectoryPrefixMandatory: isPrefixMandatoryForDepth(currentDepth),
+      });
+      const slug = normalizeSlug(unprefixedDirName);
+      const title = normalizeTitle(unprefixedDirName);
+      const children = await scanContentDirectory(
+        fullEntryPath,
+        [...parentSlugPath, slug],
+        currentDepth + 1
+      );
+      items.push({
+        title,
+        slug,
+        order: dirOrder,
+        parentPath: parentSlugPath,
+        children,
+      });
+    }
+  }
+  return items.sort((a, b) => {
+    if (a.order !== b.order) {
+      return a.order - b.order;
+    }
+    return a.title.localeCompare(b.title);
+  });
+}
+export async function buildContentSummaryTree(): Promise<SummaryNode[]> {
+  if (summaryTreeCache) return summaryTreeCache;
+  summaryTreeCache = await scanContentDirectory(CONTENT_BASE_PATH);
+  return summaryTreeCache;
+}
+export function clearSummaryTreeCache(): void {
+  summaryTreeCache = null;
+}
+
+================
 File: content/query/find-node.ts
 ================
-import type { SummaryNode } from "../types";
+import type { SummaryNode } from '../types';
 export function findDeepestNode(
   tree: SummaryNode[],
   slugPath: string[]
 ): SummaryNode | null {
-  let current: SummaryNode | undefined;
+  let currentNodes: SummaryNode[] = tree;
+  let foundNode: SummaryNode | null = null;
   for (const slug of slugPath) {
-    current = (current?.children ?? tree).find((node) => node.slug === slug);
-    if (!current) return null;
+    const nextNode = currentNodes.find((node) => node.slug === slug);
+    if (!nextNode) return null;
+    foundNode = nextNode;
+    currentNodes = nextNode.children;
   }
-  return current ?? null;
+  return foundNode;
 }
 
 ================
 File: content/query/get-all-paths.ts
 ================
-import { buildSummaryTree } from "../core/build-summary-tree";
-import type { SummaryNode } from "../types";
+import { buildContentSummaryTree } from '../core/tree-builder';
+import type { SummaryNode } from '../types';
 export async function getTreeSlugs(): Promise<string[][]> {
-  const tree = await buildSummaryTree();
+  const tree = await buildContentSummaryTree();
   const slugs: string[][] = [];
-  function traverse(node: SummaryNode, path: string[] = []) {
-    const currentPath = [...path, node.slug];
-    slugs.push(currentPath);
-    node.children.forEach((child) => traverse(child, currentPath));
+  function traverse(node: SummaryNode, currentPath: string[] = []) {
+    const newPath = [...currentPath, node.slug];
+    slugs.push(newPath);
+    if (node.children) {
+      node.children.forEach((child) => traverse(child, newPath));
+    }
   }
   tree.forEach((node) => traverse(node));
   return slugs;
@@ -206,17 +306,23 @@ export async function getTreeSlugs(): Promise<string[][]> {
 ================
 File: content/query/get-breadcrumbs.ts
 ================
-import type { SummaryNode } from "../types";
-import { findDeepestNode } from "./find-node";
+import type { SummaryNode } from '../types';
+import { findDeepestNode } from './find-node';
 export function getBreadcrumbs(
   node: SummaryNode,
   tree: SummaryNode[]
 ): { title: string; slug: string }[] {
   const breadcrumbs: { title: string; slug: string }[] = [];
-  let current = findDeepestNode(tree, node.parentPath);
-  while (current) {
-    breadcrumbs.unshift({ title: current.title, slug: current.slug });
-    current = findDeepestNode(tree, current.parentPath);
+  if (node.parentPath.length === 0) {
+    return breadcrumbs;
+  }
+  let currentParentPath = node.parentPath;
+  while (currentParentPath.length > 0) {
+    const parentNode = findDeepestNode(tree, currentParentPath);
+    if (parentNode) {
+      breadcrumbs.unshift({ title: parentNode.title, slug: parentNode.slug });
+    }
+    currentParentPath = currentParentPath.slice(0, -1);
   }
   return breadcrumbs;
 }
@@ -224,15 +330,18 @@ export function getBreadcrumbs(
 ================
 File: content/query/get-leaf-nodes.ts
 ================
-import type { LeafNode, SummaryNode } from "../types";
-export function getLeafNodes(tree: SummaryNode[]): LeafNode[] {
-  const leaves: LeafNode[] = [];
-  function walk(node: SummaryNode, path: string[] = []) {
-    const fullPath = [...path, node.slug];
+import type { LeafNodeInfo, SummaryNode } from '../types';
+export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
+  const leaves: LeafNodeInfo[] = [];
+  function walk(node: SummaryNode, currentPath: string[] = []) {
+    const fullPathSegments = [...currentPath, node.slug];
     if (node.children.length === 0) {
-      leaves.push({ title: node.title, slug: fullPath.join("/") });
+      leaves.push({
+        title: node.title,
+        fullSlugPath: fullPathSegments.join('/'),
+      });
     } else {
-      node.children.forEach((child) => walk(child, fullPath));
+      node.children.forEach((child) => walk(child, fullPathSegments));
     }
   }
   tree.forEach((node) => walk(node));
@@ -242,72 +351,92 @@ export function getLeafNodes(tree: SummaryNode[]): LeafNode[] {
 ================
 File: content/query/get-node-path.ts
 ================
-import { SummaryNode } from "../types";
+import type { SummaryNode } from '../types';
 export function getNodeSlugPath(node: SummaryNode): string {
-  return [...node.parentPath, node.slug].join("/");
+  return [...node.parentPath, node.slug].join('/');
 }
 
 ================
-File: content/utils/normalize-slug.ts
+File: content/utils/path-utils.ts
 ================
-import { transliterate } from "@/lib/text/transliteration";
-export function normalizeSlug(raw: string): string {
-  const base = raw.replace(/\.md$/, "");
-  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, "");
-  return transliterate({
-    input: arabicOnly,
-    mode: "arabic-to-latin",
-  }).replace(/_+/g, "-");
+import { transliterate } from '../../text/transliteration';
+export interface ParsedNameInfo {
+  order: number;
+  name: string;
+  isPrefixed: boolean;
 }
-
-================
-File: content/utils/normalize-title.ts
-================
-export function normalizeTitle(raw: string): string {
-  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, "");
-  return arabicOnly.replace(/_+/g, " ");
-}
-
-================
-File: content/utils/parse-filename-order.ts
-================
-import { transliterate } from "@/lib/text/transliteration";
-export function parseFilenameOrder({ filename }: { filename: string }): {
-  fileOrder: number;
-  rawUnprefixedFilename: string;
-} {
-  if (/\.[a-z0-9]+$/i.test(filename)) {
+const DEFAULT_ORDER = 0;
+export function parseDirectoryName({
+  directoryName,
+  isDirectoryPrefixMandatory,
+}: {
+  directoryName: string;
+  isDirectoryPrefixMandatory: boolean;
+}): ParsedNameInfo {
+  if (/\.[a-z0-9]+$/i.test(directoryName)) {
     throw new Error(
-      `Filename "${filename}" must not contain a file extension.`
+      `Directory name "${directoryName}" must not contain a file extension.`
     );
   }
-  const match = filename.match(/^([٠-٩0-9]+)_+(.+)$/);
-  if (!match) {
-    throw new Error(
-      `Invalid filename format: "${filename}". Expected format: <number>_<name>`
+  const match = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
+  if (match) {
+    const [, numericPrefix, remainder] = match;
+    const order = parseInt(
+      transliterate({ input: numericPrefix, mode: 'arabic-to-latin' }),
+      10
     );
+    if (isNaN(order)) {
+      throw new Error(
+        `Invalid numeric prefix in directory name: "${directoryName}". Could not parse "${numericPrefix}" to a number.`
+      );
+    }
+    return {
+      order,
+      name: remainder,
+      isPrefixed: true,
+    };
   }
-  const [, numericPrefix, remainder] = match;
-  const fileOrder = parseInt(
-    transliterate({ input: numericPrefix, mode: "arabic-to-latin" }),
-    10
-  );
-  if (isNaN(fileOrder)) {
+  if (isDirectoryPrefixMandatory) {
     throw new Error(
-      `Invalid numeric prefix in filename: "${filename}". Could not parse "${numericPrefix}" to a number.`
+      `Invalid directory name format: "${directoryName}". Expected format: <number>_<name> as prefix is mandatory at this level.`
     );
   }
   return {
-    fileOrder,
-    rawUnprefixedFilename: remainder,
+    order: DEFAULT_ORDER,
+    name: directoryName,
+    isPrefixed: false,
   };
+}
+export function normalizeSlug(raw: string): string {
+  const base = raw.replace(/\.md$/, '');
+  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, '');
+  return transliterate({
+    input: arabicOnly,
+    mode: 'arabic-to-latin',
+  }).replace(/_+/g, '-');
+}
+export function normalizeTitle(raw: string): string {
+  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
+  return arabicOnly.replace(/_+/g, ' ');
 }
 
 ================
-File: content/utils/tree-flattener.ts
+File: content/utils/tree-utils.ts
 ================
-import type { SummaryNode } from "../types";
-import { walkTree } from "./tree-walker";
+import type { SummaryNode } from '../types';
+export function walkTree<T extends { slug: string; children: T[] }>(
+  nodes: T[],
+  callback: (node: T, path: string[], level: number) => void,
+  currentPath: string[] = [],
+  level: number = 0
+): void {
+  for (const node of nodes) {
+    callback(node, currentPath, level);
+    if (node.children && node.children.length > 0) {
+      walkTree(node.children, callback, [...currentPath, node.slug], level + 1);
+    }
+  }
+}
 export function flattenTree(tree: SummaryNode[]): SummaryNode[] {
   const flattened: SummaryNode[] = [];
   walkTree(tree, (node) => flattened.push(node));
@@ -315,20 +444,58 @@ export function flattenTree(tree: SummaryNode[]): SummaryNode[] {
 }
 
 ================
-File: content/utils/tree-walker.ts
+File: content/api.ts
 ================
-export function walkTree<T extends { slug: string; children: T[] }>(
-  nodes: T[],
-  callback: (node: T, path: string[], level: number) => void,
-  path: string[] = [],
-  level: number = 0
-): void {
-  for (const node of nodes) {
-    callback(node, path, level);
-    if (node.children.length > 0) {
-      walkTree(node.children, callback, [...path, node.slug], level + 1);
+import { loadPageSpecificContent } from "./core/content-loader";
+import { loadBookLandingPageConfigForBuild } from "./core/landing-page-loader";
+import {
+  buildContentSummaryTree,
+  clearSummaryTreeCache as clearInternalSummaryTreeCache,
+} from "./core/tree-builder";
+import { findDeepestNode } from "./query/find-node";
+import type { ContentNode, SummaryNode } from "./types";
+export { getTreeSlugs as getAllContentPaths } from "./query/get-all-paths";
+export { getBreadcrumbs } from "./query/get-breadcrumbs";
+export { getLeafNodes } from "./query/get-leaf-nodes";
+export { getNodeSlugPath } from "./query/get-node-path";
+export { flattenTree, walkTree } from "./utils/tree-utils";
+const BOOK_DEPTH = 2;
+export async function getSummaryTree(): Promise<SummaryNode[]> {
+  return buildContentSummaryTree();
+}
+export async function getContentNodeBySlugPath(
+  slugPath: string[],
+): Promise<ContentNode | null> {
+  const tree = await getSummaryTree();
+  const summaryNode = findDeepestNode(tree, slugPath);
+  if (!summaryNode) {
+    return null;
+  }
+  const pageContent = await loadPageSpecificContent(slugPath);
+  const contentNode: ContentNode = {
+    ...summaryNode,
+  };
+  if (pageContent) {
+    contentNode.pageTitle = pageContent.pageTitle;
+    contentNode.pageOrder = pageContent.pageOrder;
+    contentNode.excerpt = pageContent.excerpt;
+    contentNode.contentHtml = pageContent.contentHtml;
+    contentNode.frontmatter = pageContent.frontmatter;
+  }
+  const nodeDepth = summaryNode.parentPath.length;
+  if (nodeDepth === BOOK_DEPTH) {
+    const landingConfig = await loadBookLandingPageConfigForBuild(
+      slugPath,
+      summaryNode.children,
+    );
+    if (landingConfig) {
+      contentNode.landingPageConfig = landingConfig;
     }
   }
+  return contentNode;
+}
+export function clearSummaryCache(): void {
+  clearInternalSummaryTreeCache();
 }
 
 ================
@@ -346,25 +513,66 @@ export type SummaryNode = BaseNode &
   HierarchyMeta & {
     children: SummaryNode[];
   };
-export type ContentNode = SummaryNode & {
-  excerpt?: string;
-  contentHtml: string;
+export type LeafNodeInfo = {
+  title: string;
+  fullSlugPath: string;
 };
-export type LeafNode = BaseNode;
+interface BookLandingSectionBaseJson {
+  title: string;
+}
+export interface TextLandingSectionJson extends BookLandingSectionBaseJson {
+  type: "text";
+  content: string[];
+}
+export interface VisualizationLandingSectionJson
+  extends BookLandingSectionBaseJson {
+  type: "visualization";
+  chapterIdentifier: string;
+}
+export type BookLandingSectionJson =
+  | TextLandingSectionJson
+  | VisualizationLandingSectionJson;
+export interface BookLandingPageConfigJson {
+  sections: BookLandingSectionJson[];
+}
+export interface ProcessedTextLandingSection
+  extends BookLandingSectionBaseJson {
+  type: "text";
+  content: string[];
+}
+export interface ProcessedVisualizationLandingSection
+  extends BookLandingSectionBaseJson {
+  type: "visualization";
+  nodes: SummaryNode[];
+}
+export type ProcessedBookLandingSection =
+  | ProcessedTextLandingSection
+  | ProcessedVisualizationLandingSection;
+export interface ProcessedBookLandingPageConfig {
+  sections: ProcessedBookLandingSection[];
+}
+export type ContentNode = SummaryNode & {
+  pageTitle?: string;
+  pageOrder?: number;
+  excerpt?: string;
+  contentHtml?: string;
+  frontmatter?: Record<string, any>;
+  landingPageConfig?: ProcessedBookLandingPageConfig;
+};
 
 ================
-File: styles/tailwind.ts
+File: styles/tailwind-utils.ts
 ================
-import clsx, { type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import clsx, { type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
 ================
-File: text/ascii-generator.ts
+File: text/ascii-tree-generator.ts
 ================
-import type { SummaryNode } from "../content/types";
+import type { SummaryNode } from '../content/types';
 export function generateASCIITree(
   docs: SummaryNode[],
   options: {
@@ -375,20 +583,20 @@ export function generateASCIITree(
   } = {}
 ): string {
   const {
-    indent = "",
+    indent = '',
     splitLevel = Infinity,
-    splitString = "",
+    splitString = '',
     currentLevel = 0,
   } = options;
   return docs
     .map((node, index) => {
       const isLast = index === docs.length - 1;
-      const branch = isLast ? "└── " : "├── ";
-      const nextIndent = indent + (isLast ? "    " : "│   ");
-      const label = node.title.replace(/_/g, " ");
-      let output = "";
+      const branch = isLast ? '└── ' : '├── ';
+      const nextIndent = indent + (isLast ? '    ' : '│   ');
+      const label = node.title.replace(/_/g, ' ');
+      let output = '';
       if (currentLevel === splitLevel && label !== splitString) {
-        return "";
+        return '';
       }
       output += `${indent}${branch}${label}\n`;
       if (node.children.length > 0) {
@@ -401,7 +609,7 @@ export function generateASCIITree(
       }
       return output;
     })
-    .join("");
+    .join('');
 }
 
 ================
@@ -441,7 +649,7 @@ const LATIN_TO_ARABIC_DIGITS: Record<string, string> = {
   "9": "٩",
 };
 const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
-  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w])
+  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w]),
 );
 const digitSet = new Set(Object.keys(LATIN_TO_ARABIC_DIGITS));
 const ARABIC_TO_LATIN_LETTERS: Record<string, string> = {
@@ -495,13 +703,37 @@ const ARABIC_TO_LATIN_MAP = {
   ...ARABIC_TO_LATIN_LETTERS,
   ...ARABIC_TO_LATIN_DIGITS,
 };
-const LATIN_TO_ARABIC_LETTERS: Record<string, string> = Object.fromEntries(
-  Object.entries(ARABIC_TO_LATIN_LETTERS)
-    .filter(([_arb, lat]) => lat.length > 0)
-    .map(([arb, lat]) => [lat, arb])
-);
+const LATIN_TO_ARABIC_LETTERS: Record<string, string> = {
+  al: "ال",
+  aa: "آ",
+  th: "ث",
+  kh: "خ",
+  dh: "ذ",
+  sh: "ش",
+  gh: "غ",
+  sgh: "صغ",
+  ay: "عي",
+  a: "ا",
+  b: "ب",
+  t: "ت",
+  j: "ج",
+  h: "ح",
+  d: "د",
+  r: "ر",
+  z: "ز",
+  s: "س",
+  f: "ف",
+  q: "ق",
+  k: "ك",
+  l: "ل",
+  m: "م",
+  n: "ن",
+  w: "و",
+  y: "ي",
+  i: "إ",
+};
 const LATIN_LETTER_KEYS = Object.keys(LATIN_TO_ARABIC_LETTERS).sort(
-  (a, b) => b.length - a.length
+  (a, b) => b.length - a.length,
 );
 export function transliterate(options: Options): string {
   const { mode } = options;
@@ -514,7 +746,7 @@ export function transliterate(options: Options): string {
     case "latin-numbers-to-arabic-digits":
       if (!/^\d+$/.test(inputStr)) {
         throw new Error(
-          "Mode 'latin-numbers-to-arabic-digits' requires digits only."
+          "Mode 'latin-numbers-to-arabic-digits' requires digits only.",
         );
       }
       return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join("");
@@ -544,6 +776,8 @@ function transliterateLatinToArabic(s: string): string {
     const ch = s[i];
     if (digitSet.has(ch)) {
       result += LATIN_TO_ARABIC_DIGITS[ch];
+    } else if (ch === "-") {
+      result += "_";
     } else {
       result += ch;
     }

@@ -1,117 +1,94 @@
-//––– Types ----------------------------–––––––––––––––––––––––––––––––––––––
-
-/**
- * Options for transliterating Arabic text to Latin script.
- */
 type ArabicToLatinOptions = {
-  mode: 'arabic-to-latin';
-  /** Arbitrary Arabic text (letters + Arabic-Indic digits) */
+  mode: "arabic-to-latin";
   input: string;
 };
 
-/**
- * Options for converting Western digits in Latin text to Arabic-Indic digits.
- */
 type LatinToArabicDigitsOptions = {
-  mode: 'latin-to-arabic-digits';
-  /** Mixed Latin letters + Western digits */
+  mode: "latin-to-arabic-digits";
   input: string;
 };
 
-/**
- * Options for converting Western digits only (string or number) to Arabic-Indic digits.
- */
 type LatinNumbersToArabicDigitsOptions = {
-  mode: 'latin-numbers-to-arabic-digits';
-  /** Western digits only (string or number) */
+  mode: "latin-numbers-to-arabic-digits";
   input: string | number;
 };
 
-/**
- * Options for transliterating Latin script (letters + digits) to Arabic script.
- */
 type LatinToArabicOptions = {
-  mode: 'latin-to-arabic';
-  /** Mixed Latin letters + Western digits */
+  mode: "latin-to-arabic";
   input: string;
 };
 
-/**
- * Union type for all transliteration options.
- */
 type Options =
   | ArabicToLatinOptions
   | LatinToArabicDigitsOptions
   | LatinNumbersToArabicDigitsOptions
   | LatinToArabicOptions;
 
-//––– Maps -----------------------------–––––––––––––––––––––––––––––––––––––
-
 const LATIN_TO_ARABIC_DIGITS: Record<string, string> = {
-  '0': '٠',
-  '1': '١',
-  '2': '٢',
-  '3': '٣',
-  '4': '٤',
-  '5': '٥',
-  '6': '٦',
-  '7': '٧',
-  '8': '٨',
-  '9': '٩',
+  "0": "٠",
+  "1": "١",
+  "2": "٢",
+  "3": "٣",
+  "4": "٤",
+  "5": "٥",
+  "6": "٦",
+  "7": "٧",
+  "8": "٨",
+  "9": "٩",
 };
 
 const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
-  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w])
+  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w]),
 );
 
 const digitSet = new Set(Object.keys(LATIN_TO_ARABIC_DIGITS));
 
 const ARABIC_TO_LATIN_LETTERS: Record<string, string> = {
-  ا: 'a',
-  ب: 'b',
-  ت: 't',
-  ث: 'th',
-  ج: 'j',
-  ح: 'h',
-  خ: 'kh',
-  د: 'd',
-  ذ: 'dh',
-  ر: 'r',
-  ز: 'z',
-  س: 's',
-  ش: 'sh',
-  ص: 's',
-  ض: 'd',
-  ط: 't',
-  ظ: 'z',
-  ع: 'a',
-  غ: 'gh',
-  ف: 'f',
-  ق: 'q',
-  ك: 'k',
-  ل: 'l',
-  م: 'm',
-  ن: 'n',
-  ه: 'h',
-  و: 'w',
-  ي: 'y',
-  ء: '',
-  ى: 'a',
-  ئ: 'y',
-  ؤ: 'w',
-  ة: 'h',
-  إ: 'i',
-  أ: 'a',
-  آ: 'aa',
-  'ٓ': '',
-  'َ': 'a',
-  'ُ': 'u',
-  'ِ': 'i',
-  'ّ': '',
-  'ْ': '',
-  'ً': 'an',
-  'ٌ': 'un',
-  'ٍ': 'in',
+  ا: "a",
+  ب: "b",
+  ت: "t",
+  ث: "th",
+  ج: "j",
+  ح: "h",
+  خ: "kh",
+  د: "d",
+  ذ: "dh",
+  ر: "r",
+  ز: "z",
+  س: "s",
+  ش: "sh",
+  ص: "s",
+  ض: "d",
+  ط: "t",
+  ظ: "z",
+  ع: "a",
+  غ: "gh",
+  ف: "f",
+  ق: "q",
+  ك: "k",
+  ل: "l",
+  م: "m",
+  ن: "n",
+  ه: "h",
+  و: "w",
+  ي: "y",
+  ء: "",
+  ى: "a",
+  ئ: "y",
+  ؤ: "w",
+  ة: "h",
+  إ: "i",
+  أ: "a",
+  آ: "aa",
+  "ٓ": "",
+  "َ": "a",
+  "ُ": "u",
+  "ِ": "i",
+  "ّ": "",
+  "ْ": "",
+  "ً": "an",
+  "ٌ": "un",
+  "ٍ": "in",
 };
 
 const ARABIC_TO_LATIN_MAP = {
@@ -119,17 +96,40 @@ const ARABIC_TO_LATIN_MAP = {
   ...ARABIC_TO_LATIN_DIGITS,
 };
 
-const LATIN_TO_ARABIC_LETTERS: Record<string, string> = Object.fromEntries(
-  Object.entries(ARABIC_TO_LATIN_LETTERS)
-    .filter(([_arb, lat]) => lat.length > 0)
-    .map(([arb, lat]) => [lat, arb])
-);
+const LATIN_TO_ARABIC_LETTERS: Record<string, string> = {
+  al: "ال",
+  aa: "آ",
+  th: "ث",
+  kh: "خ",
+  dh: "ذ",
+  sh: "ش",
+  gh: "غ",
+  sgh: "صغ",
+  ay: "عي",
+
+  a: "ا",
+  b: "ب",
+  t: "ت",
+  j: "ج",
+  h: "ح",
+  d: "د",
+  r: "ر",
+  z: "ز",
+  s: "س",
+  f: "ف",
+  q: "ق",
+  k: "ك",
+  l: "ل",
+  m: "م",
+  n: "ن",
+  w: "و",
+  y: "ي",
+  i: "إ",
+};
 
 const LATIN_LETTER_KEYS = Object.keys(LATIN_TO_ARABIC_LETTERS).sort(
-  (a, b) => b.length - a.length
+  (a, b) => b.length - a.length,
 );
-
-//––– Functions –––––--------------------––––––––––––––––––––––––––––––––––––
 
 /**
  * Transliterates text between Arabic and Latin scripts or converts Western digits
@@ -150,21 +150,21 @@ export function transliterate(options: Options): string {
   const inputStr = options.input.toString();
 
   switch (mode) {
-    case 'arabic-to-latin':
-      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join('');
+    case "arabic-to-latin":
+      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join("");
 
-    case 'latin-to-arabic-digits':
+    case "latin-to-arabic-digits":
       return inputStr.replace(/[0-9]/g, (d) => LATIN_TO_ARABIC_DIGITS[d]);
 
-    case 'latin-numbers-to-arabic-digits':
+    case "latin-numbers-to-arabic-digits":
       if (!/^\d+$/.test(inputStr)) {
         throw new Error(
-          "Mode 'latin-numbers-to-arabic-digits' requires digits only."
+          "Mode 'latin-numbers-to-arabic-digits' requires digits only.",
         );
       }
-      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join('');
+      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join("");
 
-    case 'latin-to-arabic':
+    case "latin-to-arabic":
       return transliterateLatinToArabic(inputStr);
 
     default:
@@ -182,7 +182,7 @@ export function transliterate(options: Options): string {
  * @returns Transliterated Arabic string.
  */
 function transliterateLatinToArabic(s: string): string {
-  let result = '';
+  let result = "";
   let i = 0;
   const N = s.length;
   const lower = s.toLowerCase();
@@ -203,6 +203,8 @@ function transliterateLatinToArabic(s: string): string {
     const ch = s[i];
     if (digitSet.has(ch)) {
       result += LATIN_TO_ARABIC_DIGITS[ch];
+    } else if (ch === "-") {
+      result += "_";
     } else {
       result += ch;
     }

@@ -1,7 +1,8 @@
-import { buildContentSummaryTree } from '../core/tree-builder';
-import type { SummaryNode } from '../types';
+import { buildFullContentSummaryTree } from "../core/tree-builder";
+import type { SummaryNode } from "../types";
+
 export async function getTreeSlugs(): Promise<string[][]> {
-  const tree = await buildContentSummaryTree();
+  const tree = await buildFullContentSummaryTree();
   const slugs: string[][] = [];
   function traverse(node: SummaryNode, currentPath: string[] = []) {
     const newPath = [...currentPath, node.slug];
