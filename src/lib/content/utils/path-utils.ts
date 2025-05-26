@@ -1,8 +1,8 @@
 import { convertNumerals } from '@/lib/common/convert-numerals';
 
 export type ParsedNameInfo = {
-  order: number;
-  name: string;
+  fileOrder: number;
+  fileName: string;
   isPrefixed: boolean;
 };
 
@@ -33,8 +33,8 @@ export function parseDirectoryName({
       );
     }
     return {
-      order,
-      name: remainder,
+      fileOrder: order,
+      fileName: remainder,
       isPrefixed: true,
     };
   }
@@ -44,13 +44,16 @@ export function parseDirectoryName({
     );
   }
   return {
-    order: DEFAULT_ORDER,
-    name: directoryName,
+    fileOrder: DEFAULT_ORDER,
+    fileName: directoryName,
     isPrefixed: false,
   };
 }
 
 export function normalizeTitle(raw: string): string {
+  // This function was originally removing non-Arabic characters, which might not be the desired behavior for all titles.
+  // If the intention is to only keep Arabic characters and replace underscores with spaces, the original logic is fine.
+  // If you need to support other characters in titles, you'll need to adjust this regex.
   const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
   return arabicOnly.replace(/_+/g, ' ');
 }

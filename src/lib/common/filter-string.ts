@@ -1,0 +1,109 @@
+type FilterOptions = {
+  arabicLetters?: boolean;
+  arabicNumbers?: boolean;
+  englishLetters?: boolean;
+  englishNumbers?: boolean;
+  underscores?: boolean;
+  spaces?: boolean;
+  forwardSlashes?: boolean;
+  asciiSingleQuotes?: boolean;
+  asciiDoubleQuotes?: boolean;
+  smartSingleQuotes?: boolean;
+  smartDoubleQuotes?: boolean;
+  guillemets?: boolean;
+  custom?: string;
+};
+
+/**
+ * Remove any character *not* explicitly allowed by `options`.
+ *
+ * @param input  The string to filter
+ * @param options  Which character sets (or literals) to permit
+ * @returns A new string containing only allowed characters
+ */
+export function filterString({
+  input,
+  options,
+}: {
+  input: string;
+  options: FilterOptions;
+}): string {
+  const parts: string[] = [];
+
+  for (const [key, value] of Object.entries(options) as [
+    keyof FilterOptions,
+    boolean | string,
+  ][]) {
+    const rangeOrChars = getRangeForOption(key, value);
+    if (rangeOrChars) {
+      parts.push(rangeOrChars);
+    }
+  }
+
+  const allowed = parts.join('');
+  // If 'allowed' is empty, regex '[^]' will match all characters,
+  // effectively removing everything, which is correct.
+  const regex = new RegExp(`[^${allowed}]`, 'gu');
+  return input.replace(regex, '');
+}
+
+/**
+ * Map each FilterOptions key to its corresponding
+ * regex‐safe range or literal characters.
+ *
+ * To support a new option:
+ * 1. Add it to FilterOptions.
+ * 2. Add a new `case 'yourOption':` here.
+ */
+function getRangeForOption<K extends keyof FilterOptions>(
+  option: K,
+  value: FilterOptions[K]
+): string | null {
+  if (!value) return null;
+
+  switch (option) {
+    case 'arabicLetters':
+      return '\u0600-\u06FF';
+    case 'arabicNumbers':
+      return '\u0660-\u0669';
+    case 'englishLetters':
+      return 'a-zA-Z';
+    case 'englishNumbers':
+      return '0-9';
+    case 'underscores':
+      return '_';
+    case 'spaces':
+      return ' ';
+    case 'forwardSlashes':
+      return '/';
+    case 'asciiSingleQuotes':
+      return "'";
+    case 'asciiDoubleQuotes':
+      return '"';
+    case 'smartSingleQuotes':
+      return '‘’';
+    case 'smartDoubleQuotes':
+      return '“”';
+    case 'guillemets':
+      return '«»';
+    case 'custom':
+      // Ensure value is treated as string for escapeRegExp
+      return escapeRegExp(value as string);
+    default:
+      // Exhaustiveness check for switch statement
+      // This ensures that if a new key is added to FilterOptions,
+      // the switch statement here will cause a compile-time error
+      // if not handled.
+      const _exhaustiveCheck: never = option;
+      return null;
+  }
+}
+
+/**
+ * Escape all RegExp-special characters in `str`.
+ * E.g. "." -> "\.", "*" -> "\*", etc.
+ * Forward slash is also escaped here, which is fine if it's part of a custom string.
+ */
+function escapeRegExp(str: string): string {
+  return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+}

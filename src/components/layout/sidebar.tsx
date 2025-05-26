@@ -25,14 +25,20 @@ import {
 import Link from 'next/link';
 import React, { memo, useCallback } from 'react';
 
-function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
+type Props = {
+  tree: SummaryNode[];
+  label: string;
+  bookLandingPath: string;
+};
+
+function SidebarComponent({ tree, label, bookLandingPath }: Props) {
   const {
     flatItems,
     expandedSections,
     toggleSection,
     isCurrentPage,
     toggleAll,
-  } = useSidebar(summaryTree);
+  } = useSidebar({ tree });
 
   const isVisible = useCallback(
     (node: SummaryNode): boolean => {
@@ -52,7 +58,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
         className={cn('overflow-y-scroll', '[&::-webkit-scrollbar]:w-0')}
       >
         <SidebarGroup>
-          <SidebarGroupLabel>النحو الرقمي</SidebarGroupLabel>
+          <SidebarGroupLabel>{label}</SidebarGroupLabel>
           <SidebarGroupAction onClick={toggleAll} title="طي وبسط">
             <ChevronsDownUp /> <span className="sr-only">Toggle</span>
           </SidebarGroupAction>
@@ -64,7 +70,7 @@ function SidebarComponent({ summaryTree }: { summaryTree: SummaryNode[] }) {
                   isActive={isCurrentPage('__home')}
                   className="pl-1.5"
                 >
-                  <Link href="/">
+                  <Link href={bookLandingPath}>
                     <BookOpen className="h-4 w-4 shrink-0" />
                     <span>مقدمة</span>
                   </Link>

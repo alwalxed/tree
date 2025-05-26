@@ -3,133 +3,69 @@ import path from 'path';
 import type { SummaryNode } from '../types';
 import { normalizeTitle, parseDirectoryName } from '../utils/path-utils';
 
-const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
+export const CONTENT_PATH = path.join(process.cwd(), 'content');
 
-let fullSummaryTreeCache: SummaryNode[] | null = null;
-
-const bookSpecificTreeCache = new Map<string, SummaryNode[]>();
-
-function isPrefixMandatoryForDepth(absoluteDepth: number): boolean {
-  return absoluteDepth >= 3;
+function requiresPrefix(depth: number): boolean {
+  return depth >= 3;
 }
 
-async function scanContentDirectoryRecursive(
-  currentActualDirPath: string,
-  parentSlugPath: string[] = [],
-  currentAbsoluteDepth: number = 0
-): Promise<SummaryNode[]> {
-  const entries = await fs.promises.readdir(currentActualDirPath, {
+export async function buildTree({
+  contentPath,
+  dirNames = [], // real filesystem names (with prefix)
+  slugs = [], // our “fileName” slugs for JSON
+  depth = 0,
+}: {
+  contentPath: string;
+  dirNames?: string[];
+  slugs?: string[];
+  depth?: number;
+}): Promise<SummaryNode[]> {
+  const root = path.join(contentPath, ...dirNames);
+  // bail if folder doesn’t exist or isn’t readable
+  try {
+    await fs.promises.access(root, fs.constants.R_OK);
+  } catch {
+    return [];
+  }
+
+  const entries = await fs.promises.readdir(root, {
     withFileTypes: true,
   });
-  const items: SummaryNode[] = [];
+  const nodes: SummaryNode[] = [];
 
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
+  for (const dirent of entries) {
+    if (!dirent.isDirectory()) continue;
 
-    const fullActualEntryPath = path.join(currentActualDirPath, entry.name);
+    // parse out the “١_” prefix
+    const { fileName, fileOrder } = parseDirectoryName({
+      directoryName: dirent.name,
+      isDirectoryPrefixMandatory: requiresPrefix(depth),
+    });
 
-    if (entry.isDirectory()) {
-      const { order: dirOrder, name: unprefixedDirName } = parseDirectoryName({
-        directoryName: entry.name,
-        isDirectoryPrefixMandatory:
-          isPrefixMandatoryForDepth(currentAbsoluteDepth),
-      });
+    const title = normalizeTitle(fileName);
+    const slug = fileName;
+    const order = fileOrder;
 
-      const slug = unprefixedDirName;
-      const title = normalizeTitle(unprefixedDirName);
+    // recurse, but push the **real** dirent.name into dirNames
+    // and the **slug** into slugs
+    const children = await buildTree({
+      contentPath,
+      dirNames: [...dirNames, dirent.name],
+      slugs: [...slugs, slug],
+      depth: depth + 1,
+    });
 
-      const children = await scanContentDirectoryRecursive(
-        fullActualEntryPath,
-        [...parentSlugPath, slug],
-        currentAbsoluteDepth + 1
-      );
-
-      items.push({
-        title,
-        slug,
-        order: dirOrder,
-        parentPath: parentSlugPath,
-        children,
-      });
-    }
+    nodes.push({
+      title,
+      slug,
+      order,
+      parentPath: slugs,
+      children,
+    });
   }
-  return items.sort((a, b) => {
-    if (a.order !== b.order) {
-      return a.order - b.order;
-    }
+
+  return nodes.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order;
     return a.title.localeCompare(b.title);
   });
-}
-
-export async function buildFullContentSummaryTree(): Promise<SummaryNode[]> {
-  if (fullSummaryTreeCache) {
-    console.log('[TreeBuilder] Returning cached full summary tree.');
-    return fullSummaryTreeCache;
-  }
-  console.log('[TreeBuilder] Building full summary tree from scratch.');
-  fullSummaryTreeCache = await scanContentDirectoryRecursive(CONTENT_BASE_PATH);
-  return fullSummaryTreeCache;
-}
-
-export async function buildBookContentOnlyTree(
-  bookSlugPath: string[]
-): Promise<SummaryNode[]> {
-  if (bookSlugPath.length !== 3) {
-    console.error(
-      '[TreeBuilder] buildBookContentOnlyTree expects a slug path of length 3 (subject/author/book). Received:',
-      bookSlugPath
-    );
-    return [];
-  }
-
-  const decodedBookSlugPath = bookSlugPath.map((s) => decodeURIComponent(s));
-  const cacheKey = decodedBookSlugPath.join('/');
-  if (bookSpecificTreeCache.has(cacheKey)) {
-    console.log(
-      `[TreeBuilder] Returning cached content tree for book: ${cacheKey}`
-    );
-    return bookSpecificTreeCache.get(cacheKey)!;
-  }
-
-  console.log(
-    `[TreeBuilder] Building content tree specifically for book: ${cacheKey}`
-  );
-
-  const bookActualDirPath = path.join(
-    CONTENT_BASE_PATH,
-    ...decodedBookSlugPath
-  );
-
-  try {
-    await fs.promises.access(bookActualDirPath);
-  } catch (e) {
-    console.error(
-      `[TreeBuilder] Book directory not found at: ${bookActualDirPath} (derived from Latin slug: ${cacheKey}) ${e}`
-    );
-    return [];
-  }
-
-  const bookContent = await scanContentDirectoryRecursive(
-    bookActualDirPath,
-    decodedBookSlugPath
-  );
-
-  bookSpecificTreeCache.set(cacheKey, bookContent);
-  return bookContent;
-}
-
-export function clearFullSummaryTreeCache(): void {
-  console.log('[TreeBuilder] Clearing full summary tree cache.');
-  fullSummaryTreeCache = null;
-}
-
-export function clearBookSpecificTreeCache(bookLatinSlugPath?: string[]): void {
-  if (bookLatinSlugPath) {
-    const cacheKey = bookLatinSlugPath.join('/');
-    bookSpecificTreeCache.delete(cacheKey);
-    console.log(`[TreeBuilder] Cleared cache for specific book: ${cacheKey}`);
-  } else {
-    bookSpecificTreeCache.clear();
-    console.log('[TreeBuilder] Cleared all book-specific tree caches.');
-  }
 }

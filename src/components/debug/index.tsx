@@ -4,14 +4,10 @@ import type { SummaryNode } from '@/lib/content/types';
 import { memo } from 'react';
 import { TreeStructureDebugger } from './tree-structure.view';
 
-function DevDebuggersComponent({
-  summaryTree,
-}: {
-  summaryTree: SummaryNode[];
-}) {
+function DevDebuggersComponent({ tree }: { tree: SummaryNode[] }) {
   return (
     <>
-      <TreeStructureDebugger summaryTree={summaryTree} />
+      <TreeStructureDebugger tree={tree} />
     </>
   );
 }

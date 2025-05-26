@@ -29,12 +29,8 @@ import {
 import { memo } from 'react';
 import { useTreeStructureDebugger } from './tree-structure.hook';
 
-function TreeStructureDebuggerComponent({
-  summaryTree,
-}: {
-  summaryTree: SummaryNode[];
-}) {
-  const { state, actions, helpers } = useTreeStructureDebugger(summaryTree);
+function TreeStructureDebuggerComponent({ tree }: { tree: SummaryNode[] }) {
+  const { state, actions, helpers } = useTreeStructureDebugger(tree);
   const { open, copied, searchTerm, expandedNodes, expandAll, activeTab } =
     state;
   const {
@@ -130,7 +126,7 @@ function TreeStructureDebuggerComponent({
             >
               <ScrollArea className="bg-background h-full rounded-md border">
                 <div className="p-4">
-                  {summaryTree.map((node) => (
+                  {tree.map((node) => (
                     <TreeNode
                       key={node.slug}
                       node={node}
@@ -161,9 +157,8 @@ function TreeStructureDebuggerComponent({
           <div className="bg-muted/10 text-muted-foreground border-t px-6 py-3 text-xs">
             <div className="flex items-center justify-between">
               <div>
-                Total nodes: {countNodes(summaryTree)} • Root nodes:{' '}
-                {summaryTree.length} • Max depth:{' '}
-                {calculateMaxDepth(summaryTree)}
+                Total nodes: {countNodes(tree)} • Root nodes: {tree.length} •
+                Max depth: {calculateMaxDepth(tree)}
               </div>
               <div>
                 <span className="font-mono">

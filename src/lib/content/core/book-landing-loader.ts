@@ -14,7 +14,7 @@ const LANDING_CONFIG_FILENAME = 'landing.json';
 
 const LOG_PREFIX = '[LandingPageLoader]';
 
-export async function loadBookLandingPageConfigForBuild(
+export async function loadBookLanding(
   bookNodeLatinSlugPath: string[],
   bookChapters: SummaryNode[]
 ) {

@@ -2,7 +2,7 @@ import type { SummaryNode } from '@/lib/content/types';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
-export function useSidebar(summaryTree: SummaryNode[]) {
+export function useSidebar({ tree }: { tree: SummaryNode[] }) {
   const pathname = usePathname();
 
   const [expandedSections, setExpandedSections] = useState<
@@ -39,8 +39,8 @@ export function useSidebar(summaryTree: SummaryNode[]) {
       return result;
     };
 
-    return walk(summaryTree);
-  }, [summaryTree]);
+    return walk(tree);
+  }, [tree]);
 
   const getAllPaths = useCallback((nodes: SummaryNode[]): string[] => {
     let paths: string[] = [];
@@ -55,22 +55,22 @@ export function useSidebar(summaryTree: SummaryNode[]) {
   }, []);
 
   const expandAll = useCallback(() => {
-    const all = getAllPaths(summaryTree);
+    const all = getAllPaths(tree);
     const expanded: Record<string, boolean> = {};
     all.forEach((p) => (expanded[p] = true));
     setExpandedSections(expanded);
-  }, [summaryTree, getAllPaths]);
+  }, [tree, getAllPaths]);
 
   const collapseAll = useCallback(() => {
     setExpandedSections({});
   }, []);
 
   const toggleAll = useCallback(() => {
-    const allPaths = getAllPaths(summaryTree);
+    const allPaths = getAllPaths(tree);
     const someExpanded = allPaths.some((path) => expandedSections[path]);
     if (someExpanded) collapseAll();
     else expandAll();
-  }, [expandedSections, collapseAll, expandAll, getAllPaths, summaryTree]);
+  }, [expandedSections, collapseAll, expandAll, getAllPaths, tree]);
 
   return useMemo(
     () => ({

@@ -1,16 +1,30 @@
-import { buildFullContentSummaryTree } from "../core/tree-builder";
-import type { SummaryNode } from "../types";
+import { buildFullTree } from '../core/tree-builder';
+import type { SummaryNode } from '../types';
 
 export async function getTreeSlugs(): Promise<string[][]> {
-  const tree = await buildFullContentSummaryTree();
+  const tree = await buildFullTree({});
   const slugs: string[][] = [];
-  function traverse(node: SummaryNode, currentPath: string[] = []) {
-    const newPath = [...currentPath, node.slug];
-    slugs.push(newPath);
-    if (node.children) {
-      node.children.forEach((child) => traverse(child, newPath));
+
+  function traverse(node: SummaryNode, parentPath: string[] = []) {
+    const thisPath = [...parentPath, node.slug];
+
+    if (node.children.length === 0) {
+      // if this is exactly a book‐level leaf (depth 3), skip it
+      if (thisPath.length === 3) {
+        return;
+      }
+      slugs.push(thisPath);
+      return;
+    }
+
+    for (const child of node.children) {
+      traverse(child, thisPath);
     }
   }
-  tree.forEach((node) => traverse(node));
+
+  for (const root of tree) {
+    traverse(root, []);
+  }
+
   return slugs;
 }

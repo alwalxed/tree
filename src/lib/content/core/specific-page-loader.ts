@@ -16,7 +16,7 @@ export type PageSpecificContent = {
 
 const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
 
-export async function loadPageSpecificContent(
+export async function loadSpecificPage(
   slugPath: string[]
 ): Promise<PageSpecificContent | null> {
   if (slugPath.length === 0) return null;
