@@ -1,18 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import type { SummaryNode } from '../types';
-import { normalizeTitle, parseDirectoryName } from '../utils/path-utils';
-
-export const CONTENT_PATH = path.join(process.cwd(), 'content');
-
-function requiresPrefix(depth: number): boolean {
-  return depth >= 3;
-}
+import {
+  normalizeTitle,
+  parseDirectoryName,
+  requiresPrefix,
+} from '../utils/path-utils';
 
 export async function buildTree({
   contentPath,
-  dirNames = [], // real filesystem names (with prefix)
-  slugs = [], // our “fileName” slugs for JSON
+  dirNames = [],
+  slugs = [],
   depth = 0,
 }: {
   contentPath: string;
@@ -46,8 +44,8 @@ export async function buildTree({
     const slug = fileName;
     const order = fileOrder;
 
-    // recurse, but push the **real** dirent.name into dirNames
-    // and the **slug** into slugs
+    // recurse, but push the real dirent.name into dirNames
+    // and the slug into slugs
     const children = await buildTree({
       contentPath,
       dirNames: [...dirNames, dirent.name],

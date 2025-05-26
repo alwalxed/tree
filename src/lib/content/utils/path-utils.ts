@@ -1,12 +1,84 @@
 import { convertNumerals } from '@/lib/common/convert-numerals';
+import fs from 'fs';
+import path from 'path';
+import { CONTENT_PATH, MIN_DEPTH_FOR_PREFIXED_DIRS } from '../constants';
+import { walkHasIndexMd } from './tree-utils';
 
-export type ParsedNameInfo = {
-  fileOrder: number;
-  fileName: string;
-  isPrefixed: boolean;
-};
+export function requiresPrefix(depth: number): boolean {
+  return depth >= MIN_DEPTH_FOR_PREFIXED_DIRS;
+}
 
-const DEFAULT_ORDER = 0;
+export async function existsDir(dir: string): Promise<boolean> {
+  try {
+    const stats = await fs.promises.stat(dir);
+    return stats.isDirectory();
+  } catch (err: any) {
+    // ENOENT, EACCES, etc.
+    console.warn(`cannot access directory "${dir}":`, err.code || err);
+    return false;
+  }
+}
+
+export async function hasBookContent({
+  bookPath,
+}: {
+  bookPath: string;
+}): Promise<boolean> {
+  try {
+    return await walkHasIndexMd(bookPath);
+  } catch (err) {
+    console.warn(`hasBookContent failed for ${bookPath}:`, err);
+    return false;
+  }
+}
+
+export async function validateBookPath({
+  subjectSlug,
+  authorSlug,
+  bookSlug,
+}: {
+  subjectSlug: string;
+  authorSlug: string;
+  bookSlug: string;
+}): Promise<boolean> {
+  const root = path.resolve(CONTENT_PATH);
+
+  // 1) Subject folder
+  const subjectPath = path.resolve(root, subjectSlug);
+  if (!subjectPath.startsWith(root)) {
+    console.warn('Path‐traversal detected in subjectSlug:', subjectSlug);
+    return false;
+  }
+  if (!(await existsDir(subjectPath))) {
+    console.warn(`Subject folder not found: ${subjectPath}`);
+    return false;
+  }
+
+  // 2) Author folder
+  const authorPath = path.resolve(subjectPath, authorSlug);
+  if (!authorPath.startsWith(root)) {
+    console.warn('Path‐traversal detected in authorSlug:', authorSlug);
+    return false;
+  }
+  if (!(await existsDir(authorPath))) {
+    console.warn(`Author folder not found: ${authorPath}`);
+    return false;
+  }
+
+  // 3) Book folder
+  const bookPath = path.resolve(authorPath, bookSlug);
+  if (!bookPath.startsWith(root)) {
+    console.warn('Path‐traversal detected in bookSlug:', bookSlug);
+    return false;
+  }
+  if (!(await existsDir(bookPath))) {
+    console.warn(`Book folder not found: ${bookPath}`);
+    return false;
+  }
+
+  // all good
+  return true;
+}
 
 export function parseDirectoryName({
   directoryName,
@@ -14,7 +86,12 @@ export function parseDirectoryName({
 }: {
   directoryName: string;
   isDirectoryPrefixMandatory: boolean;
-}): ParsedNameInfo {
+}): {
+  fileOrder: number;
+  fileName: string;
+  isPrefixed: boolean;
+} {
+  const DEFAULT_ORDER = 0;
   if (/\.[a-z0-9]+$/i.test(directoryName)) {
     throw new Error(
       `Directory name "${directoryName}" must not contain a file extension.`
@@ -51,9 +128,6 @@ export function parseDirectoryName({
 }
 
 export function normalizeTitle(raw: string): string {
-  // This function was originally removing non-Arabic characters, which might not be the desired behavior for all titles.
-  // If the intention is to only keep Arabic characters and replace underscores with spaces, the original logic is fine.
-  // If you need to support other characters in titles, you'll need to adjust this regex.
   const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
   return arabicOnly.replace(/_+/g, ' ');
 }
