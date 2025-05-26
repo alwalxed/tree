@@ -1,6 +1,5 @@
-import { transliterate } from "@/lib/text/transliteration";
-import fs from "fs/promises";
-import path from "path";
+import fs from 'fs/promises';
+import path from 'path';
 import type {
   BookLandingPageConfigJson,
   ProcessedBookLandingPageConfig,
@@ -8,38 +7,34 @@ import type {
   ProcessedTextLandingSection,
   ProcessedVisualizationLandingSection,
   SummaryNode,
-} from "../types";
+} from '../types';
 
-const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
-const LANDING_CONFIG_FILENAME = "landing.json";
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
+const LANDING_CONFIG_FILENAME = 'landing.json';
 
-const LOG_PREFIX = "[LandingPageLoader]";
+const LOG_PREFIX = '[LandingPageLoader]';
 
 export async function loadBookLandingPageConfigForBuild(
   bookNodeLatinSlugPath: string[],
-  bookChapters: SummaryNode[],
+  bookChapters: SummaryNode[]
 ) {
   if (bookNodeLatinSlugPath.length === 0) {
     console.log(
-      `${LOG_PREFIX} Received empty bookNodeLatinSlugPath. Skipping.`,
+      `${LOG_PREFIX} Received empty bookNodeLatinSlugPath. Skipping.`
     );
     return null;
   }
 
-  const bookNodeArabicPathParts = bookNodeLatinSlugPath.map((latinSlugPart) =>
-    transliterate({ input: latinSlugPart, mode: "latin-to-arabic" }),
-  );
-
-  const bookPathStringLatin = bookNodeLatinSlugPath.join("/");
+  const bookPathStringLatin = bookNodeLatinSlugPath.join('/');
 
   const landingConfigPath = path.join(
     CONTENT_BASE_PATH,
-    ...bookNodeArabicPathParts, // Use Arabic parts for file system
-    LANDING_CONFIG_FILENAME,
+    ...bookNodeLatinSlugPath,
+    LANDING_CONFIG_FILENAME
   );
 
   try {
-    const fileContent = await fs.readFile(landingConfigPath, "utf-8");
+    const fileContent = await fs.readFile(landingConfigPath, 'utf-8');
     const rawConfig = JSON.parse(fileContent) as BookLandingPageConfigJson;
 
     if (!rawConfig || !Array.isArray(rawConfig.sections)) {
@@ -48,12 +43,12 @@ export async function loadBookLandingPageConfigForBuild(
 
     const processedSections: ProcessedBookLandingSection[] = [];
 
-    for (const [, section] of rawConfig.sections.entries()) {
-      if (section.type === "text") {
+    for (const section of rawConfig.sections) {
+      if (section.type === 'text') {
         processedSections.push(section as ProcessedTextLandingSection);
-      } else if (section.type === "visualization") {
+      } else if (section.type === 'visualization') {
         const vizSectionJson =
-          section as import("../types").VisualizationLandingSectionJson;
+          section as import('../types').VisualizationLandingSectionJson;
         const chapterIdentifier = vizSectionJson.chapterIdentifier;
 
         const identifiedChapterNode = bookChapters.find((chapter) => {
@@ -63,7 +58,7 @@ export async function loadBookLandingPageConfigForBuild(
         if (identifiedChapterNode) {
           const nodesForViz = identifiedChapterNode.children || [];
           processedSections.push({
-            type: "visualization",
+            type: 'visualization',
             title: vizSectionJson.title,
             nodes: nodesForViz,
           } as ProcessedVisualizationLandingSection);
@@ -77,18 +72,18 @@ export async function loadBookLandingPageConfigForBuild(
     }
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
-    if (err.code === "ENOENT") {
+    if (err.code === 'ENOENT') {
       console.log(
-        `${LOG_PREFIX} Optional landing config file ${landingConfigPath} not found for book (Latin slug path: "${bookPathStringLatin}"). This is acceptable.`,
+        `${LOG_PREFIX} Optional landing config file ${landingConfigPath} not found for book (Latin slug path: "${bookPathStringLatin}"). This is acceptable.`
       );
     } else if (error instanceof SyntaxError) {
       console.warn(
-        `${LOG_PREFIX} Invalid JSON in ${landingConfigPath}: ${error.message}`,
+        `${LOG_PREFIX} Invalid JSON in ${landingConfigPath}: ${error.message}`
       );
     } else {
       console.error(
         `${LOG_PREFIX} Could not load or parse ${LANDING_CONFIG_FILENAME} for book (Latin slug path: ${bookPathStringLatin}). Path: ${landingConfigPath}. Error: ${err.message}`,
-        err.stack,
+        err.stack
       );
     }
     return null;

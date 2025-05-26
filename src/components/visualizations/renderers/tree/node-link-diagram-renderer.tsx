@@ -21,7 +21,8 @@ export const NodeLinkDiagramRenderer = memo(
     const [dimensions, setDimensions] = useState({ width: 0, height });
 
     useEffect(() => {
-      if (!containerRef.current) return;
+      const el = containerRef.current;
+      if (!el) return;
 
       const updateDimensions = () => {
         if (containerRef.current) {
@@ -35,13 +36,11 @@ export const NodeLinkDiagramRenderer = memo(
 
       // Set up resize observer to handle container size changes
       const resizeObserver = new ResizeObserver(updateDimensions);
-      resizeObserver.observe(containerRef.current);
+      resizeObserver.observe(el);
 
       // Clean up
       return () => {
-        if (containerRef.current) {
-          resizeObserver.unobserve(containerRef.current);
-        }
+        resizeObserver.unobserve(el);
         resizeObserver.disconnect();
       };
     }, [height]);
@@ -135,19 +134,16 @@ export const NodeLinkDiagramRenderer = memo(
         .style('fill', '#333');
 
       nodeGroups
-        .on(
-          'mouseover',
-          function (event: MouseEvent, d: d3.HierarchyNode<TreeNode>) {
-            d3.select(this)
-              .select('circle')
-              .transition()
-              .duration(200)
-              .attr('r', 8)
-              .style('fill', '#0066cc');
+        .on('mouseover', function () {
+          d3.select(this)
+            .select('circle')
+            .transition()
+            .duration(200)
+            .attr('r', 8)
+            .style('fill', '#0066cc');
 
-            d3.select(this).select('text').style('font-weight', 'bold');
-          }
-        )
+          d3.select(this).select('text').style('font-weight', 'bold');
+        })
         .on(
           'mouseout',
           function (event: MouseEvent, d: d3.HierarchyNode<TreeNode>) {
@@ -169,6 +165,7 @@ export const NodeLinkDiagramRenderer = memo(
           contentGroup.attr('transform', event.transform);
         });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       svg.call(zoom as any);
 
       if (isMobile) {
@@ -191,6 +188,7 @@ export const NodeLinkDiagramRenderer = memo(
         const translateY = viewportCenterY - rootY * scale;
 
         svg.call(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           zoom.transform as any,
           d3.zoomIdentity.translate(translateX, translateY).scale(scale)
         );
@@ -207,6 +205,7 @@ export const NodeLinkDiagramRenderer = memo(
           const y = (dimensions.height - bounds.height * scale) / 2;
 
           svg.call(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             zoom.transform as any,
             d3.zoomIdentity.translate(x, y).scale(scale)
           );
@@ -223,3 +222,5 @@ export const NodeLinkDiagramRenderer = memo(
     );
   }
 );
+
+NodeLinkDiagramRenderer.displayName = 'NodeLinkDiagramRenderer';

@@ -1,5 +1,5 @@
 This file is a merged representation of the entire codebase, combined into a single document by Repomix.
-The content has been processed where comments have been removed, empty lines have been removed.
+The content has been processed where empty lines have been removed.
 
 ================================================================
 File Summary
@@ -39,7 +39,6 @@ Notes:
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
-- Code comments have been removed from supported file types
 - Empty lines have been removed from all files
 - Files are sorted by Git change count (files with more changes are at the bottom)
 
@@ -49,60 +48,55 @@ Additional Info:
 ================================================================
 Directory Structure
 ================================================================
-content/
-  core/
-    content-loader.ts
-    landing-page-loader.ts
-    tree-builder.ts
-  query/
-    find-node.ts
-    get-all-paths.ts
-    get-breadcrumbs.ts
-    get-leaf-nodes.ts
-    get-node-path.ts
-  utils/
-    path-utils.ts
-    tree-utils.ts
-  api.ts
-  types.ts
-styles/
-  tailwind-utils.ts
-text/
-  ascii-tree-generator.ts
-  transliteration.ts
+core/
+  content-loader.ts
+  landing-page-loader.ts
+  tree-builder.ts
+query/
+  find-node.ts
+  get-all-paths.ts
+  get-breadcrumbs.ts
+  get-leaf-nodes.ts
+  get-node-path.ts
+utils/
+  path-utils.ts
+  tree-utils.ts
+api.ts
+types.ts
 
 ================================================================
 Files
 ================================================================
 
 ================
-File: content/core/content-loader.ts
+File: core/content-loader.ts
 ================
-import fs from "fs/promises";
-import matter from "gray-matter";
-import path from "path";
-import { remark } from "remark";
-import html from "remark-html";
-import { normalizeTitle } from "../utils/path-utils";
-export interface PageSpecificContent {
+import fs from 'fs/promises';
+import matter from 'gray-matter';
+import path from 'path';
+import { remark } from 'remark';
+import html from 'remark-html';
+import { normalizeTitle } from '../utils/path-utils';
+export type PageSpecificContent = {
   pageTitle: string;
   pageOrder?: number;
   excerpt?: string;
   contentHtml: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   frontmatter: Record<string, any>;
-}
-const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
+};
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
 export async function loadPageSpecificContent(
-  slugPath: string[],
+  slugPath: string[]
 ): Promise<PageSpecificContent | null> {
   if (slugPath.length === 0) return null;
   const markdownFilePath = path.join(
     CONTENT_BASE_PATH,
     ...slugPath,
-    "index.md",
+    'index.md'
   );
   try {
-    const rawMarkdown = await fs.readFile(markdownFilePath, "utf-8");
+    const rawMarkdown = await fs.readFile(markdownFilePath, 'utf-8');
     const { data: frontmatter, content: markdownContent } = matter(rawMarkdown);
     const processedHtml = await remark().use(html).process(markdownContent);
     const currentDirSlug = slugPath.at(-1)!;
@@ -114,16 +108,21 @@ export async function loadPageSpecificContent(
       contentHtml: processedHtml.toString(),
       frontmatter,
     };
-  } catch (error) {
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      console.error('Error message:', e.message);
+    } else {
+      console.error('Non-Error thrown:', e);
+    }
     return null;
   }
 }
 
 ================
-File: content/core/landing-page-loader.ts
+File: core/landing-page-loader.ts
 ================
-import fs from "fs/promises";
-import path from "path";
+import fs from 'fs/promises';
+import path from 'path';
 import type {
   BookLandingPageConfigJson,
   ProcessedBookLandingPageConfig,
@@ -131,69 +130,71 @@ import type {
   ProcessedTextLandingSection,
   ProcessedVisualizationLandingSection,
   SummaryNode,
-  VisualizationLandingSectionJson,
-} from "../types";
-const CONTENT_BASE_PATH = path.join(process.cwd(), "content");
-const LANDING_CONFIG_FILENAME = "landing.json";
+} from '../types';
+const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
+const LANDING_CONFIG_FILENAME = 'landing.json';
+const LOG_PREFIX = '[LandingPageLoader]';
 export async function loadBookLandingPageConfigForBuild(
-  bookNodeSlugPath: string[],
-  bookChapters: SummaryNode[],
-): Promise<ProcessedBookLandingPageConfig | null> {
-  if (bookNodeSlugPath.length === 0) {
+  bookNodeLatinSlugPath: string[],
+  bookChapters: SummaryNode[]
+) {
+  if (bookNodeLatinSlugPath.length === 0) {
+    console.log(
+      `${LOG_PREFIX} Received empty bookNodeLatinSlugPath. Skipping.`
+    );
     return null;
   }
+  const bookPathStringLatin = bookNodeLatinSlugPath.join('/');
   const landingConfigPath = path.join(
     CONTENT_BASE_PATH,
-    ...bookNodeSlugPath,
-    LANDING_CONFIG_FILENAME,
+    ...bookNodeLatinSlugPath,
+    LANDING_CONFIG_FILENAME
   );
   try {
-    const fileContent = await fs.readFile(landingConfigPath, "utf-8");
+    const fileContent = await fs.readFile(landingConfigPath, 'utf-8');
     const rawConfig = JSON.parse(fileContent) as BookLandingPageConfigJson;
     if (!rawConfig || !Array.isArray(rawConfig.sections)) {
-      console.warn(
-        `Invalid structure in ${landingConfigPath}. 'sections' array is missing.`,
-      );
       return null;
     }
     const processedSections: ProcessedBookLandingSection[] = [];
-    for (const section of rawConfig.sections) {
-      if (section.type === "text") {
+    for (const [, section] of rawConfig.sections.entries()) {
+      if (section.type === 'text') {
         processedSections.push(section as ProcessedTextLandingSection);
-      } else if (section.type === "visualization") {
-        const vizSectionJson = section as VisualizationLandingSectionJson;
+      } else if (section.type === 'visualization') {
+        const vizSectionJson =
+          section as import('../types').VisualizationLandingSectionJson;
         const chapterIdentifier = vizSectionJson.chapterIdentifier;
-        const identifiedChapterNode = bookChapters.find((chapter) =>
-          chapter.title.includes(chapterIdentifier),
-        );
+        const identifiedChapterNode = bookChapters.find((chapter) => {
+          return chapter.title.includes(chapterIdentifier);
+        });
         if (identifiedChapterNode) {
+          const nodesForViz = identifiedChapterNode.children || [];
           processedSections.push({
-            type: "visualization",
+            type: 'visualization',
             title: vizSectionJson.title,
-            nodes: identifiedChapterNode.children || [],
+            nodes: nodesForViz,
           } as ProcessedVisualizationLandingSection);
-        } else {
-          console.warn(
-            `Could not find chapter with identifier "${chapterIdentifier}" for visualization section "${vizSectionJson.title}" in book ${bookNodeSlugPath.join("/")}. This section will be skipped.`,
-          );
         }
-      } else {
-        console.warn(
-          `Unknown section type "${(section as any).type}" in ${landingConfigPath}. Section skipped.`,
-        );
+        const finalConfig: ProcessedBookLandingPageConfig = {
+          sections: processedSections,
+        };
+        return finalConfig;
       }
     }
-    return {
-      sections: processedSections,
-    };
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
-    if (err.code === "ENOENT") {
+    if (err.code === 'ENOENT') {
+      console.log(
+        `${LOG_PREFIX} Optional landing config file ${landingConfigPath} not found for book (Latin slug path: "${bookPathStringLatin}"). This is acceptable.`
+      );
     } else if (error instanceof SyntaxError) {
-      console.warn(`Invalid JSON in ${landingConfigPath}: ${error.message}`);
-    } else {
       console.warn(
-        `Could not load or parse ${LANDING_CONFIG_FILENAME} for book at ${bookNodeSlugPath.join("/")}. Path: ${landingConfigPath}. Error: ${err.message}`,
+        `${LOG_PREFIX} Invalid JSON in ${landingConfigPath}: ${error.message}`
+      );
+    } else {
+      console.error(
+        `${LOG_PREFIX} Could not load or parse ${LANDING_CONFIG_FILENAME} for book (Latin slug path: ${bookPathStringLatin}). Path: ${landingConfigPath}. Error: ${err.message}`,
+        err.stack
       );
     }
     return null;
@@ -201,44 +202,42 @@ export async function loadBookLandingPageConfigForBuild(
 }
 
 ================
-File: content/core/tree-builder.ts
+File: core/tree-builder.ts
 ================
 import fs from 'fs';
 import path from 'path';
 import type { SummaryNode } from '../types';
-import {
-  normalizeSlug,
-  normalizeTitle,
-  parseDirectoryName,
-} from '../utils/path-utils';
+import { normalizeTitle, parseDirectoryName } from '../utils/path-utils';
 const CONTENT_BASE_PATH = path.join(process.cwd(), 'content');
-let summaryTreeCache: SummaryNode[] | null = null;
-function isPrefixMandatoryForDepth(depth: number): boolean {
-  return depth >= 3;
+let fullSummaryTreeCache: SummaryNode[] | null = null;
+const bookSpecificTreeCache = new Map<string, SummaryNode[]>();
+function isPrefixMandatoryForDepth(absoluteDepth: number): boolean {
+  return absoluteDepth >= 3;
 }
-async function scanContentDirectory(
-  currentDirPath: string,
+async function scanContentDirectoryRecursive(
+  currentActualDirPath: string,
   parentSlugPath: string[] = [],
-  currentDepth: number = 0
+  currentAbsoluteDepth: number = 0
 ): Promise<SummaryNode[]> {
-  const entries = await fs.promises.readdir(currentDirPath, {
+  const entries = await fs.promises.readdir(currentActualDirPath, {
     withFileTypes: true,
   });
   const items: SummaryNode[] = [];
   for (const entry of entries) {
     if (entry.name.startsWith('.')) continue;
-    const fullEntryPath = path.join(currentDirPath, entry.name);
+    const fullActualEntryPath = path.join(currentActualDirPath, entry.name);
     if (entry.isDirectory()) {
       const { order: dirOrder, name: unprefixedDirName } = parseDirectoryName({
         directoryName: entry.name,
-        isDirectoryPrefixMandatory: isPrefixMandatoryForDepth(currentDepth),
+        isDirectoryPrefixMandatory:
+          isPrefixMandatoryForDepth(currentAbsoluteDepth),
       });
-      const slug = normalizeSlug(unprefixedDirName);
+      const slug = unprefixedDirName;
       const title = normalizeTitle(unprefixedDirName);
-      const children = await scanContentDirectory(
-        fullEntryPath,
+      const children = await scanContentDirectoryRecursive(
+        fullActualEntryPath,
         [...parentSlugPath, slug],
-        currentDepth + 1
+        currentAbsoluteDepth + 1
       );
       items.push({
         title,
@@ -256,22 +255,73 @@ async function scanContentDirectory(
     return a.title.localeCompare(b.title);
   });
 }
-export async function buildContentSummaryTree(): Promise<SummaryNode[]> {
-  if (summaryTreeCache) return summaryTreeCache;
-  summaryTreeCache = await scanContentDirectory(CONTENT_BASE_PATH);
-  return summaryTreeCache;
+export async function buildFullContentSummaryTree(): Promise<SummaryNode[]> {
+  if (fullSummaryTreeCache) {
+    console.log('[TreeBuilder] Returning cached full summary tree.');
+    return fullSummaryTreeCache;
+  }
+  console.log('[TreeBuilder] Building full summary tree from scratch.');
+  fullSummaryTreeCache = await scanContentDirectoryRecursive(CONTENT_BASE_PATH);
+  return fullSummaryTreeCache;
 }
-export function clearSummaryTreeCache(): void {
-  summaryTreeCache = null;
+export async function buildBookContentOnlyTree(
+  bookSlugPath: string[]
+): Promise<SummaryNode[]> {
+  if (bookSlugPath.length !== 3) {
+    console.error(
+      '[TreeBuilder] buildBookContentOnlyTree expects a slug path of length 3 (subject/author/book). Received:',
+      bookSlugPath
+    );
+    return [];
+  }
+  const cacheKey = bookSlugPath.join('/');
+  if (bookSpecificTreeCache.has(cacheKey)) {
+    console.log(
+      `[TreeBuilder] Returning cached content tree for book: ${cacheKey}`
+    );
+    return bookSpecificTreeCache.get(cacheKey)!;
+  }
+  console.log(
+    `[TreeBuilder] Building content tree specifically for book: ${cacheKey}`
+  );
+  const bookActualDirPath = path.join(CONTENT_BASE_PATH, ...bookSlugPath);
+  try {
+    await fs.promises.access(bookActualDirPath);
+  } catch (e) {
+    console.error(
+      `[TreeBuilder] Book directory not found at: ${bookActualDirPath} (derived from Latin slug: ${cacheKey}) ${e}`
+    );
+    return [];
+  }
+  const bookContent = await scanContentDirectoryRecursive(
+    bookActualDirPath,
+    bookSlugPath
+  );
+  bookSpecificTreeCache.set(cacheKey, bookContent);
+  return bookContent;
+}
+export function clearFullSummaryTreeCache(): void {
+  console.log('[TreeBuilder] Clearing full summary tree cache.');
+  fullSummaryTreeCache = null;
+}
+export function clearBookSpecificTreeCache(bookLatinSlugPath?: string[]): void {
+  if (bookLatinSlugPath) {
+    const cacheKey = bookLatinSlugPath.join('/');
+    bookSpecificTreeCache.delete(cacheKey);
+    console.log(`[TreeBuilder] Cleared cache for specific book: ${cacheKey}`);
+  } else {
+    bookSpecificTreeCache.clear();
+    console.log('[TreeBuilder] Cleared all book-specific tree caches.');
+  }
 }
 
 ================
-File: content/query/find-node.ts
+File: query/find-node.ts
 ================
-import type { SummaryNode } from '../types';
+import type { SummaryNode } from "../types";
 export function findDeepestNode(
   tree: SummaryNode[],
-  slugPath: string[]
+  slugPath: string[],
 ): SummaryNode | null {
   let currentNodes: SummaryNode[] = tree;
   let foundNode: SummaryNode | null = null;
@@ -285,12 +335,12 @@ export function findDeepestNode(
 }
 
 ================
-File: content/query/get-all-paths.ts
+File: query/get-all-paths.ts
 ================
-import { buildContentSummaryTree } from '../core/tree-builder';
-import type { SummaryNode } from '../types';
+import { buildFullContentSummaryTree } from "../core/tree-builder";
+import type { SummaryNode } from "../types";
 export async function getTreeSlugs(): Promise<string[][]> {
-  const tree = await buildContentSummaryTree();
+  const tree = await buildFullContentSummaryTree();
   const slugs: string[][] = [];
   function traverse(node: SummaryNode, currentPath: string[] = []) {
     const newPath = [...currentPath, node.slug];
@@ -304,13 +354,13 @@ export async function getTreeSlugs(): Promise<string[][]> {
 }
 
 ================
-File: content/query/get-breadcrumbs.ts
+File: query/get-breadcrumbs.ts
 ================
-import type { SummaryNode } from '../types';
-import { findDeepestNode } from './find-node';
+import type { SummaryNode } from "../types";
+import { findDeepestNode } from "./find-node";
 export function getBreadcrumbs(
   node: SummaryNode,
-  tree: SummaryNode[]
+  tree: SummaryNode[],
 ): { title: string; slug: string }[] {
   const breadcrumbs: { title: string; slug: string }[] = [];
   if (node.parentPath.length === 0) {
@@ -328,9 +378,9 @@ export function getBreadcrumbs(
 }
 
 ================
-File: content/query/get-leaf-nodes.ts
+File: query/get-leaf-nodes.ts
 ================
-import type { LeafNodeInfo, SummaryNode } from '../types';
+import type { LeafNodeInfo, SummaryNode } from "../types";
 export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
   const leaves: LeafNodeInfo[] = [];
   function walk(node: SummaryNode, currentPath: string[] = []) {
@@ -338,7 +388,7 @@ export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
     if (node.children.length === 0) {
       leaves.push({
         title: node.title,
-        fullSlugPath: fullPathSegments.join('/'),
+        fullSlugPath: fullPathSegments.join("/"),
       });
     } else {
       node.children.forEach((child) => walk(child, fullPathSegments));
@@ -349,22 +399,22 @@ export function getLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
 }
 
 ================
-File: content/query/get-node-path.ts
+File: query/get-node-path.ts
 ================
-import type { SummaryNode } from '../types';
+import type { SummaryNode } from "../types";
 export function getNodeSlugPath(node: SummaryNode): string {
-  return [...node.parentPath, node.slug].join('/');
+  return [...node.parentPath, node.slug].join("/");
 }
 
 ================
-File: content/utils/path-utils.ts
+File: utils/path-utils.ts
 ================
-import { transliterate } from '../../text/transliteration';
-export interface ParsedNameInfo {
+import { convertNumerals } from '@/lib/common/convert-numerals';
+export type ParsedNameInfo = {
   order: number;
   name: string;
   isPrefixed: boolean;
-}
+};
 const DEFAULT_ORDER = 0;
 export function parseDirectoryName({
   directoryName,
@@ -382,7 +432,7 @@ export function parseDirectoryName({
   if (match) {
     const [, numericPrefix, remainder] = match;
     const order = parseInt(
-      transliterate({ input: numericPrefix, mode: 'arabic-to-latin' }),
+      convertNumerals({ value: numericPrefix, direction: 'ar-to-en' }),
       10
     );
     if (isNaN(order)) {
@@ -407,28 +457,20 @@ export function parseDirectoryName({
     isPrefixed: false,
   };
 }
-export function normalizeSlug(raw: string): string {
-  const base = raw.replace(/\.md$/, '');
-  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, '');
-  return transliterate({
-    input: arabicOnly,
-    mode: 'arabic-to-latin',
-  }).replace(/_+/g, '-');
-}
 export function normalizeTitle(raw: string): string {
   const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
   return arabicOnly.replace(/_+/g, ' ');
 }
 
 ================
-File: content/utils/tree-utils.ts
+File: utils/tree-utils.ts
 ================
-import type { SummaryNode } from '../types';
+import type { SummaryNode } from "../types";
 export function walkTree<T extends { slug: string; children: T[] }>(
   nodes: T[],
   callback: (node: T, path: string[], level: number) => void,
   currentPath: string[] = [],
-  level: number = 0
+  level: number = 0,
 ): void {
   for (const node of nodes) {
     callback(node, currentPath, level);
@@ -444,13 +486,14 @@ export function flattenTree(tree: SummaryNode[]): SummaryNode[] {
 }
 
 ================
-File: content/api.ts
+File: api.ts
 ================
 import { loadPageSpecificContent } from "./core/content-loader";
 import { loadBookLandingPageConfigForBuild } from "./core/landing-page-loader";
 import {
-  buildContentSummaryTree,
-  clearSummaryTreeCache as clearInternalSummaryTreeCache,
+  buildFullContentSummaryTree,
+  clearBookSpecificTreeCache,
+  clearFullSummaryTreeCache,
 } from "./core/tree-builder";
 import { findDeepestNode } from "./query/find-node";
 import type { ContentNode, SummaryNode } from "./types";
@@ -459,16 +502,19 @@ export { getBreadcrumbs } from "./query/get-breadcrumbs";
 export { getLeafNodes } from "./query/get-leaf-nodes";
 export { getNodeSlugPath } from "./query/get-node-path";
 export { flattenTree, walkTree } from "./utils/tree-utils";
-const BOOK_DEPTH = 2;
-export async function getSummaryTree(): Promise<SummaryNode[]> {
-  return buildContentSummaryTree();
+const BOOK_DEPTH = 2; // 0:subject, 1:author, 2:book
+export async function getFullSummaryTree(): Promise<SummaryNode[]> {
+  return buildFullContentSummaryTree();
 }
 export async function getContentNodeBySlugPath(
   slugPath: string[],
 ): Promise<ContentNode | null> {
-  const tree = await getSummaryTree();
-  const summaryNode = findDeepestNode(tree, slugPath);
+  const fullTree = await getFullSummaryTree();
+  const summaryNode = findDeepestNode(fullTree, slugPath);
   if (!summaryNode) {
+    console.warn(
+      `[API] getContentNodeBySlugPath: Node not found for slugPath: ${slugPath.join("/")}`,
+    );
     return null;
   }
   const pageContent = await loadPageSpecificContent(slugPath);
@@ -494,12 +540,26 @@ export async function getContentNodeBySlugPath(
   }
   return contentNode;
 }
-export function clearSummaryCache(): void {
-  clearInternalSummaryTreeCache();
+export function clearAllSummaryCaches(): void {
+  console.log("[API] Clearing all summary caches.");
+  clearFullSummaryTreeCache();
+  clearBookSpecificTreeCache();
+}
+export function clearSpecificBookCache(bookLatinSlugPath: string[]): void {
+  if (bookLatinSlugPath && bookLatinSlugPath.length === 3) {
+    console.log(
+      `[API] Clearing cache for specific book: ${bookLatinSlugPath.join("/")}`,
+    );
+    clearBookSpecificTreeCache(bookLatinSlugPath);
+  } else {
+    console.warn(
+      "[API] clearSpecificBookCache: Invalid or missing bookLatinSlugPath provided.",
+    );
+  }
 }
 
 ================
-File: content/types.ts
+File: types.ts
 ================
 type BaseNode = {
   title: string;
@@ -517,274 +577,47 @@ export type LeafNodeInfo = {
   title: string;
   fullSlugPath: string;
 };
-interface BookLandingSectionBaseJson {
+type BookLandingSectionBaseJson = {
   title: string;
-}
-export interface TextLandingSectionJson extends BookLandingSectionBaseJson {
-  type: "text";
+};
+export type TextLandingSectionJson = BookLandingSectionBaseJson & {
+  type: 'text';
   content: string[];
-}
-export interface VisualizationLandingSectionJson
-  extends BookLandingSectionBaseJson {
-  type: "visualization";
+};
+export type VisualizationLandingSectionJson = BookLandingSectionBaseJson & {
+  type: 'visualization';
   chapterIdentifier: string;
-}
+};
 export type BookLandingSectionJson =
   | TextLandingSectionJson
   | VisualizationLandingSectionJson;
-export interface BookLandingPageConfigJson {
+export type BookLandingPageConfigJson = {
   sections: BookLandingSectionJson[];
-}
-export interface ProcessedTextLandingSection
-  extends BookLandingSectionBaseJson {
-  type: "text";
+};
+export type ProcessedTextLandingSection = BookLandingSectionBaseJson & {
+  type: 'text';
   content: string[];
-}
-export interface ProcessedVisualizationLandingSection
-  extends BookLandingSectionBaseJson {
-  type: "visualization";
-  nodes: SummaryNode[];
-}
+};
+export type ProcessedVisualizationLandingSection =
+  BookLandingSectionBaseJson & {
+    type: 'visualization';
+    nodes: SummaryNode[];
+  };
 export type ProcessedBookLandingSection =
   | ProcessedTextLandingSection
   | ProcessedVisualizationLandingSection;
-export interface ProcessedBookLandingPageConfig {
+export type ProcessedBookLandingPageConfig = {
   sections: ProcessedBookLandingSection[];
-}
+};
 export type ContentNode = SummaryNode & {
   pageTitle?: string;
   pageOrder?: number;
   excerpt?: string;
   contentHtml?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   frontmatter?: Record<string, any>;
   landingPageConfig?: ProcessedBookLandingPageConfig;
 };
-
-================
-File: styles/tailwind-utils.ts
-================
-import clsx, { type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
-}
-
-================
-File: text/ascii-tree-generator.ts
-================
-import type { SummaryNode } from '../content/types';
-export function generateASCIITree(
-  docs: SummaryNode[],
-  options: {
-    indent?: string;
-    splitLevel?: number;
-    splitString?: string;
-    currentLevel?: number;
-  } = {}
-): string {
-  const {
-    indent = '',
-    splitLevel = Infinity,
-    splitString = '',
-    currentLevel = 0,
-  } = options;
-  return docs
-    .map((node, index) => {
-      const isLast = index === docs.length - 1;
-      const branch = isLast ? '└── ' : '├── ';
-      const nextIndent = indent + (isLast ? '    ' : '│   ');
-      const label = node.title.replace(/_/g, ' ');
-      let output = '';
-      if (currentLevel === splitLevel && label !== splitString) {
-        return '';
-      }
-      output += `${indent}${branch}${label}\n`;
-      if (node.children.length > 0) {
-        output += generateASCIITree(node.children, {
-          indent: nextIndent,
-          splitLevel,
-          splitString,
-          currentLevel: currentLevel + 1,
-        });
-      }
-      return output;
-    })
-    .join('');
-}
-
-================
-File: text/transliteration.ts
-================
-type ArabicToLatinOptions = {
-  mode: "arabic-to-latin";
-  input: string;
-};
-type LatinToArabicDigitsOptions = {
-  mode: "latin-to-arabic-digits";
-  input: string;
-};
-type LatinNumbersToArabicDigitsOptions = {
-  mode: "latin-numbers-to-arabic-digits";
-  input: string | number;
-};
-type LatinToArabicOptions = {
-  mode: "latin-to-arabic";
-  input: string;
-};
-type Options =
-  | ArabicToLatinOptions
-  | LatinToArabicDigitsOptions
-  | LatinNumbersToArabicDigitsOptions
-  | LatinToArabicOptions;
-const LATIN_TO_ARABIC_DIGITS: Record<string, string> = {
-  "0": "٠",
-  "1": "١",
-  "2": "٢",
-  "3": "٣",
-  "4": "٤",
-  "5": "٥",
-  "6": "٦",
-  "7": "٧",
-  "8": "٨",
-  "9": "٩",
-};
-const ARABIC_TO_LATIN_DIGITS: Record<string, string> = Object.fromEntries(
-  Object.entries(LATIN_TO_ARABIC_DIGITS).map(([w, a]) => [a, w]),
-);
-const digitSet = new Set(Object.keys(LATIN_TO_ARABIC_DIGITS));
-const ARABIC_TO_LATIN_LETTERS: Record<string, string> = {
-  ا: "a",
-  ب: "b",
-  ت: "t",
-  ث: "th",
-  ج: "j",
-  ح: "h",
-  خ: "kh",
-  د: "d",
-  ذ: "dh",
-  ر: "r",
-  ز: "z",
-  س: "s",
-  ش: "sh",
-  ص: "s",
-  ض: "d",
-  ط: "t",
-  ظ: "z",
-  ع: "a",
-  غ: "gh",
-  ف: "f",
-  ق: "q",
-  ك: "k",
-  ل: "l",
-  م: "m",
-  ن: "n",
-  ه: "h",
-  و: "w",
-  ي: "y",
-  ء: "",
-  ى: "a",
-  ئ: "y",
-  ؤ: "w",
-  ة: "h",
-  إ: "i",
-  أ: "a",
-  آ: "aa",
-  "ٓ": "",
-  "َ": "a",
-  "ُ": "u",
-  "ِ": "i",
-  "ّ": "",
-  "ْ": "",
-  "ً": "an",
-  "ٌ": "un",
-  "ٍ": "in",
-};
-const ARABIC_TO_LATIN_MAP = {
-  ...ARABIC_TO_LATIN_LETTERS,
-  ...ARABIC_TO_LATIN_DIGITS,
-};
-const LATIN_TO_ARABIC_LETTERS: Record<string, string> = {
-  al: "ال",
-  aa: "آ",
-  th: "ث",
-  kh: "خ",
-  dh: "ذ",
-  sh: "ش",
-  gh: "غ",
-  sgh: "صغ",
-  ay: "عي",
-  a: "ا",
-  b: "ب",
-  t: "ت",
-  j: "ج",
-  h: "ح",
-  d: "د",
-  r: "ر",
-  z: "ز",
-  s: "س",
-  f: "ف",
-  q: "ق",
-  k: "ك",
-  l: "ل",
-  m: "م",
-  n: "ن",
-  w: "و",
-  y: "ي",
-  i: "إ",
-};
-const LATIN_LETTER_KEYS = Object.keys(LATIN_TO_ARABIC_LETTERS).sort(
-  (a, b) => b.length - a.length,
-);
-export function transliterate(options: Options): string {
-  const { mode } = options;
-  const inputStr = options.input.toString();
-  switch (mode) {
-    case "arabic-to-latin":
-      return [...inputStr].map((ch) => ARABIC_TO_LATIN_MAP[ch] ?? ch).join("");
-    case "latin-to-arabic-digits":
-      return inputStr.replace(/[0-9]/g, (d) => LATIN_TO_ARABIC_DIGITS[d]);
-    case "latin-numbers-to-arabic-digits":
-      if (!/^\d+$/.test(inputStr)) {
-        throw new Error(
-          "Mode 'latin-numbers-to-arabic-digits' requires digits only.",
-        );
-      }
-      return [...inputStr].map((d) => LATIN_TO_ARABIC_DIGITS[d]).join("");
-    case "latin-to-arabic":
-      return transliterateLatinToArabic(inputStr);
-    default:
-      const _exhaustive: never = mode;
-      throw new Error(`Unsupported mode: ${_exhaustive}`);
-  }
-}
-function transliterateLatinToArabic(s: string): string {
-  let result = "";
-  let i = 0;
-  const N = s.length;
-  const lower = s.toLowerCase();
-  while (i < N) {
-    let matched = false;
-    for (const key of LATIN_LETTER_KEYS) {
-      if (lower.startsWith(key, i)) {
-        result += LATIN_TO_ARABIC_LETTERS[key];
-        i += key.length;
-        matched = true;
-        break;
-      }
-    }
-    if (matched) continue;
-    const ch = s[i];
-    if (digitSet.has(ch)) {
-      result += LATIN_TO_ARABIC_DIGITS[ch];
-    } else if (ch === "-") {
-      result += "_";
-    } else {
-      result += ch;
-    }
-    i++;
-  }
-  return result;
-}
 
 
 

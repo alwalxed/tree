@@ -1,8 +1,8 @@
 'use client';
 
+import { convertNumerals } from '@/lib/common/convert-numerals';
+import { cn } from '@/lib/common/tailwind-utils';
 import type { SummaryNode } from '@/lib/content/types';
-import { cn } from '@/lib/styles/tailwind-utils';
-import { transliterate } from '@/lib/text/transliteration';
 import { memo } from 'react';
 
 // Zinc shade progression for hierarchy levels
@@ -161,9 +161,9 @@ const TreeView = memo(
                         'bg-white/20 dark:bg-black/20'
                       )}
                     >
-                      {transliterate({
-                        input: node.children.length,
-                        mode: 'latin-numbers-to-arabic-digits',
+                      {convertNumerals({
+                        value: node.children.length,
+                        direction: 'en-to-ar',
                       })}
                     </span>
                   )}
@@ -183,3 +183,6 @@ const TreeView = memo(
     );
   }
 );
+
+CollapsibleTreeRenderer.displayName = 'CollapsibleTreeRenderer';
+TreeView.displayName = 'TreeView';

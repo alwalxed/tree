@@ -1,4 +1,4 @@
-import { transliterate } from "../../text/transliteration";
+import { convertNumerals } from '@/lib/common/convert-numerals';
 
 export type ParsedNameInfo = {
   order: number;
@@ -17,19 +17,19 @@ export function parseDirectoryName({
 }): ParsedNameInfo {
   if (/\.[a-z0-9]+$/i.test(directoryName)) {
     throw new Error(
-      `Directory name "${directoryName}" must not contain a file extension.`,
+      `Directory name "${directoryName}" must not contain a file extension.`
     );
   }
   const match = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
   if (match) {
     const [, numericPrefix, remainder] = match;
     const order = parseInt(
-      transliterate({ input: numericPrefix, mode: "arabic-to-latin" }),
-      10,
+      convertNumerals({ value: numericPrefix, direction: 'ar-to-en' }),
+      10
     );
     if (isNaN(order)) {
       throw new Error(
-        `Invalid numeric prefix in directory name: "${directoryName}". Could not parse "${numericPrefix}" to a number.`,
+        `Invalid numeric prefix in directory name: "${directoryName}". Could not parse "${numericPrefix}" to a number.`
       );
     }
     return {
@@ -40,7 +40,7 @@ export function parseDirectoryName({
   }
   if (isDirectoryPrefixMandatory) {
     throw new Error(
-      `Invalid directory name format: "${directoryName}". Expected format: <number>_<name> as prefix is mandatory at this level.`,
+      `Invalid directory name format: "${directoryName}". Expected format: <number>_<name> as prefix is mandatory at this level.`
     );
   }
   return {
@@ -50,16 +50,7 @@ export function parseDirectoryName({
   };
 }
 
-export function normalizeSlug(raw: string): string {
-  const base = raw.replace(/\.md$/, "");
-  const arabicOnly = base.replace(/[^\u0600-\u06FF_]/g, "");
-  return transliterate({
-    input: arabicOnly,
-    mode: "arabic-to-latin",
-  }).replace(/_+/g, "-");
-}
-
 export function normalizeTitle(raw: string): string {
-  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, "");
-  return arabicOnly.replace(/_+/g, " ");
+  const arabicOnly = raw.replace(/[^\u0600-\u06FF_]/g, '');
+  return arabicOnly.replace(/_+/g, ' ');
 }

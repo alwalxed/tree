@@ -9,8 +9,8 @@ export const GridLayoutRenderer = memo(
       <div className="xs:grid-cols-2 grid grid-cols-1 gap-4 py-4 md:grid-cols-3 lg:grid-cols-4">
         {leafNodes.map((node) => (
           <a
-            key={node.slug}
-            href={`/learn/${node.slug}`}
+            key={node.fullSlugPath}
+            href={`/تعلم/${node.fullSlugPath}`}
             className="rounded-lg border p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             <h2 className="text-base">{node.title}</h2>
@@ -20,3 +20,5 @@ export const GridLayoutRenderer = memo(
     );
   }
 );
+
+GridLayoutRenderer.displayName = 'GridLayoutRenderer';

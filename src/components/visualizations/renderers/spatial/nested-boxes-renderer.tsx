@@ -1,8 +1,8 @@
 'use client';
 
+import { cn } from '@/lib/common/tailwind-utils';
 import { getNodeSlugPath } from '@/lib/content/query/get-node-path';
 import type { SummaryNode } from '@/lib/content/types';
-import { cn } from '@/lib/styles/tailwind-utils';
 import Link from 'next/link';
 import { memo, useId } from 'react';
 
@@ -152,3 +152,6 @@ const BoxView = memo(
     );
   }
 );
+
+NestedBoxesRenderer.displayName = 'NestedBoxesRenderer';
+BoxView.displayName = 'BoxView';

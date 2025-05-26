@@ -12,8 +12,8 @@ import {
   Sidebar as UISidebar,
 } from '@/components/ui/sidebar';
 import { useSidebar } from '@/hooks/use-sidebar';
+import { cn } from '@/lib/common/tailwind-utils';
 import type { SummaryNode } from '@/lib/content/types';
-import { cn } from '@/lib/styles/tailwind-utils';
 import {
   BookOpen,
   ChevronDown,

@@ -1,6 +1,6 @@
+import { generateASCIITree } from '@/lib/common/ascii-tree-generator';
+import { cn } from '@/lib/common/tailwind-utils';
 import type { SummaryNode } from '@/lib/content/types';
-import { cn } from '@/lib/styles/tailwind-utils';
-import { generateASCIITree } from '@/lib/text/ascii-tree-generator';
 import { memo } from 'react';
 
 export const ASCIITreeRenderer = memo(({ nodes }: { nodes: SummaryNode[] }) => {
@@ -18,3 +18,5 @@ export const ASCIITreeRenderer = memo(({ nodes }: { nodes: SummaryNode[] }) => {
     </div>
   );
 });
+
+ASCIITreeRenderer.displayName = 'ASCIITreeRenderer';

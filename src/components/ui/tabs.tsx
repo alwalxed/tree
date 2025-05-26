@@ -3,7 +3,7 @@
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import * as React from 'react';
 
-import { cn } from '@/lib/styles/tailwind-utils';
+import { cn } from '@/lib/common/tailwind-utils';
 
 function Tabs({
   className,

@@ -167,7 +167,7 @@ function TreeStructureDebuggerComponent({
               </div>
               <div>
                 <span className="font-mono">
-                  process.env.NODE_ENV !== "production"
+                  {`process.env.NODE_ENV !== "production"`}
                 </span>
               </div>
             </div>

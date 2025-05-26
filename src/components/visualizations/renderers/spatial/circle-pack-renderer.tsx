@@ -64,6 +64,7 @@ export function CirclePackRenderer({
 
     // Function to wrap text
     function wrap(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       text: d3.Selection<SVGTextElement, any, any, any>,
       width: number
     ) {

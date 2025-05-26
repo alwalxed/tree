@@ -1,18 +1,18 @@
-import { loadPageSpecificContent } from "./core/content-loader";
-import { loadBookLandingPageConfigForBuild } from "./core/landing-page-loader";
+import { loadPageSpecificContent } from './core/content-loader';
+import { loadBookLandingPageConfigForBuild } from './core/landing-page-loader';
 import {
   buildFullContentSummaryTree,
   clearBookSpecificTreeCache,
   clearFullSummaryTreeCache,
-} from "./core/tree-builder";
-import { findDeepestNode } from "./query/find-node";
-import type { ContentNode, SummaryNode } from "./types";
+} from './core/tree-builder';
+import { findDeepestNode } from './query/find-node';
+import type { ContentNode, SummaryNode } from './types';
 
-export { getTreeSlugs as getAllContentPaths } from "./query/get-all-paths";
-export { getBreadcrumbs } from "./query/get-breadcrumbs";
-export { getLeafNodes } from "./query/get-leaf-nodes";
-export { getNodeSlugPath } from "./query/get-node-path";
-export { flattenTree, walkTree } from "./utils/tree-utils";
+export { getTreeSlugs as getAllContentPaths } from './query/get-all-paths';
+export { getBreadcrumbs } from './query/get-breadcrumbs';
+export { getLeafNodes } from './query/get-leaf-nodes';
+export { getNodeSlugPath } from './query/get-node-path';
+export { flattenTree, walkTree } from './utils/tree-utils';
 
 const BOOK_DEPTH = 2; // 0:subject, 1:author, 2:book
 
@@ -21,19 +21,20 @@ export async function getFullSummaryTree(): Promise<SummaryNode[]> {
 }
 
 export async function getContentNodeBySlugPath(
-  slugPath: string[],
+  slugPath: string[]
 ): Promise<ContentNode | null> {
+  const decodedSlugPath = slugPath.map((s) => decodeURIComponent(s));
   const fullTree = await getFullSummaryTree();
-  const summaryNode = findDeepestNode(fullTree, slugPath);
+  const summaryNode = findDeepestNode(fullTree, decodedSlugPath);
 
   if (!summaryNode) {
     console.warn(
-      `[API] getContentNodeBySlugPath: Node not found for slugPath: ${slugPath.join("/")}`,
+      `[API] getContentNodeBySlugPath: Node not found for slugPath: ${decodedSlugPath.join('/')}`
     );
     return null;
   }
 
-  const pageContent = await loadPageSpecificContent(slugPath);
+  const pageContent = await loadPageSpecificContent(decodedSlugPath);
 
   const contentNode: ContentNode = {
     ...summaryNode,
@@ -50,8 +51,8 @@ export async function getContentNodeBySlugPath(
   const nodeDepth = summaryNode.parentPath.length;
   if (nodeDepth === BOOK_DEPTH) {
     const landingConfig = await loadBookLandingPageConfigForBuild(
-      slugPath,
-      summaryNode.children,
+      decodedSlugPath,
+      summaryNode.children
     );
     if (landingConfig) {
       contentNode.landingPageConfig = landingConfig;
@@ -62,7 +63,7 @@ export async function getContentNodeBySlugPath(
 }
 
 export function clearAllSummaryCaches(): void {
-  console.log("[API] Clearing all summary caches.");
+  console.log('[API] Clearing all summary caches.');
   clearFullSummaryTreeCache();
   clearBookSpecificTreeCache();
 }
@@ -70,12 +71,12 @@ export function clearAllSummaryCaches(): void {
 export function clearSpecificBookCache(bookLatinSlugPath: string[]): void {
   if (bookLatinSlugPath && bookLatinSlugPath.length === 3) {
     console.log(
-      `[API] Clearing cache for specific book: ${bookLatinSlugPath.join("/")}`,
+      `[API] Clearing cache for specific book: ${bookLatinSlugPath.join('/')}`
     );
     clearBookSpecificTreeCache(bookLatinSlugPath);
   } else {
     console.warn(
-      "[API] clearSpecificBookCache: Invalid or missing bookLatinSlugPath provided.",
+      '[API] clearSpecificBookCache: Invalid or missing bookLatinSlugPath provided.'
     );
   }
 }

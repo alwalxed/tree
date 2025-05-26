@@ -23,12 +23,12 @@ type BookLandingSectionBaseJson = {
 };
 
 export type TextLandingSectionJson = BookLandingSectionBaseJson & {
-  type: "text";
+  type: 'text';
   content: string[];
 };
 
 export type VisualizationLandingSectionJson = BookLandingSectionBaseJson & {
-  type: "visualization";
+  type: 'visualization';
   chapterIdentifier: string;
 };
 
@@ -41,13 +41,13 @@ export type BookLandingPageConfigJson = {
 };
 
 export type ProcessedTextLandingSection = BookLandingSectionBaseJson & {
-  type: "text";
+  type: 'text';
   content: string[];
 };
 
 export type ProcessedVisualizationLandingSection =
   BookLandingSectionBaseJson & {
-    type: "visualization";
+    type: 'visualization';
     nodes: SummaryNode[];
   };
 
@@ -64,6 +64,7 @@ export type ContentNode = SummaryNode & {
   pageOrder?: number;
   excerpt?: string;
   contentHtml?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   frontmatter?: Record<string, any>;
   landingPageConfig?: ProcessedBookLandingPageConfig;
 };
