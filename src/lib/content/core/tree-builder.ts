@@ -8,18 +8,19 @@ import {
 } from '../utils/path-utils';
 
 export async function buildTree({
-  contentPath,
+  bookFolderPath,
   dirNames = [],
   slugs = [],
+  prefix = '',
   depth = 0,
 }: {
-  contentPath: string;
+  bookFolderPath: string;
   dirNames?: string[];
   slugs?: string[];
+  prefix?: string;
   depth?: number;
 }): Promise<SummaryNode[]> {
-  const root = path.join(contentPath, ...dirNames);
-  // bail if folder doesn’t exist or isn’t readable
+  const root = path.join(bookFolderPath, ...dirNames);
   try {
     await fs.promises.access(root, fs.constants.R_OK);
   } catch {
@@ -34,7 +35,6 @@ export async function buildTree({
   for (const dirent of entries) {
     if (!dirent.isDirectory()) continue;
 
-    // parse out the “١_” prefix
     const { fileName, fileOrder } = parseDirectoryName({
       directoryName: dirent.name,
       isDirectoryPrefixMandatory: requiresPrefix(depth),
@@ -44,18 +44,20 @@ export async function buildTree({
     const slug = fileName;
     const order = fileOrder;
 
-    // recurse, but push the real dirent.name into dirNames
-    // and the slug into slugs
+    const fullPath = prefix + [...slugs, slug].join('/');
+
     const children = await buildTree({
-      contentPath,
+      bookFolderPath,
       dirNames: [...dirNames, dirent.name],
       slugs: [...slugs, slug],
+      prefix,
       depth: depth + 1,
     });
 
     nodes.push({
       title,
       slug,
+      fullPath,
       order,
       parentPath: slugs,
       children,

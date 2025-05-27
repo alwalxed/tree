@@ -10,6 +10,7 @@ type HierarchyMeta = {
 
 export type SummaryNode = BaseNode &
   HierarchyMeta & {
+    fullPath: string;
     children: SummaryNode[];
   };
 
@@ -18,6 +19,11 @@ export type LeafNodeInfo = {
   fullSlugPath: string;
 };
 
+export type SidebarConfig = {
+  bookUrlPath: string;
+  tree: SummaryNode[];
+  label: string;
+};
 type BookLandingSectionBaseJson = {
   title: string;
 };

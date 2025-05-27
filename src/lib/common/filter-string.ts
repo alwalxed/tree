@@ -90,11 +90,6 @@ function getRangeForOption<K extends keyof FilterOptions>(
       // Ensure value is treated as string for escapeRegExp
       return escapeRegExp(value as string);
     default:
-      // Exhaustiveness check for switch statement
-      // This ensures that if a new key is added to FilterOptions,
-      // the switch statement here will cause a compile-time error
-      // if not handled.
-      const _exhaustiveCheck: never = option;
       return null;
   }
 }

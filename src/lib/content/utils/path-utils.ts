@@ -12,6 +12,7 @@ export async function existsDir(dir: string): Promise<boolean> {
   try {
     const stats = await fs.promises.stat(dir);
     return stats.isDirectory();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     // ENOENT, EACCES, etc.
     console.warn(`cannot access directory "${dir}":`, err.code || err);
@@ -19,15 +20,11 @@ export async function existsDir(dir: string): Promise<boolean> {
   }
 }
 
-export async function hasBookContent({
-  bookPath,
-}: {
-  bookPath: string;
-}): Promise<boolean> {
+export async function hasBookContent(bookFolderPath: string): Promise<boolean> {
   try {
-    return await walkHasIndexMd(bookPath);
+    return await walkHasIndexMd(bookFolderPath);
   } catch (err) {
-    console.warn(`hasBookContent failed for ${bookPath}:`, err);
+    console.warn(`hasBookContent failed for ${bookFolderPath}:`, err);
     return false;
   }
 }

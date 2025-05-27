@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useSidebar } from '@/hooks/use-sidebar';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SummaryNode } from '@/lib/content/types';
+import type { SidebarConfig } from '@/lib/content/types';
 import {
   BookOpen,
   ChevronDown,
@@ -23,34 +23,22 @@ import {
   Folder,
 } from 'lucide-react';
 import Link from 'next/link';
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
 type Props = {
-  tree: SummaryNode[];
-  label: string;
-  bookLandingPath: string;
+  sidebarConfig: SidebarConfig;
 };
 
-function SidebarComponent({ tree, label, bookLandingPath }: Props) {
+function SidebarComponent({
+  sidebarConfig: { tree, label, bookUrlPath },
+}: Props) {
   const {
     flatItems,
     expandedSections,
     toggleSection,
     isCurrentPage,
     toggleAll,
-  } = useSidebar({ tree });
-
-  const isVisible = useCallback(
-    (node: SummaryNode): boolean => {
-      let path = '';
-      for (const part of node.parentPath) {
-        path = path ? `${path}/${part}` : part;
-        if (!expandedSections[path]) return false;
-      }
-      return true;
-    },
-    [expandedSections]
-  );
+  } = useSidebar({ tree, bookUrlPath });
 
   return (
     <UISidebar side="right">
@@ -70,24 +58,40 @@ function SidebarComponent({ tree, label, bookLandingPath }: Props) {
                   isActive={isCurrentPage('__home')}
                   className="pl-1.5"
                 >
-                  <Link href={bookLandingPath}>
+                  <Link href={bookUrlPath}>
                     <BookOpen className="h-4 w-4 shrink-0" />
                     <span>مقدمة</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {flatItems.map(({ node, level }) => {
-                const fullPath = [...node.parentPath, node.slug].join('/');
-                const hasChildren = node.children.length > 0;
-                const isExpanded = expandedSections[fullPath] || false;
-                const isActive = isCurrentPage(fullPath);
-                const visible = isVisible(node);
+              {flatItems.map(({ node, level, parentNodeFullPath }) => {
+                let itemShouldBeRendered = true;
+                if (level > 0) {
+                  // A child item (level > 0) is rendered only if its direct parent folder is expanded.
+                  // parentNodeFullPath is the fullPath of the actual parent node from the tree.
+                  if (
+                    !parentNodeFullPath ||
+                    !expandedSections[parentNodeFullPath]
+                  ) {
+                    itemShouldBeRendered = false;
+                  }
+                }
 
-                if (!visible) return null;
+                if (!itemShouldBeRendered) {
+                  return null;
+                }
+
+                const hasChildren = node.children && node.children.length > 0;
+                // An item is expanded if it has children and its path is in expandedSections
+                const isExpanded =
+                  hasChildren && (expandedSections[node.fullPath] || false);
+                const isActive = isCurrentPage(node.fullPath);
+
+                const itemHref = node.fullPath;
 
                 return (
-                  <SidebarMenuItem key={fullPath}>
+                  <SidebarMenuItem key={node.fullPath}>
                     {hasChildren ? (
                       <SidebarMenuButton
                         className={cn(
@@ -96,7 +100,8 @@ function SidebarComponent({ tree, label, bookLandingPath }: Props) {
                             'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         )}
                         style={{ '--level': 1 + level } as React.CSSProperties}
-                        onClick={() => toggleSection(fullPath)}
+                        onClick={() => toggleSection(node.fullPath)}
+                        aria-expanded={isExpanded}
                       >
                         <Folder className="h-4 w-4 shrink-0" />
                         <span>{node.title}</span>
@@ -113,7 +118,7 @@ function SidebarComponent({ tree, label, bookLandingPath }: Props) {
                         className={cn('pr-[calc(0.5rem*var(--level))]')}
                         style={{ '--level': 1 + level } as React.CSSProperties}
                       >
-                        <Link href={`/learn/${fullPath}`}>
+                        <Link href={itemHref}>
                           <FileText className="h-4 w-4 shrink-0" />
                           <span>{node.title}</span>
                         </Link>

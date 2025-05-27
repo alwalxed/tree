@@ -8,6 +8,7 @@ import {
 import { filterString } from '@/lib/common/filter-string';
 import { CONTENT_PATH } from '@/lib/content/constants';
 import { buildTree } from '@/lib/content/core/tree-builder';
+import type { SidebarConfig } from '@/lib/content/types';
 import {
   hasBookContent,
   validateBookPath,
@@ -30,67 +31,72 @@ type Props = {
 export default async function Layout({ children, params }: Props) {
   const { subjectSlug, authorSlug, bookSlug } = await params;
 
-  const decoded = {
+  // 1) Decode the URL-encoded slugs
+  const decodedSlugs = {
     subject: decodeURIComponent(subjectSlug),
     author: decodeURIComponent(authorSlug),
     book: decodeURIComponent(bookSlug),
   };
 
-  const bookPath = path.join(
+  // 2) Absolute filesystem path to the book folder
+  const bookFolderPath = path.join(
     CONTENT_PATH,
-    decoded.subject,
-    decoded.author,
-    decoded.book
+    decodedSlugs.subject,
+    decodedSlugs.author,
+    decodedSlugs.book
   );
 
-  // 1) Does the folder structure exist?
-  const valid = await validateBookPath({
-    subjectSlug: decoded.subject,
-    authorSlug: decoded.author,
-    bookSlug: decoded.book,
+  // 3) Verify the folder actually exists
+  const isBookPathValid = await validateBookPath({
+    subjectSlug: decodedSlugs.subject,
+    authorSlug: decodedSlugs.author,
+    bookSlug: decodedSlugs.book,
   });
-  if (!valid) {
-    console.warn(`Bad path or missing folder at ${bookPath}`);
+
+  if (!isBookPathValid) {
+    console.warn(`Bad path or missing folder at ${bookFolderPath}`);
     notFound();
   }
 
-  // 2) Is there at least one index.md anywhere inside?
-  const hasContentFlag = await hasBookContent({ bookPath });
-  if (!hasContentFlag) {
-    console.warn(`No index.md found under ${bookPath}`);
+  // 4) Check that there’s at least one index.md inside
+  const containsIndexMd = await hasBookContent(bookFolderPath);
+
+  if (!containsIndexMd) {
+    console.warn(`No index.md found under ${bookFolderPath}`);
     notFound();
   }
 
-  // 3) Build the sidebar tree
-  const sidebarData = {
+  // 5) Build a safe URL path for the book
+  const bookUrlPath = `/${filterString({
+    input: Object.values(decodedSlugs).join('/'),
+    options: {
+      arabicLetters: true,
+      underscores: true,
+      forwardSlashes: true,
+    },
+  })}`;
+
+  // 6) Build the sidebar tree data
+  const sidebarConfig: SidebarConfig = {
+    bookUrlPath,
     tree: await buildTree({
-      contentPath: bookPath,
+      bookFolderPath: bookFolderPath,
+      prefix: bookUrlPath,
       dirNames: [],
       slugs: [],
       depth: 0,
     }),
     label: filterString({
-      input: decoded.book,
+      input: decodedSlugs.book,
       options: { arabicLetters: true, underscores: true },
     }).replace('_', ' '),
-    bookLandingPath: `/${filterString({
-      input: Object.values(decoded).join('/'),
-      options: {
-        arabicLetters: true,
-        underscores: true,
-        forwardSlashes: true,
-      },
-    })}`,
   };
+
   return (
     <>
-      <DevDebuggers tree={sidebarData.tree} />
+      <DevDebuggers tree={sidebarConfig.tree} />
       <SidebarProvider>
-        <Sidebar
-          tree={sidebarData.tree}
-          label={sidebarData.label}
-          bookLandingPath={sidebarData.bookLandingPath}
-        />
+        <Sidebar sidebarConfig={sidebarConfig} />
         <SidebarInset className="px-4 py-6 md:px-8">
           <header className="mb-4 flex items-center">
             <SidebarTrigger />
