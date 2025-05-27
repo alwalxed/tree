@@ -5,15 +5,15 @@ import { useCallback, useMemo, useState } from 'react';
 export type FlatSidebarItem = {
   node: SummaryNode;
   level: number;
-  parentNodeFullPath?: string; // fullPath of the direct parent node in the tree
+  parentNodeFullPath?: string;
 };
 
 export function useSidebar({
   tree,
-  bookUrlPath, // Added bookUrlPath
+  bookUrlPath,
 }: {
   tree: SummaryNode[];
-  bookUrlPath: string; // Added bookUrlPath
+  bookUrlPath: string;
 }) {
   const pathname = usePathname();
 
@@ -30,7 +30,6 @@ export function useSidebar({
 
   const isCurrentPage = useCallback(
     (itemFullPathOrHome: string) => {
-      // Normalize current pathname (remove trailing slash if not root, otherwise keep it)
       const preparedPathname =
         pathname !== '/' && pathname.endsWith('/')
           ? pathname.slice(0, -1)
@@ -44,7 +43,6 @@ export function useSidebar({
         return preparedPathname === preparedBookUrlPath;
       }
 
-      // Normalize item full path (remove trailing slash if not root)
       const preparedItemPath =
         itemFullPathOrHome !== '/' && itemFullPathOrHome.endsWith('/')
           ? itemFullPathOrHome.slice(0, -1)
