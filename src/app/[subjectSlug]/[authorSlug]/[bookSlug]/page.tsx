@@ -1,9 +1,15 @@
+import { Section } from '@/components/common/section';
+import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
+import { filterString } from '@/lib/common/filter-string';
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
+import { buildTree } from '@/lib/content/core/tree-builder';
 import { getBookConfig } from '@/lib/content/query/get-book-config';
 import { hasBookConfig } from '@/lib/content/utils/has-book-config';
 import { validateBookPath } from '@/lib/content/utils/validate-book-path';
 import { notFound } from 'next/navigation';
 import path from 'path';
+import { Fragment } from 'react';
+
 type Params = {
   subjectSlug: string;
   authorSlug: string;
@@ -17,7 +23,6 @@ type Props = {
 export default async function BookLandingPage({ params }: Props) {
   const { subjectSlug, authorSlug, bookSlug } = await params;
 
-  // 1) Decode the URL-encoded slugs
   const decodedSlugs = {
     subject: decodeURIComponent(subjectSlug),
     author: decodeURIComponent(authorSlug),
@@ -55,5 +60,64 @@ export default async function BookLandingPage({ params }: Props) {
     console.warn('No book config data');
     notFound();
   }
-  return <p>{JSON.stringify(bookConfigData)}</p>;
+
+  const bookUrlPath = `/${filterString({
+    input: Object.values(decodedSlugs).join('/'),
+    options: {
+      arabicLetters: true,
+      underscores: true,
+      forwardSlashes: true,
+    },
+  })}`;
+
+  const bookTree = await buildTree({
+    fileSystemBasePath: bookDirectoryPath,
+    prefix: bookUrlPath,
+    dirNames: [],
+    slugs: [],
+    depth: 0,
+  });
+
+  if (!bookTree) {
+    console.warn('No book tree');
+    notFound();
+  }
+
+  return (
+    <div className="mx-auto flex max-w-4xl flex-col gap-12">
+      {bookConfigData.sections.map((section, index) => {
+        switch (section.type) {
+          case 'text':
+            return (
+              <Section key={`${index}-${section.title}-${section.type}`}>
+                <Section.H level={2}>{section.title}</Section.H>
+                <Section.P>
+                  {section.content.map((line, i) => (
+                    <Fragment
+                      key={`${index}-${section.title}-${section.type}-${i}`}
+                    >
+                      {line}
+                      <br />
+                    </Fragment>
+                  ))}
+                </Section.P>
+              </Section>
+            );
+          case 'visualization':
+            return (
+              <Section key={`${index}-${section.title}-${section.type}`}>
+                <Section.H level={2}>{section.title}</Section.H>
+                <VisualizationSwitcher
+                  nodes={bookTree.filter((node) =>
+                    node.title.includes(section.chapterIdentifier)
+                  )}
+                />
+              </Section>
+            );
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
 }

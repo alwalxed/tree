@@ -18,17 +18,23 @@ export async function buildTree({
   slugs?: string[];
   prefix?: string;
   depth?: number;
-}): Promise<SummaryNode[]> {
+}): Promise<SummaryNode[] | null> {
   const root = path.join(fileSystemBasePath, ...dirNames);
   try {
     await fs.promises.access(root, fs.constants.R_OK);
   } catch {
-    return [];
+    console.warn('Failed: (fs.promises.access(root, fs.constants.R_OK))');
+    return null;
   }
 
-  const entries = await fs.promises.readdir(root, {
-    withFileTypes: true,
-  });
+  let entries: fs.Dirent[];
+  try {
+    entries = await fs.promises.readdir(root, { withFileTypes: true });
+  } catch {
+    console.log("Failed: (fs.promises.readdir(root, { withFileTypes: true }))");
+    return null;
+  }
+
   const nodes: SummaryNode[] = [];
 
   for (const dirent of entries) {
@@ -52,6 +58,11 @@ export async function buildTree({
       prefix,
       depth: depth + 1,
     });
+
+    if (children === null) {
+      console.warn("Failed: (children === null)");
+      return null;
+    }
 
     nodes.push({
       title,

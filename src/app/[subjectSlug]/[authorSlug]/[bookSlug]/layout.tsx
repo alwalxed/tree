@@ -75,16 +75,23 @@ export default async function Layout({ children, params }: Props) {
     },
   })}`;
 
+  const bookTree = await buildTree({
+    fileSystemBasePath: bookDirectoryPath,
+    prefix: bookUrlPath,
+    dirNames: [],
+    slugs: [],
+    depth: 0,
+  });
+
+  if (!bookTree) {
+    console.warn('No book tree');
+    notFound();
+  }
+
   // 6) Build the sidebar tree data
   const sidebarConfig: SidebarConfig = {
     bookUrlPath,
-    tree: await buildTree({
-      fileSystemBasePath: bookDirectoryPath,
-      prefix: bookUrlPath,
-      dirNames: [],
-      slugs: [],
-      depth: 0,
-    }),
+    tree: bookTree,
     label: filterString({
       input: decodedSlugs.book,
       options: { arabicLetters: true, underscores: true },
