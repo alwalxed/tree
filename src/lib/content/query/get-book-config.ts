@@ -1,27 +1,22 @@
+import { BookConfigSchema, type BookConfig } from '@/lib/schema/book-config';
 import fs from 'fs';
 import path from 'path';
-import {
-  BookLandingContent,
-  BookLandingContentSchema,
-} from '../../schema/landing-content';
 
-export async function getBookLandingContent({
-  bookFolderPath,
-  pathSegments,
+
+export async function getBookConfig({
+  bookDirectoryPath,
 }: {
-  bookFolderPath: string;
-  pathSegments: string[];
-}): Promise<BookLandingContent | null> {
+  bookDirectoryPath: string;
+}): Promise<BookConfig | null> {
   const landingJsonPath = path.join(
-    bookFolderPath,
-    ...pathSegments,
-    'landing.json'
+    bookDirectoryPath,
+    'config.json'
   );
   try {
     const fileContent = await fs.promises.readFile(landingJsonPath, 'utf-8');
     const data = JSON.parse(fileContent);
 
-    const parsed = BookLandingContentSchema.safeParse(data);
+    const parsed = BookConfigSchema.safeParse(data);
 
     if (!parsed.success) {
       console.error(

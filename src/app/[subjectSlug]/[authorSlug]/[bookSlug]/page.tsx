@@ -1,4 +1,6 @@
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
+import { getBookConfig } from '@/lib/content/query/get-book-config';
+import { hasBookConfig } from '@/lib/content/utils/has-book-config';
 import { validateBookPath } from '@/lib/content/utils/validate-book-path';
 import { notFound } from 'next/navigation';
 import path from 'path';
@@ -40,5 +42,18 @@ export default async function BookLandingPage({ params }: Props) {
     notFound();
   }
 
-  return <p>{bookDirectoryPath}</p>;
+  const isBookConfig = await hasBookConfig({ bookDirectoryPath });
+
+  if (!isBookConfig) {
+    console.warn('No book config.json was found');
+    notFound();
+  }
+
+  const bookConfigData = await getBookConfig({ bookDirectoryPath });
+
+  if (!bookConfigData) {
+    console.warn('No book config data');
+    notFound();
+  }
+  return <p>{JSON.stringify(bookConfigData)}</p>;
 }

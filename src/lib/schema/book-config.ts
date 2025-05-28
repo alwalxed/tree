@@ -17,11 +17,11 @@ export const SectionSchema = z.union([
   VisualizationSectionSchema,
 ]);
 
-export const BookLandingContentSchema = z.object({
+export const BookConfigSchema = z.object({
   sections: z.array(SectionSchema),
 });
 
 export type TextSection = z.infer<typeof TextSectionSchema>;
 export type VisualizationSection = z.infer<typeof VisualizationSectionSchema>;
 export type Section = z.infer<typeof SectionSchema>;
-export type BookLandingContent = z.infer<typeof BookLandingContentSchema>;
+export type BookConfig = z.infer<typeof BookConfigSchema>;
