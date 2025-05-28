@@ -23,6 +23,12 @@
     },
     "types": ["./env.d.ts", "node"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "content/النحو/سليمان_العيوني/النحو_الصغير/landing.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "content/النحو/سليمان_العيوني/النحو_الصغير/landing.js"
+  ],
   "exclude": ["node_modules"]
 }

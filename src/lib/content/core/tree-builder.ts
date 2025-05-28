@@ -1,26 +1,25 @@
 import fs from 'fs';
 import path from 'path';
 import type { SummaryNode } from '../types';
-import {
-  normalizeTitle,
-  parseDirectoryName,
-  requiresPrefix,
-} from '../utils/path-utils';
+import { normalizeTitle } from '../utils/normalize-title';
+import { parseDirectoryName } from '../utils/parse-directory-name';
+import { requiresPrefix } from '../utils/requires-prefix';
+
 
 export async function buildTree({
-  bookFolderPath,
+  fileSystemBasePath,
   dirNames = [],
   slugs = [],
   prefix = '',
   depth = 0,
 }: {
-  bookFolderPath: string;
+  fileSystemBasePath: string;
   dirNames?: string[];
   slugs?: string[];
   prefix?: string;
   depth?: number;
 }): Promise<SummaryNode[]> {
-  const root = path.join(bookFolderPath, ...dirNames);
+  const root = path.join(fileSystemBasePath, ...dirNames);
   try {
     await fs.promises.access(root, fs.constants.R_OK);
   } catch {
@@ -44,12 +43,12 @@ export async function buildTree({
     const slug = fileName;
     const order = fileOrder;
 
-    const fullPath = prefix + [...slugs, slug].join('/');
+    const fullPath = prefix + [ ...slugs, slug ].join('/');
 
     const children = await buildTree({
-      bookFolderPath,
-      dirNames: [...dirNames, dirent.name],
-      slugs: [...slugs, slug],
+      fileSystemBasePath,
+      dirNames: [ ...dirNames, dirent.name ],
+      slugs: [ ...slugs, slug ],
       prefix,
       depth: depth + 1,
     });

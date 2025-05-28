@@ -6,13 +6,12 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { filterString } from '@/lib/common/filter-string';
-import { CONTENT_PATH } from '@/lib/content/constants';
+import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
 import { buildTree } from '@/lib/content/core/tree-builder';
 import type { SidebarConfig } from '@/lib/content/types';
-import {
-  hasBookContent,
-  validateBookPath,
-} from '@/lib/content/utils/path-utils';
+import { hasBookContent } from '@/lib/content/utils/has-book-content';
+import { validateBookPath } from '@/lib/content/utils/validate-book-path';
+
 import { notFound } from 'next/navigation';
 import path from 'path';
 
@@ -39,8 +38,8 @@ export default async function Layout({ children, params }: Props) {
   };
 
   // 2) Absolute filesystem path to the book folder
-  const bookFolderPath = path.join(
-    CONTENT_PATH,
+  const bookDirectoryPath = path.join(
+    FILESYSTEM_CONTENT_PATH,
     decodedSlugs.subject,
     decodedSlugs.author,
     decodedSlugs.book
@@ -54,15 +53,15 @@ export default async function Layout({ children, params }: Props) {
   });
 
   if (!isBookPathValid) {
-    console.warn(`Bad path or missing folder at ${bookFolderPath}`);
+    console.warn(`Bad path or missing folder at ${bookDirectoryPath}`);
     notFound();
   }
 
   // 4) Check that there’s at least one index.md inside
-  const containsIndexMd = await hasBookContent(bookFolderPath);
+  const containsIndexMd = await hasBookContent(bookDirectoryPath);
 
   if (!containsIndexMd) {
-    console.warn(`No index.md found under ${bookFolderPath}`);
+    console.warn(`No index.md found under ${bookDirectoryPath}`);
     notFound();
   }
 
@@ -80,7 +79,7 @@ export default async function Layout({ children, params }: Props) {
   const sidebarConfig: SidebarConfig = {
     bookUrlPath,
     tree: await buildTree({
-      bookFolderPath: bookFolderPath,
+      fileSystemBasePath: bookDirectoryPath,
       prefix: bookUrlPath,
       dirNames: [],
       slugs: [],

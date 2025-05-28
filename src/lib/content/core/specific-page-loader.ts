@@ -3,7 +3,7 @@ import matter from 'gray-matter';
 import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
-import { normalizeTitle } from '../utils/path-utils';
+import { normalizeTitle } from '../utils/normalize-title';
 
 export type PageSpecificContent = {
   pageTitle: string;
