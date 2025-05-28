@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 
 type SectionProps = {
   children: ReactNode;
@@ -13,16 +13,10 @@ type SectionPProps = {
   children: ReactNode;
 };
 
-function Section({ children }: SectionProps) {
-  return (
-    <section className="flex flex-col gap-6">
-      {children}
-      <div className="h-2 w-full border-t border-zinc-200"></div>
-    </section>
-  );
-}
-
-Section.H = function SectionTitle({ children, level = 2 }: SectionTitleProps) {
+const SectionTitle = memo(function SectionTitle({
+  children,
+  level = 2,
+}: SectionTitleProps) {
   const Tag = `h${level}` as const;
 
   const sizeMap = {
@@ -35,10 +29,30 @@ Section.H = function SectionTitle({ children, level = 2 }: SectionTitleProps) {
   };
 
   return <Tag className={`${sizeMap[level]} font-bold`}>{children}</Tag>;
+});
+
+const SectionParagraph = memo(function SectionParagraph({
+  children,
+}: SectionPProps) {
+  return <p className="text-lg">{children}</p>;
+});
+
+const SectionBase = memo(function Section({ children }: SectionProps) {
+  return (
+    <section className="flex flex-col gap-6">
+      {children}
+      <div className="h-2 w-full border-t border-zinc-200" />
+    </section>
+  );
+});
+
+type SectionComponent = typeof SectionBase & {
+  H: typeof SectionTitle;
+  P: typeof SectionParagraph;
 };
 
-Section.P = function SectionParagraph({ children }: SectionPProps) {
-  return <p className="text-lg">{children}</p>;
-};
+const Section = SectionBase as SectionComponent;
+Section.H = SectionTitle;
+Section.P = SectionParagraph;
 
 export { Section };

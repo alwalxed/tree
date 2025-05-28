@@ -4,9 +4,9 @@ import type React from 'react';
 
 import type { SummaryNode } from '@/lib/content/types';
 import {
-  Boxes,
   GitBranch,
   Grid,
+  Mail,
   Network,
   PieChart,
   Target,
@@ -52,7 +52,7 @@ const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   },
   {
     type: 'radial-sunburst',
-    label: 'شعاع',
+    label: 'دائرة',
     icon: <PieChart className="h-4 w-4" />,
     component: RadialSunburstRenderer,
   },
@@ -70,8 +70,8 @@ const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   },
   {
     type: 'nested-boxes',
-    label: 'وعاء',
-    icon: <Boxes className="h-4 w-4" />,
+    label: 'أظرف',
+    icon: <Mail className="h-4 w-4" />,
     component: NestedBoxesRenderer,
   },
   {
