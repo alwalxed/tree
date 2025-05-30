@@ -15,7 +15,7 @@ export async function loadBookConfig(
       return null;
     }
     return parsed.data;
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(`Failed to load config.json at ${ p }:`, err.message);
     return null;

@@ -2,7 +2,6 @@ import { MarkdownRenderer } from '@/components/common/markdown-renderer';
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
 import { loadBookPage } from '@/lib/content/loadPage';
 import type { Metadata } from 'next';
-
 import { notFound } from 'next/navigation';
 
 type Params = Promise<{
