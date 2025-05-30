@@ -21,15 +21,23 @@ export async function loadBookPage({
 }): Promise<PageContent | null> {
   const { subjectSlug, authorSlug, bookSlug, slug } = contentPath;
   if (slug.length === 0) return null;
-  let dir = path.join(fileSystemBasePath, subjectSlug, authorSlug, bookSlug);
+
+  let dir = path.join(
+    fileSystemBasePath,
+    subjectSlug,
+    authorSlug,
+    bookSlug
+  );
+
   for (const segment of slug) {
     const real = await resolveRealDirectory(dir, segment);
     if (!real) {
-      console.error(`Missing segment "${ segment }" under ${ dir }`);
+      // silently bail—no console.error()
       return null;
     }
     dir = real;
   }
+
   const mdPath = path.join(dir, 'index.md');
   try {
     const raw = await fs.readFile(mdPath, 'utf-8');
@@ -43,9 +51,8 @@ export async function loadBookPage({
       contentHtml: processed.toString(),
       frontmatter: data,
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error(`Error loading markdown at ${ mdPath }:`, err.message);
+  } catch {
+    // missing index.md or parse error → treat as 404 as well
     return null;
   }
 }
