@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export async function existsDir(dir: string): Promise<boolean> {
+export async function isExistingDirectory(dir: string): Promise<boolean> {
   try {
     const stats = await fs.promises.stat(dir);
     return stats.isDirectory();

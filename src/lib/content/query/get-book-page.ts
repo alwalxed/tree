@@ -3,37 +3,11 @@ import matter from 'gray-matter';
 import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
+import type { PageContent } from '../types';
 import { normalizeTitle } from '../utils/normalize-title';
-import { parseDirectoryName } from '../utils/parse-directory-name';
+import { resolveRealDirectory } from '../utils/resolve-real-directory';
 
-
-export type PageSpecificContent = {
-  pageTitle: string;
-  pageOrder?: number;
-  excerpt?: string;
-  contentHtml: string;
-  frontmatter: Record<string, any>;
-};
-
-async function resolveRealDir(
-  parentDir: string,
-  slugSegment: string
-): Promise<string | null> {
-  const entries = await fs.readdir(parentDir, { withFileTypes: true });
-  for (const ent of entries) {
-    if (!ent.isDirectory()) continue;
-    const { fileName } = parseDirectoryName({
-      directoryName: ent.name,
-      isDirectoryPrefixMandatory: false,
-    });
-    if (fileName === slugSegment) {
-      return path.join(parentDir, ent.name);
-    }
-  }
-  return null;
-}
-
-export async function loadSpecificPage({
+export async function getBookPage({
   fileSystemBasePath,
   contentPath,
 }: {
@@ -44,7 +18,7 @@ export async function loadSpecificPage({
     bookSlug: string;
     slug: string[];
   };
-}): Promise<PageSpecificContent | null> {
+}): Promise<PageContent | null> {
   const { subjectSlug, authorSlug, bookSlug, slug } = contentPath;
   if (slug.length === 0) return null;
 
@@ -55,7 +29,7 @@ export async function loadSpecificPage({
     bookSlug
   );
   for (const segment of slug) {
-    const real = await resolveRealDir(currentDir, segment);
+    const real = await resolveRealDirectory(currentDir, segment);
     if (!real) {
       console.error(
         `[SpecificPageLoader] Could not find directory for "${ segment }" under ${ currentDir }`
@@ -79,6 +53,8 @@ export async function loadSpecificPage({
       contentHtml: processed.toString(),
       frontmatter,
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.error('[SpecificPageLoader] Error reading markdown:', e.message);
     return null;

@@ -1,6 +1,6 @@
 import path from 'path';
 import { FILESYSTEM_CONTENT_PATH } from '../constants';
-import { existsDir } from './exists-dir';
+import { isExistingDirectory } from './is-existing-directory';
 
 export async function validateBookPath({
   subjectSlug,
@@ -19,7 +19,7 @@ export async function validateBookPath({
     console.warn('Path‐traversal detected in subjectSlug:', subjectSlug);
     return false;
   }
-  if (!(await existsDir(subjectPath))) {
+  if (!(await isExistingDirectory(subjectPath))) {
     console.warn(`Subject folder not found: ${ subjectPath }`);
     return false;
   }
@@ -30,7 +30,7 @@ export async function validateBookPath({
     console.warn('Path‐traversal detected in authorSlug:', authorSlug);
     return false;
   }
-  if (!(await existsDir(authorPath))) {
+  if (!(await isExistingDirectory(authorPath))) {
     console.warn(`Author folder not found: ${ authorPath }`);
     return false;
   }
@@ -41,7 +41,7 @@ export async function validateBookPath({
     console.warn('Path‐traversal detected in bookSlug:', bookSlug);
     return false;
   }
-  if (!(await existsDir(bookPath))) {
+  if (!(await isExistingDirectory(bookPath))) {
     console.warn(`Book folder not found: ${ bookPath }`);
     return false;
   }
