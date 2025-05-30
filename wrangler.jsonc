@@ -4,7 +4,7 @@
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "usearabic",
+  "name": "tree",
   "compatibility_date": "2025-05-19",
   "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": ".vercel/output/static",

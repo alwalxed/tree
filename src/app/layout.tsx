@@ -9,10 +9,10 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    template: '%s | Documentation',
-    default: 'Documentation',
+    template: '%s | شجرة',
+    default: 'شجرة',
   },
-  description: 'Documentation site built with Next.js',
+  description: 'موقع مفتوح المصدر لتصفح الكتب مشجرةً وملخصة',
 };
 
 export default async function RootLayout({

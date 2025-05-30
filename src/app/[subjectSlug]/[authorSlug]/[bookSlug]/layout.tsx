@@ -52,7 +52,7 @@ export async function generateMetadata({
   const config = await loadBookConfig(bookDir);
 
   const title = config?.title ?? decoded.book;
-  const description = config?.description ?? `المحتوى الخاص بـ ${decoded.book}`;
+  const description = config?.description ?? `المحتوى لكتاب:  ${decoded.book}`;
 
   const safePath = `/${filterString({
     input: [decoded.subject, decoded.author, decoded.book].join('/'),
@@ -67,7 +67,7 @@ export async function generateMetadata({
       title,
       description,
       url: SITE_URL + safePath,
-      siteName: 'Documentation',
+      siteName: 'شجرة',
     },
   };
 }
