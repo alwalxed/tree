@@ -5,7 +5,6 @@ import { normalizeTitle } from '../utils/normalize-title';
 import { parseDirectoryName } from '../utils/parse-directory-name';
 import { requiresPrefix } from '../utils/requires-prefix';
 
-
 export async function buildTree({
   fileSystemBasePath,
   dirNames = [],
@@ -31,7 +30,7 @@ export async function buildTree({
   try {
     entries = await fs.promises.readdir(root, { withFileTypes: true });
   } catch {
-    console.log("Failed: (fs.promises.readdir(root, { withFileTypes: true }))");
+    console.log('Failed: (fs.promises.readdir(root, { withFileTypes: true }))');
     return null;
   }
 
@@ -49,18 +48,18 @@ export async function buildTree({
     const slug = fileName;
     const order = fileOrder;
 
-    const fullPath = prefix + [ ...slugs, slug ].join('/');
+    const fullPath = prefix + [...slugs, slug].join('/');
 
     const children = await buildTree({
       fileSystemBasePath,
-      dirNames: [ ...dirNames, dirent.name ],
-      slugs: [ ...slugs, slug ],
+      dirNames: [...dirNames, dirent.name],
+      slugs: [...slugs, slug],
       prefix,
       depth: depth + 1,
     });
 
     if (children === null) {
-      console.warn("Failed: (children === null)");
+      console.warn('Failed: (children === null)');
       return null;
     }
 

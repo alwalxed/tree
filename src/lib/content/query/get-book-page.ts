@@ -32,7 +32,7 @@ export async function getBookPage({
     const real = await resolveRealDirectory(currentDir, segment);
     if (!real) {
       console.error(
-        `[SpecificPageLoader] Could not find directory for "${ segment }" under ${ currentDir }`
+        `[SpecificPageLoader] Could not find directory for "${segment}" under ${currentDir}`
       );
       return null;
     }

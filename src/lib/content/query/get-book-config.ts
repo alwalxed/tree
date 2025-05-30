@@ -2,16 +2,12 @@ import { BookConfigSchema, type BookConfig } from '@/lib/schema/book-config';
 import fs from 'fs';
 import path from 'path';
 
-
 export async function getBookConfig({
   bookDirectoryPath,
 }: {
   bookDirectoryPath: string;
 }): Promise<BookConfig | null> {
-  const landingJsonPath = path.join(
-    bookDirectoryPath,
-    'config.json'
-  );
+  const landingJsonPath = path.join(bookDirectoryPath, 'config.json');
   try {
     const fileContent = await fs.promises.readFile(landingJsonPath, 'utf-8');
     const data = JSON.parse(fileContent);
@@ -20,7 +16,7 @@ export async function getBookConfig({
 
     if (!parsed.success) {
       console.error(
-        `Validation error for landing.json at ${ landingJsonPath }:`,
+        `Validation error for landing.json at ${landingJsonPath}:`,
         parsed.error
       );
       return null;
@@ -33,7 +29,7 @@ export async function getBookConfig({
       return null;
     }
     console.error(
-      `Error reading or parsing landing.json at ${ landingJsonPath }:`,
+      `Error reading or parsing landing.json at ${landingJsonPath}:`,
       error
     );
     return null;

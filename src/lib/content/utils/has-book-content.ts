@@ -5,7 +5,7 @@ export async function hasBookContent(bookFolderPath: string): Promise<boolean> {
   try {
     return await walkHasIndexMd(bookFolderPath);
   } catch (err) {
-    console.warn(`hasBookContent failed for ${ bookFolderPath }:`, err);
+    console.warn(`hasBookContent failed for ${bookFolderPath}:`, err);
     return false;
   }
 }

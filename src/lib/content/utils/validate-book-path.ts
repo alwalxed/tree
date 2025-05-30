@@ -20,7 +20,7 @@ export async function validateBookPath({
     return false;
   }
   if (!(await isExistingDirectory(subjectPath))) {
-    console.warn(`Subject folder not found: ${ subjectPath }`);
+    console.warn(`Subject folder not found: ${subjectPath}`);
     return false;
   }
 
@@ -31,7 +31,7 @@ export async function validateBookPath({
     return false;
   }
   if (!(await isExistingDirectory(authorPath))) {
-    console.warn(`Author folder not found: ${ authorPath }`);
+    console.warn(`Author folder not found: ${authorPath}`);
     return false;
   }
 
@@ -42,7 +42,7 @@ export async function validateBookPath({
     return false;
   }
   if (!(await isExistingDirectory(bookPath))) {
-    console.warn(`Book folder not found: ${ bookPath }`);
+    console.warn(`Book folder not found: ${bookPath}`);
     return false;
   }
 

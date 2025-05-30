@@ -11,7 +11,7 @@ export async function hasBookConfig({
     const stat = await fs.stat(configPath);
     return stat.isFile();
   } catch (err) {
-    console.warn(`hasBookConfig failed for ${ configPath }:`, err);
+    console.warn(`hasBookConfig failed for ${configPath}:`, err);
     return false;
   }
 }
