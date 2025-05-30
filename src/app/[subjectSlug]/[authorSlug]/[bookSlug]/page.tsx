@@ -1,11 +1,11 @@
 import { Section } from '@/components/common/section';
 import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
 import { filterString } from '@/lib/common/filter-string';
-import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
-import { buildTree } from '@/lib/content/core/tree-builder';
-import { getBookConfig } from '@/lib/content/query/get-book-config';
-import { hasBookConfig } from '@/lib/content/utils/has-book-config';
-import { validateBookPath } from '@/lib/content/utils/validate-book-path';
+import { buildBookTree } from '@/lib/content/buildTree';
+import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
+import { loadBookConfig } from '@/lib/content/loadConfig';
+import { configExists } from '@/lib/content/utils/fs-utils';
+import { validateBookPath } from '@/lib/content/validatePath';
 import { notFound } from 'next/navigation';
 import path from 'path';
 import { Fragment } from 'react';
@@ -47,14 +47,14 @@ export default async function BookLandingPage({ params }: Props) {
     notFound();
   }
 
-  const isBookConfig = await hasBookConfig({ bookDirectoryPath });
+  const isBookConfig = await configExists(bookDirectoryPath);
 
   if (!isBookConfig) {
     console.warn('No book config.json was found');
     notFound();
   }
 
-  const bookConfigData = await getBookConfig({ bookDirectoryPath });
+  const bookConfigData = await loadBookConfig({ bookDirectoryPath });
 
   if (!bookConfigData) {
     console.warn('No book config data');
@@ -70,7 +70,7 @@ export default async function BookLandingPage({ params }: Props) {
     },
   })}`;
 
-  const bookTree = await buildTree({
+  const bookTree = await buildBookTree({
     fileSystemBasePath: bookDirectoryPath,
     prefix: bookUrlPath,
     dirNames: [],

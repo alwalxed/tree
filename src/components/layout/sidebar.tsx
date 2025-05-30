@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useSidebar } from '@/hooks/use-sidebar';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SidebarConfig } from '@/lib/content/types';
+import type { SidebarConfig } from '@/lib/content/common/types';
 import {
   BookOpen,
   ChevronDown,

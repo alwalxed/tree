@@ -6,11 +6,11 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { filterString } from '@/lib/common/filter-string';
-import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
-import { buildTree } from '@/lib/content/core/tree-builder';
-import type { SidebarConfig } from '@/lib/content/types';
-import { hasBookContent } from '@/lib/content/utils/has-book-content';
-import { validateBookPath } from '@/lib/content/utils/validate-book-path';
+import { buildBookTree } from '@/lib/content/buildTree';
+import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
+import type { SidebarConfig } from '@/lib/content/common/types';
+import { hasContentIndex } from '@/lib/content/utils/fs-utils';
+import { validateBookPath } from '@/lib/content/validatePath';
 
 import { notFound } from 'next/navigation';
 import path from 'path';
@@ -58,7 +58,7 @@ export default async function Layout({ children, params }: Props) {
   }
 
   // 4) Check that there’s at least one index.md inside
-  const containsIndexMd = await hasBookContent(bookDirectoryPath);
+  const containsIndexMd = await hasContentIndex(bookDirectoryPath);
 
   if (!containsIndexMd) {
     console.warn(`No index.md found under ${bookDirectoryPath}`);
@@ -75,7 +75,7 @@ export default async function Layout({ children, params }: Props) {
     },
   })}/`;
 
-  const bookTree = await buildTree({
+  const bookTree = await buildBookTree({
     fileSystemBasePath: bookDirectoryPath,
     prefix: bookUrlPath,
     dirNames: [],

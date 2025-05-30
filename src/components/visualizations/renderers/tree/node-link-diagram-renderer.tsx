@@ -1,6 +1,6 @@
 'use client';
 
-import type { SummaryNode } from '@/lib/content/types';
+import type { SummaryNode } from '@/lib/content/common/types';
 import * as d3 from 'd3';
 import { memo, useEffect, useRef, useState } from 'react';
 

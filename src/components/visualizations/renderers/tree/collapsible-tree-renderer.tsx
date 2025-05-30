@@ -2,7 +2,7 @@
 
 import { convertNumerals } from '@/lib/common/convert-numerals';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SummaryNode } from '@/lib/content/types';
+import type { SummaryNode } from '@/lib/content/common/types';
 import { memo } from 'react';
 
 // Zinc shade progression for hierarchy levels

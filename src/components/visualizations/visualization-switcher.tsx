@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import type { SummaryNode } from '@/lib/content/types';
+import type { SummaryNode } from '@/lib/content/common/types';
 import {
   GitBranch,
   Grid,

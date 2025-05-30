@@ -1,6 +1,6 @@
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
-import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/constants';
-import { getBookPage } from '@/lib/content/query/get-book-page';
+import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
+import { loadBookPage } from '@/lib/content/loadPage';
 
 import { notFound } from 'next/navigation';
 
@@ -25,7 +25,7 @@ export default async function Page({ params }: Props) {
     slug: slug.map((item) => decodeURIComponent(item)),
   };
 
-  const contentNode = await getBookPage({
+  const contentNode = await loadBookPage({
     fileSystemBasePath: FILESYSTEM_CONTENT_PATH,
     contentPath: {
       subjectSlug: decodedSlugs.subject,

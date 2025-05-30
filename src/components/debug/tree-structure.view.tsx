@@ -16,7 +16,7 @@ import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { SummaryNode } from '@/lib/content/types';
+import type { SummaryNode } from '@/lib/content/common/types';
 import {
   ChevronRight,
   Copy,

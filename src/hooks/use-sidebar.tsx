@@ -1,4 +1,4 @@
-import type { SummaryNode } from '@/lib/content/types';
+import type { SummaryNode } from '@/lib/content/common/types';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
