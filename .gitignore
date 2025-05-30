@@ -3,6 +3,10 @@
 # Manual
 repomix-output.xml
 
+output.txt
+./output.txt
+./output.txt/*
+
 # dependencies
 /node_modules
 /.pnp

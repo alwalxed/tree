@@ -1,8 +1,22 @@
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
 import { loadBookPage } from '@/lib/content/loadPage';
+import { getAllPageSlugs } from '@/lib/content/staticPaths';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+
+export const dynamicParams = false;
+export const revalidate = false;
+
+export async function generateStaticParams() {
+  const pages = await getAllPageSlugs();
+  return pages.map(({ subjectSlug, authorSlug, bookSlug, slug }) => ({
+    subjectSlug,
+    authorSlug,
+    bookSlug,
+    slug,
+  }));
+}
 
 type Params = Promise<{
   subjectSlug: string;
