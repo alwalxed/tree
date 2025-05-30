@@ -68,6 +68,9 @@ importers:
       remark-html:
         specifier: ^16.0.1
         version: 16.0.1
+      reversible-arabic-slugifier:
+        specifier: ^1.0.0
+        version: 1.0.0(typescript@5.8.3)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.0
@@ -3807,6 +3810,12 @@ packages:
   reusify@1.1.0:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
+
+  reversible-arabic-slugifier@1.0.0:
+    resolution: {integrity: sha512-pmD6OWmvhrbYuIIE4yAadTFZJlhmiIDxXs6hkHm3Ipx+Kw/B2mocGtxZ4AFASEdKIBseIz/6lDAWGr/6lbtx5A==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      typescript: ^5.0.0
 
   robust-predicates@3.0.2:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
@@ -8084,6 +8093,10 @@ snapshots:
       supports-preserve-symlinks-flag: 1.0.0
 
   reusify@1.1.0: {}
+
+  reversible-arabic-slugifier@1.0.0(typescript@5.8.3):
+    dependencies:
+      typescript: 5.8.3
 
   robust-predicates@3.0.2: {}
 

@@ -73,7 +73,7 @@ export default async function Layout({ children, params }: Props) {
       underscores: true,
       forwardSlashes: true,
     },
-  })}`;
+  })}/`;
 
   const bookTree = await buildTree({
     fileSystemBasePath: bookDirectoryPath,
