@@ -5,27 +5,72 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { SITE_URL } from '@/config/site';
 import { filterString } from '@/lib/common/filter-string';
 import { buildBookTree } from '@/lib/content/buildTree';
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
 import type { SidebarConfig } from '@/lib/content/common/types';
+import { loadBookConfig } from '@/lib/content/loadConfig';
 import { hasContentIndex } from '@/lib/content/utils/fs-utils';
 import { validateBookPath } from '@/lib/content/validatePath';
+import type { Metadata } from 'next';
 
 import { notFound } from 'next/navigation';
 import path from 'path';
 
-type Params = {
+type Params = Promise<{
   subjectSlug: string;
   authorSlug: string;
   bookSlug: string;
   slug: string[];
-};
+}>;
 
 type Props = {
   children: React.ReactNode;
-  params: Promise<Params>;
+  params: Params;
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { subjectSlug, authorSlug, bookSlug } = await params;
+  const decoded = {
+    subject: decodeURIComponent(subjectSlug),
+    author: decodeURIComponent(authorSlug),
+    book: decodeURIComponent(bookSlug),
+  };
+
+  const bookDir = path.join(
+    FILESYSTEM_CONTENT_PATH,
+    decoded.subject,
+    decoded.author,
+    decoded.book
+  );
+
+  const config = await loadBookConfig(bookDir);
+
+  const title = config?.title ?? decoded.book;
+  const description = config?.description ?? `المحتوى الخاص بـ ${decoded.book}`;
+
+  const safePath = `/${filterString({
+    input: [decoded.subject, decoded.author, decoded.book].join('/'),
+    options: { arabicLetters: true, underscores: true, forwardSlashes: true },
+  })}/`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: SITE_URL + safePath },
+    openGraph: {
+      title,
+      description,
+      url: SITE_URL + safePath,
+      siteName: 'Documentation',
+    },
+  };
+}
 
 export default async function Layout({ children, params }: Props) {
   const { subjectSlug, authorSlug, bookSlug } = await params;

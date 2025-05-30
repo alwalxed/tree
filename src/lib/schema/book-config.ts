@@ -1,27 +1,28 @@
 import { z } from 'zod';
 
-export const TextSectionSchema = z.object({
+export const TextSection = z.object({
   type: z.literal('text'),
-  title: z.string(),
-  content: z.array(z.string()),
+  title: z.string().min(1),
+  content: z.array(z.string().min(1)).min(1),
 });
 
-export const VisualizationSectionSchema = z.object({
+export const VisualizationSection = z.object({
   type: z.literal('visualization'),
-  title: z.string(),
-  chapterIdentifier: z.string(),
+  title: z.string().min(1),
+  chapterIdentifier: z.string().min(1),
 });
 
-export const SectionSchema = z.union([
-  TextSectionSchema,
-  VisualizationSectionSchema,
+export const Section = z.discriminatedUnion('type', [
+  TextSection,
+  VisualizationSection,
 ]);
 
-export const BookConfigSchema = z.object({
-  sections: z.array(SectionSchema),
-});
+export const BookConfigSchema = z
+  .object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    sections: z.array(Section).min(1),
+  })
+  .strict();
 
-export type TextSection = z.infer<typeof TextSectionSchema>;
-export type VisualizationSection = z.infer<typeof VisualizationSectionSchema>;
-export type Section = z.infer<typeof SectionSchema>;
 export type BookConfig = z.infer<typeof BookConfigSchema>;

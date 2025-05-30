@@ -10,14 +10,14 @@ import { notFound } from 'next/navigation';
 import path from 'path';
 import { Fragment } from 'react';
 
-type Params = {
+type Params = Promise<{
   subjectSlug: string;
   authorSlug: string;
   bookSlug: string;
-};
+}>;
 
 type Props = {
-  params: Promise<Params>;
+  params: Params;
 };
 
 export default async function BookLandingPage({ params }: Props) {
@@ -54,7 +54,7 @@ export default async function BookLandingPage({ params }: Props) {
     notFound();
   }
 
-  const bookConfigData = await loadBookConfig({ bookDirectoryPath });
+  const bookConfigData = await loadBookConfig(bookDirectoryPath);
 
   if (!bookConfigData) {
     console.warn('No book config data');

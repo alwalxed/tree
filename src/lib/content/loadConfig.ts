@@ -1,25 +1,23 @@
 import { BookConfigSchema, type BookConfig } from '@/lib/schema/book-config';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 
-export async function loadBookConfig({
-  bookDirectoryPath,
-}: {
-  bookDirectoryPath: string;
-}): Promise<BookConfig | null> {
-  const configPath = path.join(bookDirectoryPath, 'config.json');
+export async function loadBookConfig(
+  bookDirectoryPath: string,
+): Promise<BookConfig | null> {
+  const p = path.join(bookDirectoryPath, 'config.json');
   try {
-    const raw = await fs.promises.readFile(configPath, 'utf-8');
-    const parsed = BookConfigSchema.safeParse(JSON.parse(raw));
+    const raw = await fs.readFile(p, 'utf-8');
+    const json = JSON.parse(raw);
+    const parsed = BookConfigSchema.safeParse(json);
     if (!parsed.success) {
-      console.error(`Invalid config at ${configPath}`, parsed.error);
+      console.error('Config validation errors:', parsed.error.format());
       return null;
     }
     return parsed.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   } catch (err: any) {
-    if (err.code === 'ENOENT') return null;
-    console.error(`Error loading config at ${configPath}`, err);
+    console.error(`Failed to load config.json at ${ p }:`, err.message);
     return null;
   }
 }
