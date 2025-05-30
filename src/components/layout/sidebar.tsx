@@ -47,7 +47,11 @@ function SidebarComponent({
       >
         <SidebarGroup>
           <SidebarGroupLabel>{label}</SidebarGroupLabel>
-          <SidebarGroupAction onClick={toggleAll} title="طي وبسط">
+          <SidebarGroupAction
+            className="cursor-pointer"
+            onClick={toggleAll}
+            title="طي وبسط"
+          >
             <ChevronsDownUp /> <span className="sr-only">Toggle</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
@@ -95,7 +99,7 @@ function SidebarComponent({
                     {hasChildren ? (
                       <SidebarMenuButton
                         className={cn(
-                          'pr-[calc(0.5rem*var(--level))] pl-1.5',
+                          'cursor-pointer pr-[calc(0.5rem*var(--level))] pl-1.5',
                           isActive &&
                             'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         )}
@@ -115,7 +119,9 @@ function SidebarComponent({
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        className={cn('pr-[calc(0.5rem*var(--level))]')}
+                        className={cn(
+                          'cursor-pointer pr-[calc(0.5rem*var(--level))]'
+                        )}
                         style={{ '--level': 1 + level } as React.CSSProperties}
                       >
                         <Link href={itemHref}>

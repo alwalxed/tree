@@ -105,7 +105,7 @@ export default async function Layout({ children, params }: Props) {
         <Sidebar sidebarConfig={sidebarConfig} />
         <SidebarInset className="px-4 py-6 md:px-8">
           <header className="mb-4 flex items-center">
-            <SidebarTrigger />
+            <SidebarTrigger className="cursor-pointer" />
           </header>
           <main className="pb-16">{children}</main>
         </SidebarInset>
