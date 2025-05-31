@@ -1,9 +1,11 @@
 import { generateASCIITree } from '@/lib/common/ascii-tree-generator';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import { memo } from 'react';
 
-export const ASCIITreeRenderer = memo(({ nodes }: { nodes: SummaryNode[] }) => {
+export type ASCIITreeRendererProps = { nodes: Node[] };
+
+export const ASCIITreeRenderer = memo(({ nodes }: ASCIITreeRendererProps) => {
   return (
     <div className="max-w-none overflow-hidden rounded-lg bg-zinc-100/80 shadow ring-1 shadow-zinc-100 ring-zinc-200">
       <p

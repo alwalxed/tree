@@ -1,6 +1,6 @@
 'use client';
 
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import * as d3 from 'd3';
 import { memo, useEffect, useRef, useState } from 'react';
 
@@ -10,13 +10,13 @@ type TreeNode = {
   children?: TreeNode[];
 };
 
-type TreeVisualizationProps = {
-  nodes: SummaryNode[];
+export type NodeLinkDiagramRendererProps = {
+  nodes: Node[];
   height?: number;
 };
 
 export const NodeLinkDiagramRenderer = memo(
-  ({ nodes, height = 600 }: TreeVisualizationProps) => {
+  ({ nodes, height = 600 }: NodeLinkDiagramRendererProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height });
 
@@ -61,7 +61,7 @@ export const NodeLinkDiagramRenderer = memo(
 
       const contentGroup = svg.append('g').attr('class', 'content');
 
-      const transformNodes = (inputNodes: SummaryNode[]): TreeNode[] => {
+      const transformNodes = (inputNodes: Node[]): TreeNode[] => {
         return inputNodes.map((node, index) => ({
           id: node.slug || `node-${index}`,
           name: node.title,

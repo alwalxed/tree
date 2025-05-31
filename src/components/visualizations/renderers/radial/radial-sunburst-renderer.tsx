@@ -1,18 +1,22 @@
 'use client';
 
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import * as d3 from 'd3';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-// Types for our data structure and dimensions
+export type RadialSunburstRendererProps = {
+  nodes: Node[];
+  initialWidth?: number;
+  initialHeight?: number;
+};
+
 type HierarchyDatum = {
   name: string;
   value: number;
   children?: HierarchyDatum[];
 };
 
-// Gradient definitions with zinc shades
 const GRADIENT_DEFINITIONS = [
   { id: 'gradient-1', from: '#fafafa', to: '#f4f4f5' }, // zinc-50 to zinc-100
   { id: 'gradient-2', from: '#f4f4f5', to: '#e4e4e7' }, // zinc-100 to zinc-200
@@ -30,11 +34,7 @@ export const RadialSunburstRenderer = memo(
     nodes,
     initialWidth = 1000,
     initialHeight = 1000,
-  }: {
-    nodes: SummaryNode[];
-    initialWidth?: number;
-    initialHeight?: number;
-  }) => {
+  }: RadialSunburstRendererProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const zoomBehaviorRef = useRef<d3.ZoomBehavior<
@@ -48,24 +48,21 @@ export const RadialSunburstRenderer = memo(
     });
 
     // Transform nodes data to hierarchical format for D3
-    const transformData = useCallback(
-      (nodes: SummaryNode[]): HierarchyDatum[] => {
-        const transform = (nodes: SummaryNode[]): HierarchyDatum[] => {
-          return nodes.map(
-            (node): HierarchyDatum => ({
-              name: node.title,
-              value: node.children.length ? 0 : 1,
-              children: node.children.length
-                ? transform(node.children)
-                : undefined,
-            })
-          );
-        };
+    const transformData = useCallback((nodes: Node[]): HierarchyDatum[] => {
+      const transform = (nodes: Node[]): HierarchyDatum[] => {
+        return nodes.map(
+          (node): HierarchyDatum => ({
+            name: node.title,
+            value: node.children.length ? 0 : 1,
+            children: node.children.length
+              ? transform(node.children)
+              : undefined,
+          })
+        );
+      };
 
-        return transform(nodes);
-      },
-      []
-    );
+      return transform(nodes);
+    }, []);
 
     // Handle dimensions based on container size
     useEffect(() => {

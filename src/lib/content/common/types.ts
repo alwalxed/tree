@@ -2,6 +2,8 @@
 // -------------------------------------------------------->
 // ----------------------------------------------------------->
 
+import type { Node } from '@/lib/schema/bookTree';
+
 type BaseNode = {
   title: string;
   slug: string;
@@ -33,7 +35,7 @@ export type LeafNodeInfo = {
 
 export type SidebarConfig = {
   bookUrlPath: string;
-  tree: SummaryNode[];
+  tree: Node[];
   label: string;
 };
 

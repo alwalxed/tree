@@ -1,11 +1,12 @@
 'use client';
 
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SummaryNode } from '@/lib/content/common/types';
 import { getNodeSlugPath } from '@/lib/content/utils/node-utils';
+import type { Node } from '@/lib/schema/bookTree';
 import Link from 'next/link';
 import { memo, useId } from 'react';
 
+export type NestedBoxesRendererProps = { nodes: Node[] };
 // Color scheme constants
 const COLOR_SCHEMES = [
   {
@@ -78,7 +79,7 @@ const ANIMATIONS = {
 } as const;
 
 export const NestedBoxesRenderer = memo(
-  ({ nodes }: { nodes: SummaryNode[] }) => {
+  ({ nodes }: NestedBoxesRendererProps) => {
     return (
       <div className={CONTAINER_STYLES.wrapper}>
         <BoxView nodes={nodes} />
@@ -88,7 +89,7 @@ export const NestedBoxesRenderer = memo(
 );
 
 const BoxView = memo(
-  ({ nodes, depth = 0 }: { nodes: SummaryNode[]; depth?: number }) => {
+  ({ nodes, depth = 0 }: NestedBoxesRendererProps & { depth?: number }) => {
     const scheme = COLOR_SCHEMES[depth % COLOR_SCHEMES.length];
     const uniqueId = useId();
 

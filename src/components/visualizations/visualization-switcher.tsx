@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import {
   GitBranch,
   Grid,
@@ -12,30 +12,81 @@ import {
   Target,
   Terminal,
 } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
-import { RadialSunburstRenderer } from './renderers/radial/radial-sunburst-renderer';
-import { CirclePackRenderer } from './renderers/spatial/circle-pack-renderer';
-import { GridLayoutRenderer } from './renderers/spatial/grid-layout-renderer';
-import { NestedBoxesRenderer } from './renderers/spatial/nested-boxes-renderer';
-import { ASCIITreeRenderer } from './renderers/tree/ascii-tree-renderer';
-import { CollapsibleTreeRenderer } from './renderers/tree/collapsible-tree-renderer';
-import { NodeLinkDiagramRenderer } from './renderers/tree/node-link-diagram-renderer';
+import {
+  memo,
+  useMemo,
+  useState,
+  type JSX,
+  type MemoExoticComponent,
+} from 'react';
+import {
+  RadialSunburstRenderer,
+  type RadialSunburstRendererProps,
+} from './renderers/radial/radial-sunburst-renderer';
+import {
+  CirclePackRenderer,
+  type CirclePackRendererProps,
+} from './renderers/spatial/circle-pack-renderer';
+import {
+  GridLayoutRenderer,
+  type GridLayoutRendererProps,
+} from './renderers/spatial/grid-layout-renderer';
+import {
+  NestedBoxesRenderer,
+  type NestedBoxesRendererProps,
+} from './renderers/spatial/nested-boxes-renderer';
+import {
+  ASCIITreeRenderer,
+  type ASCIITreeRendererProps,
+} from './renderers/tree/ascii-tree-renderer';
+import {
+  CollapsibleTreeRenderer,
+  type CollapsibleTreeRendererProps,
+} from './renderers/tree/collapsible-tree-renderer';
+import {
+  NodeLinkDiagramRenderer,
+  type NodeLinkDiagramRendererProps,
+} from './renderers/tree/node-link-diagram-renderer';
 
-type VisualizationType =
-  | 'collapsible-tree'
-  | 'ascii-tree'
-  | 'nested-boxes'
-  | 'grid-layout'
-  | 'radial-sunburst'
-  | 'node-diagram'
-  | 'circle-pack';
+const visualizationTypes = [
+  'collapsible-tree',
+  'ascii-tree',
+  'nested-boxes',
+  'grid-layout',
+  'radial-sunburst',
+  'node-diagram',
+  'circle-pack',
+] as const;
 
-interface VisualizationConfig {
+type VisualizationType = (typeof visualizationTypes)[number];
+
+type Component =
+  | MemoExoticComponent<
+      ({ nodes, height }: NodeLinkDiagramRendererProps) => JSX.Element
+    >
+  | MemoExoticComponent<
+      ({ nodes, width, height }: CirclePackRendererProps) => JSX.Element
+    >
+  | MemoExoticComponent<
+      ({
+        nodes,
+        initialWidth,
+        initialHeight,
+      }: RadialSunburstRendererProps) => JSX.Element
+    >
+  | MemoExoticComponent<({ nodes }: ASCIITreeRendererProps) => JSX.Element>
+  | MemoExoticComponent<
+      ({ nodes }: CollapsibleTreeRendererProps) => JSX.Element
+    >
+  | MemoExoticComponent<({ nodes }: NestedBoxesRendererProps) => JSX.Element>
+  | MemoExoticComponent<({ nodes }: GridLayoutRendererProps) => JSX.Element>;
+
+type VisualizationConfig = Readonly<{
   type: VisualizationType;
   label: string;
   icon: React.ReactNode;
-  component: React.ComponentType<{ nodes: SummaryNode[] }>;
-}
+  component: Component;
+}>;
 
 const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   {
@@ -82,8 +133,9 @@ const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
   },
 ];
 
+type VisualizationSwitcherProps = { nodes: Node[] };
 export const VisualizationSwitcher = memo(
-  ({ nodes }: { nodes: SummaryNode[] }) => {
+  ({ nodes }: VisualizationSwitcherProps) => {
     const [visualizationType, setVisualizationType] =
       useState<VisualizationType>(VISUALIZATION_CONFIGS[0].type);
 

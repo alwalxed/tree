@@ -2,9 +2,10 @@
 
 import { convertNumerals } from '@/lib/common/convert-numerals';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import { memo } from 'react';
 
+export type CollapsibleTreeRendererProps = { nodes: Node[] };
 // Zinc shade progression for hierarchy levels
 const ZINC_SHADES = [
   {
@@ -83,7 +84,7 @@ const getColorsForLevel = (level: number) => {
 };
 
 export const CollapsibleTreeRenderer = memo(
-  ({ nodes }: { nodes: SummaryNode[] }) => {
+  ({ nodes }: CollapsibleTreeRendererProps) => {
     return (
       <div
         className={cn(
@@ -101,7 +102,7 @@ export const CollapsibleTreeRenderer = memo(
 );
 
 const TreeView = memo(
-  ({ nodes, level = 0 }: { nodes: SummaryNode[]; level?: number }) => {
+  ({ nodes, level = 0 }: CollapsibleTreeRendererProps & { level?: number }) => {
     const levelColors = getColorsForLevel(level);
 
     return (

@@ -1,8 +1,9 @@
-import type { LeafNodeInfo, SummaryNode } from '../common/types';
+import type { Node } from '@/lib/schema/bookTree';
+import type { LeafNodeInfo } from '../common/types';
 
-export function listLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
+export function listLeafNodes(tree: Node[]): LeafNodeInfo[] {
   const leaves: LeafNodeInfo[] = [];
-  function walk(node: SummaryNode, pathSoFar: string[] = []) {
+  function walk(node: Node, pathSoFar: string[] = []) {
     const full = [ ...pathSoFar, node.slug ];
     if (node.children.length === 0) {
       leaves.push({ title: node.title, fullSlugPath: full.join('/') });
@@ -14,6 +15,6 @@ export function listLeafNodes(tree: SummaryNode[]): LeafNodeInfo[] {
   return leaves;
 }
 
-export function getNodeSlugPath(node: SummaryNode): string {
+export function getNodeSlugPath(node: Node): string {
   return [ ...node.parentPath, node.slug ].join('/');
 }

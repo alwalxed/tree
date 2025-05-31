@@ -17,7 +17,7 @@ export const Section = z.discriminatedUnion('type', [
   VisualizationSection,
 ]);
 
-export const BookConfigSchema = z
+export const ConfigSchema = z
   .object({
     title: z.string().min(1),
     description: z.string().min(1),
@@ -25,4 +25,4 @@ export const BookConfigSchema = z
   })
   .strict();
 
-export type BookConfig = z.infer<typeof BookConfigSchema>;
+export type Config = z.infer<typeof ConfigSchema>;

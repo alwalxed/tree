@@ -1,9 +1,9 @@
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
 export type FlatSidebarItem = {
-  node: SummaryNode;
+  node: Node;
   level: number;
   parentNodeFullPath?: string;
 };
@@ -12,7 +12,7 @@ export function useSidebar({
   tree,
   bookUrlPath,
 }: {
-  tree: SummaryNode[];
+  tree: Node[];
   bookUrlPath: string;
 }) {
   const pathname = usePathname();
@@ -54,7 +54,7 @@ export function useSidebar({
 
   const flatItems = useMemo((): FlatSidebarItem[] => {
     const performWalk = (
-      nodes: SummaryNode[],
+      nodes: Node[],
       currentLevel = 0,
       parentPath?: string
     ): FlatSidebarItem[] => {
@@ -80,19 +80,16 @@ export function useSidebar({
     return performWalk(tree);
   }, [tree]);
 
-  const getAllPathsWithChildren = useCallback(
-    (nodes: SummaryNode[]): string[] => {
-      let paths: string[] = [];
-      for (const node of nodes) {
-        if (node.children && node.children.length > 0) {
-          paths.push(node.fullPath);
-          paths = paths.concat(getAllPathsWithChildren(node.children));
-        }
+  const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
+    let paths: string[] = [];
+    for (const node of nodes) {
+      if (node.children && node.children.length > 0) {
+        paths.push(node.fullPath);
+        paths = paths.concat(getAllPathsWithChildren(node.children));
       }
-      return paths;
-    },
-    []
-  );
+    }
+    return paths;
+  }, []);
 
   const expandAll = useCallback(() => {
     const allPaths = getAllPathsWithChildren(tree);

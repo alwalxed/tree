@@ -1,4 +1,4 @@
-import { BookConfigSchema, type BookConfig } from '@/lib/schema/book-config';
+import { BookConfigSchema, type BookConfig } from '@/lib/schema/bookConfig';
 import fs from 'fs/promises';
 import path from 'path';
 

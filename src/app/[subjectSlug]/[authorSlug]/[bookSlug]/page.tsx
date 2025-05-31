@@ -1,13 +1,8 @@
 import { Section } from '@/components/common/section';
 import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
-import { filterString } from '@/lib/common/filter-string';
-import { buildBookTree } from '@/lib/content/buildTree';
-import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
-import { loadBookConfig } from '@/lib/content/loadConfig';
-import { configExists } from '@/lib/content/utils/fs-utils';
-import { validateBookPath } from '@/lib/content/validatePath';
-import { notFound } from 'next/navigation';
-import path from 'path';
+import { CONTENT_URL } from '@/config/site';
+import { ConfigSchema, type Config } from '@/lib/schema/bookConfig';
+import { TreeSchema } from '@/lib/schema/bookTree';
 import { Fragment } from 'react';
 
 type Params = Promise<{
@@ -29,63 +24,43 @@ export default async function BookLandingPage({ params }: Props) {
     book: decodeURIComponent(bookSlug),
   };
 
-  const bookDirectoryPath = path.join(
-    FILESYSTEM_CONTENT_PATH,
-    decodedSlugs.subject,
-    decodedSlugs.author,
-    decodedSlugs.book
+  const cfgRes = await fetch(
+    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/config.json`
   );
 
-  const isBookPathValid = await validateBookPath({
-    subjectSlug: decodedSlugs.subject,
-    authorSlug: decodedSlugs.author,
-    bookSlug: decodedSlugs.book,
-  });
-
-  if (!isBookPathValid) {
-    console.warn(`Bad path or missing folder at ${bookDirectoryPath}`);
-    notFound();
+  if (!cfgRes.ok) {
+    throw new Error('Failed to fetch CONF');
   }
 
-  const isBookConfig = await configExists(bookDirectoryPath);
+  const cfgJSON = await cfgRes.json();
+  const cfgParsed = await ConfigSchema.safeParse(cfgJSON);
 
-  if (!isBookConfig) {
-    console.warn('No book config.json was found');
-    notFound();
+  if (!cfgParsed.success) {
+    throw cfgParsed.error;
   }
 
-  const bookConfigData = await loadBookConfig(bookDirectoryPath);
+  const cfgParsedData: Config = cfgParsed.data as Config;
 
-  if (!bookConfigData) {
-    console.warn('No book config data');
-    notFound();
+  const treeRes = await fetch(
+    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/tree.json`
+  );
+
+  if (!treeRes.ok) {
+    throw new Error('Failed to fetch TREE');
   }
 
-  const bookUrlPath = `/${filterString({
-    input: Object.values(decodedSlugs).join('/'),
-    options: {
-      arabicLetters: true,
-      underscores: true,
-      forwardSlashes: true,
-    },
-  })}`;
+  const treeJSON = await treeRes.json();
+  const treeParsed = await TreeSchema.safeParse(treeJSON);
 
-  const bookTree = await buildBookTree({
-    fileSystemBasePath: bookDirectoryPath,
-    prefix: bookUrlPath,
-    dirNames: [],
-    slugs: [],
-    depth: 0,
-  });
-
-  if (!bookTree) {
-    console.warn('No book tree');
-    notFound();
+  if (!treeParsed.success) {
+    throw treeParsed.error;
   }
+
+  const treeParsedData = treeParsed.data;
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-12">
-      {bookConfigData.sections.map((section, index) => {
+      {cfgParsedData.sections.map((section, index) => {
         switch (section.type) {
           case 'text':
             return (
@@ -108,7 +83,7 @@ export default async function BookLandingPage({ params }: Props) {
               <Section key={`${index}-${section.title}-${section.type}`}>
                 <Section.H level={2}>{section.title}</Section.H>
                 <VisualizationSwitcher
-                  nodes={bookTree.filter((node) =>
+                  nodes={treeParsedData.filter((node) =>
                     node.title.includes(section.chapterIdentifier)
                   )}
                 />

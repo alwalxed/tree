@@ -1,22 +1,12 @@
-import { DevDebuggers } from '@/components/debug';
 import { Sidebar } from '@/components/layout/sidebar';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { SITE_URL } from '@/config/site';
+import { CONTENT_URL } from '@/config/site';
 import { filterString } from '@/lib/common/filter-string';
-import { buildBookTree } from '@/lib/content/buildTree';
-import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
-import type { SidebarConfig } from '@/lib/content/common/types';
-import { loadBookConfig } from '@/lib/content/loadConfig';
-import { hasContentIndex } from '@/lib/content/utils/fs-utils';
-import { validateBookPath } from '@/lib/content/validatePath';
-import type { Metadata } from 'next';
-
-import { notFound } from 'next/navigation';
-import path from 'path';
+import { TreeSchema, type Node } from '@/lib/schema/bookTree';
 
 type Params = Promise<{
   subjectSlug: string;
@@ -30,47 +20,47 @@ type Props = {
   params: Params;
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
-  const { subjectSlug, authorSlug, bookSlug } = await params;
-  const decoded = {
-    subject: decodeURIComponent(subjectSlug),
-    author: decodeURIComponent(authorSlug),
-    book: decodeURIComponent(bookSlug),
-  };
+// export async function generateMetadata({
+//   params,
+// }: {
+//   params: Promise<Params>;
+// }): Promise<Metadata> {
+//   const { subjectSlug, authorSlug, bookSlug } = await params;
+//   const decoded = {
+//     subject: decodeURIComponent(subjectSlug),
+//     author: decodeURIComponent(authorSlug),
+//     book: decodeURIComponent(bookSlug),
+//   };
 
-  const bookDir = path.join(
-    FILESYSTEM_CONTENT_PATH,
-    decoded.subject,
-    decoded.author,
-    decoded.book
-  );
+//   const bookDir = path.join(
+//     FILESYSTEM_CONTENT_PATH,
+//     decoded.subject,
+//     decoded.author,
+//     decoded.book
+//   );
 
-  const config = await loadBookConfig(bookDir);
+//   const config = await loadBookConfig(bookDir);
 
-  const title = config?.title ?? decoded.book;
-  const description = config?.description ?? `المحتوى لكتاب:  ${decoded.book}`;
+//   const title = config?.title ?? decoded.book;
+//   const description = config?.description ?? `المحتوى لكتاب:  ${decoded.book}`;
 
-  const safePath = `/${filterString({
-    input: [decoded.subject, decoded.author, decoded.book].join('/'),
-    options: { arabicLetters: true, underscores: true, forwardSlashes: true },
-  })}/`;
+//   const safePath = `/${filterString({
+//     input: [decoded.subject, decoded.author, decoded.book].join('/'),
+//     options: { arabicLetters: true, underscores: true, forwardSlashes: true },
+//   })}/`;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: SITE_URL + safePath },
-    openGraph: {
-      title,
-      description,
-      url: SITE_URL + safePath,
-      siteName: 'شجرة',
-    },
-  };
-}
+//   return {
+//     title,
+//     description,
+//     alternates: { canonical: SITE_URL + safePath },
+//     openGraph: {
+//       title,
+//       description,
+//       url: SITE_URL + safePath,
+//       siteName: 'شجرة',
+//     },
+//   };
+// }
 
 export default async function Layout({ children, params }: Props) {
   const { subjectSlug, authorSlug, bookSlug } = await params;
@@ -82,33 +72,22 @@ export default async function Layout({ children, params }: Props) {
     book: decodeURIComponent(bookSlug),
   };
 
-  // 2) Absolute filesystem path to the book folder
-  const bookDirectoryPath = path.join(
-    FILESYSTEM_CONTENT_PATH,
-    decodedSlugs.subject,
-    decodedSlugs.author,
-    decodedSlugs.book
+  const treeRes = await fetch(
+    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/tree.json`
   );
 
-  // 3) Verify the folder actually exists
-  const isBookPathValid = await validateBookPath({
-    subjectSlug: decodedSlugs.subject,
-    authorSlug: decodedSlugs.author,
-    bookSlug: decodedSlugs.book,
-  });
-
-  if (!isBookPathValid) {
-    console.warn(`Bad path or missing folder at ${bookDirectoryPath}`);
-    notFound();
+  if (!treeRes.ok) {
+    throw new Error('Failed to fetch TREE');
   }
 
-  // 4) Check that there’s at least one index.md inside
-  const containsIndexMd = await hasContentIndex(bookDirectoryPath);
+  const treeJSON = await treeRes.json();
+  const treeParsed = await TreeSchema.safeParse(treeJSON);
 
-  if (!containsIndexMd) {
-    console.warn(`No index.md found under ${bookDirectoryPath}`);
-    notFound();
+  if (!treeParsed.success) {
+    throw treeParsed.error;
   }
+
+  const treeParsedData = treeParsed.data;
 
   // 5) Build a safe URL path for the book
   const bookUrlPath = `/${filterString({
@@ -120,23 +99,14 @@ export default async function Layout({ children, params }: Props) {
     },
   })}/`;
 
-  const bookTree = await buildBookTree({
-    fileSystemBasePath: bookDirectoryPath,
-    prefix: bookUrlPath,
-    dirNames: [],
-    slugs: [],
-    depth: 0,
-  });
-
-  if (!bookTree) {
-    console.warn('No book tree');
-    notFound();
-  }
-
   // 6) Build the sidebar tree data
-  const sidebarConfig: SidebarConfig = {
+  const sidebarConfig: {
+    bookUrlPath: string;
+    tree: Node[];
+    label: string;
+  } = {
     bookUrlPath,
-    tree: bookTree,
+    tree: treeParsedData,
     label: filterString({
       input: decodedSlugs.book,
       options: { arabicLetters: true, underscores: true },
@@ -145,7 +115,6 @@ export default async function Layout({ children, params }: Props) {
 
   return (
     <>
-      <DevDebuggers tree={sidebarConfig.tree} />
       <SidebarProvider>
         <Sidebar sidebarConfig={sidebarConfig} />
         <SidebarInset className="px-4 py-6 md:px-8">

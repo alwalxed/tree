@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useSidebar } from '@/hooks/use-sidebar';
 import { cn } from '@/lib/common/tailwind-utils';
-import type { SidebarConfig } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import {
   BookOpen,
   ChevronDown,
@@ -25,13 +25,13 @@ import {
 import Link from 'next/link';
 import React, { memo } from 'react';
 
-type Props = {
-  sidebarConfig: SidebarConfig;
+type SidebarComponentProps = {
+  sidebarConfig: { bookUrlPath: string; tree: Node[]; label: string };
 };
 
 function SidebarComponent({
   sidebarConfig: { tree, label, bookUrlPath },
-}: Props) {
+}: SidebarComponentProps) {
   const {
     flatItems,
     expandedSections,
