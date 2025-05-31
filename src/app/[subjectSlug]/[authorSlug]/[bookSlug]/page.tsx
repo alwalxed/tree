@@ -4,24 +4,11 @@ import { filterString } from '@/lib/common/filter-string';
 import { buildBookTree } from '@/lib/content/buildTree';
 import { FILESYSTEM_CONTENT_PATH } from '@/lib/content/common/constants';
 import { loadBookConfig } from '@/lib/content/loadConfig';
-import { getAllBookSlugs } from '@/lib/content/staticPaths';
 import { configExists } from '@/lib/content/utils/fs-utils';
 import { validateBookPath } from '@/lib/content/validatePath';
 import { notFound } from 'next/navigation';
 import path from 'path';
 import { Fragment } from 'react';
-
-export const dynamicParams = false;
-export const revalidate = false;
-
-export async function generateStaticParams() {
-  const books = await getAllBookSlugs();
-  return books.map(({ subjectSlug, authorSlug, bookSlug }) => ({
-    subjectSlug,
-    authorSlug,
-    bookSlug,
-  }));
-}
 
 type Params = Promise<{
   subjectSlug: string;
