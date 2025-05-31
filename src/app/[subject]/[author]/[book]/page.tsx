@@ -27,7 +27,7 @@ export default async function BookLandingPage({ params }: Props) {
   }
 
   const cfgJSON = await cfgRes.json();
-  const cfgParsed = await ConfigSchema.safeParse(cfgJSON);
+  const cfgParsed = ConfigSchema.safeParse(cfgJSON);
 
   if (!cfgParsed.success) {
     throw cfgParsed.error;
@@ -44,7 +44,7 @@ export default async function BookLandingPage({ params }: Props) {
   }
 
   const treeJSON = await treeRes.json();
-  const treeParsed = await TreeSchema.safeParse(treeJSON);
+  const treeParsed = TreeSchema.safeParse(treeJSON);
 
   if (!treeParsed.success) {
     throw treeParsed.error;

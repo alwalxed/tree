@@ -63,7 +63,10 @@ type Props = {
 // }
 
 export default async function Layout({ children, params }: Props) {
-  const { subject, author, book } = await params;
+  const { subject, author, book, slug } = await params;
+  console.log(subject);
+  console.log(author);
+  console.log(book);
 
   const treeRes = await fetch(
     `${CONTENT_URL}/${subject}/${author}/${book}/tree.json`
@@ -74,7 +77,7 @@ export default async function Layout({ children, params }: Props) {
   }
 
   const treeJSON = await treeRes.json();
-  const treeParsed = await TreeSchema.safeParse(treeJSON);
+  const treeParsed = TreeSchema.safeParse(treeJSON);
 
   if (!treeParsed.success) {
     throw treeParsed.error;
@@ -84,7 +87,11 @@ export default async function Layout({ children, params }: Props) {
 
   // 5) Build a safe URL path for the book
   const bookUrlPath = `/${filterString({
-    input: [subject, author, book].join('/'),
+    input: [
+      decodeURIComponent(subject),
+      decodeURIComponent(author),
+      decodeURIComponent(book),
+    ].join('/'),
     options: {
       arabicLetters: true,
       underscores: true,
@@ -101,7 +108,7 @@ export default async function Layout({ children, params }: Props) {
     bookUrlPath,
     tree: treeParsedData,
     label: filterString({
-      input: book,
+      input: decodeURIComponent(book),
       options: { arabicLetters: true, underscores: true },
     }).replace('_', ' '),
   };

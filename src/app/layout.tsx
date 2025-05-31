@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: '%s | شجرة',
     default: 'شجرة',
   },
-  description: 'موقع مفتوح المصدر لتصفح الكتب مشجرةً وملخصة',
+  description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة ملخصة',
 };
 
 export default async function RootLayout({

@@ -32,6 +32,8 @@ type SidebarComponentProps = {
 function SidebarComponent({
   sidebarConfig: { tree, label, bookUrlPath },
 }: SidebarComponentProps) {
+  console.log(label);
+  console.log(bookUrlPath);
   const {
     flatItems,
     expandedSections,
