@@ -9,8 +9,10 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./env.d.ts",
     "format": "prettier --write . --ignore-path .prettierignore",
     "deploy": "pnpm pages:build && wrangler pages deploy",
-    "predev": "node scripts/generateTree.js",
-    "prebuild": "node scripts/generateTree.js",
+    "generate:tree": "node scripts/generateTree.js",
+    "watch:tree": "nodemon --watch public/content --watch scripts/generateTree.js --ext js,json --exec \"npm run generate:tree\"",
+    "predev": "npm run generate:tree",
+    "prebuild": "npm run generate:tree",
     "dev": "next dev --turbopack",
     "build": "next build",
     "pages:build": "pnpm next-on-pages"

@@ -6,9 +6,9 @@ import { TreeSchema } from '@/lib/schema/bookTree';
 import { Fragment } from 'react';
 
 type Params = Promise<{
-  subjectSlug: string;
-  authorSlug: string;
-  bookSlug: string;
+  subject: string;
+  author: string;
+  book: string;
 }>;
 
 type Props = {
@@ -16,16 +16,10 @@ type Props = {
 };
 
 export default async function BookLandingPage({ params }: Props) {
-  const { subjectSlug, authorSlug, bookSlug } = await params;
-
-  const decodedSlugs = {
-    subject: decodeURIComponent(subjectSlug),
-    author: decodeURIComponent(authorSlug),
-    book: decodeURIComponent(bookSlug),
-  };
+  const { subject, author, book } = await params;
 
   const cfgRes = await fetch(
-    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/config.json`
+    `${CONTENT_URL}/${subject}/${author}/${book}/config.json`
   );
 
   if (!cfgRes.ok) {
@@ -42,7 +36,7 @@ export default async function BookLandingPage({ params }: Props) {
   const cfgParsedData: Config = cfgParsed.data as Config;
 
   const treeRes = await fetch(
-    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/tree.json`
+    `${CONTENT_URL}/${subject}/${author}/${book}/tree.json`
   );
 
   if (!treeRes.ok) {

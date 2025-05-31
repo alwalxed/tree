@@ -1,7 +1,7 @@
 type Params = Promise<{
-  subjectSlug: string;
-  authorSlug: string;
-  bookSlug: string;
+  subject: string;
+  author: string;
+  book: string;
   slug: string[];
 }>;
 
@@ -14,20 +14,20 @@ type Props = {
 // }: {
 //   params: Params;
 // }): Promise<Metadata> {
-//   const { subjectSlug, authorSlug, bookSlug, slug } = await params;
+//   const { subject, author, book, slug } = await params;
 //   const decoded = {
-//     subject: decodeURIComponent(subjectSlug),
-//     author: decodeURIComponent(authorSlug),
-//     book: decodeURIComponent(bookSlug),
+//     subject: decodeURIComponent(subject),
+//     author: decodeURIComponent(author),
+//     book: decodeURIComponent(book),
 //     slug: slug.map(decodeURIComponent),
 //   };
 
 //   const page = await loadBookPage({
 //     fileSystemBasePath: FILESYSTEM_CONTENT_PATH,
 //     contentPath: {
-//       subjectSlug: decoded.subject,
-//       authorSlug: decoded.author,
-//       bookSlug: decoded.book,
+//       subject: decoded.subject,
+//       author: decoded.author,
+//       book: decoded.book,
 //       slug: decoded.slug,
 //     },
 //   });
@@ -41,14 +41,7 @@ type Props = {
 // }
 
 export default async function Page({ params }: Props) {
-  const { subjectSlug, authorSlug, bookSlug, slug } = await params;
-
-  const decodedSlugs = {
-    subject: decodeURIComponent(subjectSlug),
-    author: decodeURIComponent(authorSlug),
-    book: decodeURIComponent(bookSlug),
-    slug: slug.map((item) => decodeURIComponent(item)),
-  };
+  const { subject, author, book, slug } = await params;
 
   return <h1>ss</h1>;
 

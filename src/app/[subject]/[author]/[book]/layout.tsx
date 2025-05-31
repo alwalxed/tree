@@ -9,9 +9,9 @@ import { filterString } from '@/lib/common/filter-string';
 import { TreeSchema, type Node } from '@/lib/schema/bookTree';
 
 type Params = Promise<{
-  subjectSlug: string;
-  authorSlug: string;
-  bookSlug: string;
+  subject: string;
+  author: string;
+  book: string;
   slug: string[];
 }>;
 
@@ -25,11 +25,11 @@ type Props = {
 // }: {
 //   params: Promise<Params>;
 // }): Promise<Metadata> {
-//   const { subjectSlug, authorSlug, bookSlug } = await params;
+//   const { subject, author, book } = await params;
 //   const decoded = {
-//     subject: decodeURIComponent(subjectSlug),
-//     author: decodeURIComponent(authorSlug),
-//     book: decodeURIComponent(bookSlug),
+//     subject: decodeURIComponent(subject),
+//     author: decodeURIComponent(author),
+//     book: decodeURIComponent(book),
 //   };
 
 //   const bookDir = path.join(
@@ -63,17 +63,10 @@ type Props = {
 // }
 
 export default async function Layout({ children, params }: Props) {
-  const { subjectSlug, authorSlug, bookSlug } = await params;
-
-  // 1) Decode the URL-encoded slugs
-  const decodedSlugs = {
-    subject: decodeURIComponent(subjectSlug),
-    author: decodeURIComponent(authorSlug),
-    book: decodeURIComponent(bookSlug),
-  };
+  const { subject, author, book } = await params;
 
   const treeRes = await fetch(
-    `${CONTENT_URL}/${decodedSlugs.subject}/${decodedSlugs.author}/${decodedSlugs.book}/tree.json`
+    `${CONTENT_URL}/${subject}/${author}/${book}/tree.json`
   );
 
   if (!treeRes.ok) {
@@ -91,7 +84,7 @@ export default async function Layout({ children, params }: Props) {
 
   // 5) Build a safe URL path for the book
   const bookUrlPath = `/${filterString({
-    input: Object.values(decodedSlugs).join('/'),
+    input: [subject, author, book].join('/'),
     options: {
       arabicLetters: true,
       underscores: true,
@@ -108,7 +101,7 @@ export default async function Layout({ children, params }: Props) {
     bookUrlPath,
     tree: treeParsedData,
     label: filterString({
-      input: decodedSlugs.book,
+      input: book,
       options: { arabicLetters: true, underscores: true },
     }).replace('_', ' '),
   };
