@@ -16,7 +16,7 @@ import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import {
   ChevronRight,
   Copy,
@@ -29,7 +29,7 @@ import {
 import { memo } from 'react';
 import { useTreeStructureDebugger } from './tree-structure.hook';
 
-function TreeStructureDebuggerComponent({ tree }: { tree: SummaryNode[] }) {
+function TreeStructureDebuggerComponent({ tree }: { tree: Node[] }) {
   const { state, actions, helpers } = useTreeStructureDebugger(tree);
   const { open, copied, searchTerm, expandedNodes, expandAll, activeTab } =
     state;
@@ -126,7 +126,7 @@ function TreeStructureDebuggerComponent({ tree }: { tree: SummaryNode[] }) {
             >
               <ScrollArea className="bg-background h-full rounded-md border">
                 <div className="p-4">
-                  {tree.map((node) => (
+                  {tree?.map((node) => (
                     <TreeNode
                       key={node.slug}
                       node={node}
@@ -157,7 +157,7 @@ function TreeStructureDebuggerComponent({ tree }: { tree: SummaryNode[] }) {
           <div className="bg-muted/10 text-muted-foreground border-t px-6 py-3 text-xs">
             <div className="flex items-center justify-between">
               <div>
-                Total nodes: {countNodes(tree)} • Root nodes: {tree.length} •
+                Total nodes: {countNodes(tree)} • Root nodes: {tree?.length} •
                 Max depth: {calculateMaxDepth(tree)}
               </div>
               <div>
@@ -175,13 +175,13 @@ function TreeStructureDebuggerComponent({ tree }: { tree: SummaryNode[] }) {
 
 // TreeNode component remains the same
 interface TreeNodeProps {
-  node: SummaryNode;
+  node: Node;
   level: number;
   searchTerm: string;
   expandedNodes: string[];
   toggleNode: (path: string) => void;
   expandAll: boolean;
-  matchesSearch: (node: SummaryNode, term: string) => boolean;
+  matchesSearch: (node: Node, term: string) => boolean;
   parentPath?: string;
 }
 
@@ -255,7 +255,7 @@ function TreeNode({
         {hasChildren && (
           <CollapsibleContent>
             <div className="border-muted mt-1 ml-3 border-l-2 pl-3">
-              {node.children.map((childNode) => (
+              {node.children.map((childNode: Node) => (
                 <TreeNode
                   key={childNode.slug}
                   node={childNode}

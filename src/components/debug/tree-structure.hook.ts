@@ -1,6 +1,6 @@
 'use client';
 
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import * as React from 'react';
 
 export interface TreeDebuggerState {
@@ -23,9 +23,9 @@ export interface TreeDebuggerActions {
 
 export interface TreeDebuggerHelpers {
   formattedTree: string;
-  countNodes: (nodes: SummaryNode[]) => number;
-  calculateMaxDepth: (nodes: SummaryNode[], currentDepth?: number) => number;
-  matchesSearch: (node: SummaryNode, term: string) => boolean;
+  countNodes: (nodes: Node[]) => number;
+  calculateMaxDepth: (nodes: Node[], currentDepth?: number) => number;
+  matchesSearch: (node: Node, term: string) => boolean;
 }
 
 export interface UseTreeDebuggerResult {
@@ -35,7 +35,7 @@ export interface UseTreeDebuggerResult {
 }
 
 export function useTreeStructureDebugger(
-  tree: SummaryNode[]
+  tree: Node[]
 ): UseTreeDebuggerResult {
   // State
   const [ open, setOpen ] = React.useState(false);
@@ -70,7 +70,7 @@ export function useTreeStructureDebugger(
     if (!expandAll) {
       // Collect all possible paths
       const allPaths: string[] = [];
-      const collectPaths = (nodes: SummaryNode[], currentPath = '') => {
+      const collectPaths = (nodes: Node[], currentPath = '') => {
         nodes.forEach((node) => {
           const nodePath = currentPath
             ? `${ currentPath }.${ node.slug }`
@@ -89,33 +89,38 @@ export function useTreeStructureDebugger(
   }, [ expandAll, tree ]);
 
   // Helper functions
-  const countNodes = React.useCallback((nodes: SummaryNode[]): number => {
-    let count = nodes.length;
-    for (const node of nodes) {
-      count += countNodes(node.children);
-    }
-    return count;
+  const countNodes = React.useCallback((nodes: Node[]): number => {
+    if (nodes) {
+      let count = nodes?.length;
+      for (const node of nodes) {
+        count += countNodes(node.children);
+      }
+      return count;
+    } else return 0;
   }, []);
 
   const calculateMaxDepth = React.useCallback(
-    (nodes: SummaryNode[], currentDepth = 1): number => {
-      if (nodes.length === 0) return currentDepth - 1;
+    (nodes: Node[], currentDepth = 1): number => {
+      if (nodes) {
+        if (nodes?.length === 0) return currentDepth - 1;
 
-      let maxDepth = currentDepth;
-      for (const node of nodes) {
-        if (node.children.length > 0) {
-          const childDepth = calculateMaxDepth(node.children, currentDepth + 1);
-          maxDepth = Math.max(maxDepth, childDepth);
+        let maxDepth = currentDepth;
+        for (const node of nodes) {
+          if (node.children.length > 0) {
+            const childDepth = calculateMaxDepth(node.children, currentDepth + 1);
+            maxDepth = Math.max(maxDepth, childDepth);
+          }
         }
-      }
 
-      return maxDepth;
-    },
-    []
+        return maxDepth;
+      } else { return 0; }
+
+    }
+    , []
   );
 
   const matchesSearch = React.useCallback(
-    (node: SummaryNode, term: string): boolean => {
+    (node: Node, term: string): boolean => {
       if (!term) return true;
 
       const nodeMatches =

@@ -1,3 +1,4 @@
+import { DevDebuggers } from '@/components/debug';
 import { Sidebar } from '@/components/layout/sidebar';
 import {
   SidebarInset,
@@ -115,6 +116,7 @@ export default async function Layout({ children, params }: Props) {
 
   return (
     <>
+      <DevDebuggers tree={treeParsedData} />
       <SidebarProvider>
         <Sidebar sidebarConfig={sidebarConfig} />
         <SidebarInset className="px-4 py-6 md:px-8">

@@ -1,10 +1,12 @@
 'use client';
 
-import type { SummaryNode } from '@/lib/content/common/types';
+import type { Node } from '@/lib/schema/bookTree';
 import { memo } from 'react';
 import { TreeStructureDebugger } from './tree-structure.view';
 
-function DevDebuggersComponent({ tree }: { tree: SummaryNode[] }) {
+type DevDebuggersComponentProps = { tree: Node[] };
+
+function DevDebuggersComponent({ tree }: DevDebuggersComponentProps) {
   return (
     <>
       <TreeStructureDebugger tree={tree} />
