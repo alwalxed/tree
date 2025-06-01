@@ -1,4 +1,4 @@
-import { listLeafNodes } from '@/lib/content/utils/node-utils';
+import { listLeafNodes } from '@/lib/nodes/list-leaves';
 import type { Node } from '@/lib/schema/bookTree';
 import { memo } from 'react';
 

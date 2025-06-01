@@ -1,8 +1,12 @@
-import type { Node } from '@/lib/schema/bookTree';
-import type { LeafNodeInfo } from '../common/types';
+import type { Node } from '../schema/bookTree';
 
-export function listLeafNodes(tree: Node[]): LeafNodeInfo[] {
-  const leaves: LeafNodeInfo[] = [];
+export type LeafNode = {
+  title: string;
+  fullSlugPath: string;
+};
+
+export function listLeafNodes(tree: Node[]): LeafNode[] {
+  const leaves: LeafNode[] = [];
   function walk(node: Node, pathSoFar: string[] = []) {
     const full = [ ...pathSoFar, node.slug ];
     if (node.children.length === 0) {
@@ -13,8 +17,4 @@ export function listLeafNodes(tree: Node[]): LeafNodeInfo[] {
   }
   tree.forEach((n) => walk(n));
   return leaves;
-}
-
-export function getNodeSlugPath(node: Node): string {
-  return [ ...node.parentPath, node.slug ].join('/');
 }

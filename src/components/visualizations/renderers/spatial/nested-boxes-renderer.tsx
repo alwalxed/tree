@@ -1,7 +1,6 @@
 'use client';
 
 import { cn } from '@/lib/common/tailwind-utils';
-import { getNodeSlugPath } from '@/lib/content/utils/node-utils';
 import type { Node } from '@/lib/schema/bookTree';
 import Link from 'next/link';
 import { memo, useId } from 'react';
@@ -136,10 +135,7 @@ const BoxView = memo(
                 getFontSize(depth)
               )}
             >
-              <Link
-                href={`/learn/${getNodeSlugPath(node)}`}
-                className={BOX_STYLES.linkBase}
-              >
+              <Link href={node.fullPath} className={BOX_STYLES.linkBase}>
                 {node.title}
               </Link>
             </div>

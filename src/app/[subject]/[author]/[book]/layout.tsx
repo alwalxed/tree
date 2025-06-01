@@ -9,6 +9,8 @@ import { CONTENT_URL } from '@/config/site';
 import { filterString } from '@/lib/common/filter-string';
 import { TreeSchema, type Node } from '@/lib/schema/bookTree';
 
+export const runtime = 'edge';
+
 type Params = Promise<{
   subject: string;
   author: string;
@@ -64,7 +66,7 @@ type Props = {
 // }
 
 export default async function Layout({ children, params }: Props) {
-  const { subject, author, book, slug } = await params;
+  const { subject, author, book } = await params;
   console.log(subject);
   console.log(author);
   console.log(book);

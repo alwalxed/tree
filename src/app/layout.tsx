@@ -6,6 +6,8 @@ import type { Metadata } from 'next';
 import { ibmPlexSansArabic } from './fonts';
 import './globals.css';
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {

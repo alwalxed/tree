@@ -1,13 +1,13 @@
-type Params = Promise<{
-  subject: string;
-  author: string;
-  book: string;
-  slug: string[];
-}>;
+// type Params = Promise<{
+//   subject: string;
+//   author: string;
+//   book: string;
+//   slug: string[];
+// }>;
 
-type Props = {
-  params: Params;
-};
+// type Props = {
+//   params: Params;
+// };
 
 // export async function generateMetadata({
 //   params,
@@ -40,8 +40,10 @@ type Props = {
 //   };
 // }
 
-export default async function Page({ params }: Props) {
-  const { subject, author, book, slug } = await params;
+export const runtime = 'edge';
+
+export default async function Page() {
+  // const { subject, author, book, slug } = await params;
 
   return <h1>ss</h1>;
 

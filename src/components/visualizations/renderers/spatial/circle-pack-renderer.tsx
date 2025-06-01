@@ -281,3 +281,5 @@ export const CirclePackRenderer = memo(
     );
   }
 );
+
+CirclePackRenderer.displayName = 'CirclePackRenderer';

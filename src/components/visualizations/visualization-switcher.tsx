@@ -48,17 +48,14 @@ import {
   type NodeLinkDiagramRendererProps,
 } from './renderers/tree/node-link-diagram-renderer';
 
-const visualizationTypes = [
-  'collapsible-tree',
-  'ascii-tree',
-  'nested-boxes',
-  'grid-layout',
-  'radial-sunburst',
-  'node-diagram',
-  'circle-pack',
-] as const;
-
-type VisualizationType = (typeof visualizationTypes)[number];
+type VisualizationType =
+  | 'collapsible-tree'
+  | 'ascii-tree'
+  | 'nested-boxes'
+  | 'grid-layout'
+  | 'radial-sunburst'
+  | 'node-diagram'
+  | 'circle-pack';
 
 type Component =
   | MemoExoticComponent<
