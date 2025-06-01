@@ -5,15 +5,12 @@ const fs = require('fs/promises');
 const Fs = require('fs');
 const path = require('path');
 
-// === copy of your constants + helper fns ===
+// === your constants + helpers ===
 const MIN_DEPTH_FOR_PREFIXED_DIRS = 3;
-
 function convertArabicNumeralsToEn(value) {
-  // map Arabic-Indic digits to ASCII
   const ar = '٠١٢٣٤٥٦٧٨٩';
   return value.replace(/[٠-٩]/g, (d) => String(ar.indexOf(d)));
 }
-
 function parseDirName({ directoryName, isDirectoryPrefixMandatory }) {
   const DEFAULT_ORDER = 0;
   if (/\.[a-z0-9]+$/i.test(directoryName)) {
@@ -37,13 +34,10 @@ function parseDirName({ directoryName, isDirectoryPrefixMandatory }) {
     isPrefixed: false,
   };
 }
-
 function requiresPrefix(depth) {
   return depth >= MIN_DEPTH_FOR_PREFIXED_DIRS;
 }
-
 function normalizeTitle(raw) {
-  // keep only Arabic letters & underscores, then turn _+ into space
   return raw.replace(/[^\u0600-\u06FF_]/g, '').replace(/_+/g, ' ');
 }
 
@@ -62,7 +56,6 @@ async function buildTree({
     console.warn(`Cannot access ${root}`);
     return null;
   }
-
   let entries;
   try {
     entries = await fs.readdir(root, { withFileTypes: true });
@@ -70,11 +63,9 @@ async function buildTree({
     console.warn(`Cannot read dir ${root}`);
     return null;
   }
-
   const nodes = [];
   for (const de of entries) {
     if (!de.isDirectory()) continue;
-
     let fileName, fileOrder;
     try {
       ({ fileName, fileOrder } = parseDirName({
@@ -85,12 +76,10 @@ async function buildTree({
       console.warn(`Skipping "${de.name}" in ${root}: ${err.message}`);
       continue;
     }
-
     const title = normalizeTitle(fileName);
     const slug = fileName;
     const newSlugs = [...slugs, slug];
     const newPrefix = prefix ? `${prefix}/${slug}` : slug;
-
     const children = await buildTree({
       fileSystemBasePath,
       dirNames: [...dirNames, de.name],
@@ -99,7 +88,6 @@ async function buildTree({
       depth: depth + 1,
     });
     if (children === null) return null;
-
     nodes.push({
       title,
       slug,
@@ -109,8 +97,6 @@ async function buildTree({
       children,
     });
   }
-
-  // sort by order, then title (Arabic locale)
   return nodes.sort((a, b) =>
     a.order !== b.order
       ? a.order - b.order
@@ -139,13 +125,15 @@ async function main() {
     for (const author of subject.children) {
       for (const book of author.children) {
         const lineageSlugs = [subject.slug, author.slug, book.slug];
-        const lineagePrefix = lineageSlugs.join('/');
+        const outDir = path.join(CONTENT_ROOT, ...lineageSlugs);
+        const outFile = path.join(outDir, 'tree.json');
 
+        // build subtree
         const subtree = await buildTree({
           fileSystemBasePath: CONTENT_ROOT,
           dirNames: lineageSlugs,
           slugs: lineageSlugs,
-          prefix: lineagePrefix,
+          prefix: lineageSlugs.join('/'),
           depth: 3,
         });
         if (!subtree) {
@@ -153,15 +141,39 @@ async function main() {
           continue;
         }
 
-        const outDir = path.join(
-          CONTENT_ROOT,
-          subject.slug,
-          author.slug,
-          book.slug
-        );
-        const outFile = path.join(outDir, 'tree.json');
-        await fs.writeFile(outFile, JSON.stringify(subtree, null, 2), 'utf-8');
-        console.log(`✔ wrote ${path.relative(process.cwd(), outFile)}`);
+        // prepare new content
+        const newContent = JSON.stringify(subtree, null, 2);
+
+        // read existing and compare
+        let existingRaw = null;
+        try {
+          existingRaw = await fs.readFile(outFile, 'utf-8');
+        } catch (err) {
+          if (err.code !== 'ENOENT') throw err;
+        }
+
+        let shouldWrite = true;
+        if (existingRaw !== null) {
+          try {
+            const existingObj = JSON.parse(existingRaw);
+            const oldContent = JSON.stringify(existingObj, null, 2);
+            if (oldContent === newContent) {
+              shouldWrite = false;
+            }
+          } catch {
+            // if parse fails, just overwrite
+          }
+        }
+
+        if (shouldWrite) {
+          await fs.mkdir(outDir, { recursive: true });
+          await fs.writeFile(outFile, newContent, 'utf-8');
+          console.log(`✔ wrote ${path.relative(process.cwd(), outFile)}`);
+        } else {
+          console.log(
+            `✓ skip (no changes) ${path.relative(process.cwd(), outFile)}`
+          );
+        }
       }
     }
   }

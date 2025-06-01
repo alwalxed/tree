@@ -2,7 +2,6 @@
 
 import { cn } from '@/lib/common/tailwind-utils';
 import type { Node } from '@/lib/schema/bookTree';
-import Link from 'next/link';
 import { memo, useId } from 'react';
 
 export type NestedBoxesRendererProps = { nodes: Node[] };
@@ -135,9 +134,9 @@ const BoxView = memo(
                 getFontSize(depth)
               )}
             >
-              <Link href={node.fullPath} className={BOX_STYLES.linkBase}>
+              <a href={node.fullPath} className={BOX_STYLES.linkBase}>
                 {node.title}
-              </Link>
+              </a>
             </div>
 
             {node.children.length > 0 && (

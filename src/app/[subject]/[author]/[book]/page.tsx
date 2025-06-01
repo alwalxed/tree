@@ -5,8 +5,6 @@ import { ConfigSchema, type Config } from '@/lib/schema/bookConfig';
 import { TreeSchema } from '@/lib/schema/bookTree';
 import { Fragment } from 'react';
 
-export const runtime = 'edge';
-
 type Params = Promise<{
   subject: string;
   author: string;
@@ -17,7 +15,9 @@ type Props = {
   params: Params;
 };
 
-export default async function BookLandingPage({ params }: Props) {
+export default async function BookPage({ params }: Props) {
+  console.info('RAN: src/app/[subject]/[author]/[book]/page.tsx');
+
   const { subject, author, book } = await params;
 
   const cfgRes = await fetch(
@@ -56,39 +56,41 @@ export default async function BookLandingPage({ params }: Props) {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-12">
-      {cfgParsedData.sections.map((section, index) => {
-        switch (section.type) {
-          case 'text':
-            return (
-              <Section key={`${index}-${section.title}-${section.type}`}>
-                <Section.H level={2}>{section.title}</Section.H>
-                <Section.P>
-                  {section.content.map((line, i) => (
-                    <Fragment
-                      key={`${index}-${section.title}-${section.type}-${i}`}
-                    >
-                      {line}
-                      <br />
-                    </Fragment>
-                  ))}
-                </Section.P>
-              </Section>
-            );
-          case 'visualization':
-            return (
-              <Section key={`${index}-${section.title}-${section.type}`}>
-                <Section.H level={2}>{section.title}</Section.H>
-                <VisualizationSwitcher
-                  nodes={treeParsedData.filter((node) =>
-                    node.title.includes(section.chapterIdentifier)
-                  )}
-                />
-              </Section>
-            );
-          default:
-            return null;
-        }
-      })}
+      {treeParsedData
+        ? cfgParsedData.sections.map((section, index) => {
+            switch (section.type) {
+              case 'text':
+                return (
+                  <Section key={`${index}-${section.title}-${section.type}`}>
+                    <Section.H level={2}>{section.title}</Section.H>
+                    <Section.P>
+                      {section.content.map((line, i) => (
+                        <Fragment
+                          key={`${index}-${section.title}-${section.type}-${i}`}
+                        >
+                          {line}
+                          <br />
+                        </Fragment>
+                      ))}
+                    </Section.P>
+                  </Section>
+                );
+              case 'visualization':
+                return (
+                  <Section key={`${index}-${section.title}-${section.type}`}>
+                    <Section.H level={2}>{section.title}</Section.H>
+                    <VisualizationSwitcher
+                      nodes={treeParsedData.filter((node) =>
+                        node.title.includes(section.chapterIdentifier)
+                      )}
+                    />
+                  </Section>
+                );
+              default:
+                return null;
+            }
+          })
+        : null}
     </div>
   );
 }

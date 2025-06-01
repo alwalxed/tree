@@ -6,8 +6,6 @@ import type { Metadata } from 'next';
 import { ibmPlexSansArabic } from './fonts';
 import './globals.css';
 
-export const runtime = 'edge';
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -22,6 +20,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.info('RAN: src/app/layout.tsx');
   return (
     <>
       <html

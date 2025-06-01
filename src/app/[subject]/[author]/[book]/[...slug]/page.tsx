@@ -1,70 +1,42 @@
-// type Params = Promise<{
-//   subject: string;
-//   author: string;
-//   book: string;
-//   slug: string[];
-// }>;
-
-// type Props = {
-//   params: Params;
-// };
-
-// export async function generateMetadata({
-//   params,
-// }: {
-//   params: Params;
-// }): Promise<Metadata> {
-//   const { subject, author, book, slug } = await params;
-//   const decoded = {
-//     subject: decodeURIComponent(subject),
-//     author: decodeURIComponent(author),
-//     book: decodeURIComponent(book),
-//     slug: slug.map(decodeURIComponent),
-//   };
-
-//   const page = await loadBookPage({
-//     fileSystemBasePath: FILESYSTEM_CONTENT_PATH,
-//     contentPath: {
-//       subject: decoded.subject,
-//       author: decoded.author,
-//       book: decoded.book,
-//       slug: decoded.slug,
-//     },
-//   });
-
-//   if (!page) return { title: '404' };
-
-//   return {
-//     title: page.pageTitle,
-//     description: page.excerpt ?? undefined,
-//   };
-// }
+import { CONTENT_URL } from '@/config/site';
+import { ContentSchema, type Content } from '@/lib/schema/bookContent';
+import { notFound } from 'next/navigation';
 
 export const runtime = 'edge';
 
-export default async function Page() {
-  // const { subject, author, book, slug } = await params;
+type Params = {
+  subject: string;
+  author: string;
+  book: string;
+  slug: string[];
+};
 
-  return <h1>ss</h1>;
+export default async function ContentPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { subject, author, book, slug } = await params;
 
-  // return (
-  //   <article className="prose prose-slate dark:prose-invert mx-auto max-w-4xl p-6">
-  //     <h1>{contentNode.pageTitle}</h1>
+  // at request‐time (Edge) we simply fetch your JSON‐ified markdown
+  const url = `${CONTENT_URL}/${subject}/${author}/${book}/${slug.join(
+    '/'
+  )}/index.md`;
+  const res = await fetch(url);
+  if (!res.ok) return notFound();
 
-  //     {contentNode.pageTitle &&
-  //       contentNode.pageTitle !== contentNode.pageTitle && (
-  //         <p className="lead text-muted-foreground">
-  //           (From Frontmatter: {contentNode.pageTitle})
-  //         </p>
-  //       )}
+  const json = await res.json();
+  const parsed = ContentSchema.safeParse(json);
+  if (!parsed.success) throw parsed.error;
 
-  //     {contentNode.contentHtml ? (
-  //       <MarkdownRenderer content={contentNode.contentHtml} />
-  //     ) : (
-  //       <p className="text-muted-foreground">
-  //         No content available for this section.
-  //       </p>
-  //     )}
-  //   </article>
-  // );
+  const content: Content = parsed.data;
+
+  return (
+    <article className="prose prose-slate dark:prose-invert mx-auto max-w-4xl p-6">
+      <h1>{content.title || 'Untitled Page'}</h1>
+      {content.excerpt && (
+        <p className="lead text-muted-foreground">{content.excerpt}</p>
+      )}
+    </article>
+  );
 }

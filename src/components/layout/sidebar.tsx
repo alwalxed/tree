@@ -1,3 +1,4 @@
+// src/components/layout/sidebar/Sidebar.tsx
 'use client';
 
 import {
@@ -22,18 +23,15 @@ import {
   FileText,
   Folder,
 } from 'lucide-react';
-import Link from 'next/link';
-import React, { memo } from 'react';
+import React from 'react';
 
-type SidebarComponentProps = {
-  sidebarConfig: { bookUrlPath: string; tree: Node[]; label: string };
+type SidebarProps = {
+  tree: Node[];
+  bookUrlPath: string;
+  label: string;
 };
 
-function SidebarComponent({
-  sidebarConfig: { tree, label, bookUrlPath },
-}: SidebarComponentProps) {
-  console.log(label);
-  console.log(bookUrlPath);
+export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
   const {
     flatItems,
     expandedSections,
@@ -50,64 +48,53 @@ function SidebarComponent({
         <SidebarGroup>
           <SidebarGroupLabel>{label}</SidebarGroupLabel>
           <SidebarGroupAction
-            className="cursor-pointer"
             onClick={toggleAll}
             title="طي وبسط"
+            className="cursor-pointer"
           >
             <ChevronsDownUp /> <span className="sr-only">Toggle</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/*
+                “Home” link
+              */}
               <SidebarMenuItem key="__home">
                 <SidebarMenuButton
                   asChild
                   isActive={isCurrentPage('__home')}
                   className="pl-1.5"
                 >
-                  <Link href={bookUrlPath}>
+                  <a href={bookUrlPath}>
                     <BookOpen className="h-4 w-4 shrink-0" />
                     <span>مقدمة</span>
-                  </Link>
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
               {flatItems.map(({ node, level, parentNodeFullPath }) => {
-                let itemShouldBeRendered = true;
-                if (level > 0) {
-                  // A child item (level > 0) is rendered only if its direct parent folder is expanded.
-                  // parentNodeFullPath is the fullPath of the actual parent node from the tree.
-                  if (
-                    !parentNodeFullPath ||
-                    !expandedSections[parentNodeFullPath]
-                  ) {
-                    itemShouldBeRendered = false;
-                  }
-                }
-
-                if (!itemShouldBeRendered) {
+                // only render children if their parent folder is expanded
+                if (level > 0 && !expandedSections[parentNodeFullPath!]) {
                   return null;
                 }
 
-                const hasChildren = node.children && node.children.length > 0;
-                // An item is expanded if it has children and its path is in expandedSections
+                const hasChildren = node.children.length > 0;
                 const isExpanded =
-                  hasChildren && (expandedSections[node.fullPath] || false);
+                  hasChildren && !!expandedSections[node.fullPath];
                 const isActive = isCurrentPage(node.fullPath);
-
-                const itemHref = node.fullPath;
 
                 return (
                   <SidebarMenuItem key={node.fullPath}>
                     {hasChildren ? (
                       <SidebarMenuButton
+                        onClick={() => toggleSection(node.fullPath)}
+                        aria-expanded={isExpanded}
                         className={cn(
                           'cursor-pointer pr-[calc(0.5rem*var(--level))] pl-1.5',
                           isActive &&
                             'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         )}
-                        style={{ '--level': 1 + level } as React.CSSProperties}
-                        onClick={() => toggleSection(node.fullPath)}
-                        aria-expanded={isExpanded}
+                        style={{ '--level': level + 1 } as React.CSSProperties}
                       >
                         <Folder className="h-4 w-4 shrink-0" />
                         <span>{node.title}</span>
@@ -124,12 +111,12 @@ function SidebarComponent({
                         className={cn(
                           'cursor-pointer pr-[calc(0.5rem*var(--level))]'
                         )}
-                        style={{ '--level': 1 + level } as React.CSSProperties}
+                        style={{ '--level': level + 1 } as React.CSSProperties}
                       >
-                        <Link href={itemHref}>
+                        <a href={node.fullPath}>
                           <FileText className="h-4 w-4 shrink-0" />
                           <span>{node.title}</span>
-                        </Link>
+                        </a>
                       </SidebarMenuButton>
                     )}
                   </SidebarMenuItem>
@@ -142,5 +129,3 @@ function SidebarComponent({
     </UISidebar>
   );
 }
-
-export const Sidebar = memo(SidebarComponent);
