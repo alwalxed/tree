@@ -113,14 +113,8 @@ export function useSidebar({
   );
 }
 
-/**
- * Build a sidebar href by stripping any trailing `/` (except for `/` itself),
- * ensuring a leading `/`, and then prefixing with LEARN_BASE.
- */
 export function buildLearnHref(raw: string): string {
-  // normalize raw path
   let p = raw === '/' ? '' : raw.endsWith('/') ? raw.slice(0, -1) : raw;
-  // ensure it starts with a slash
   if (!p.startsWith('/')) p = '/' + p;
   return LEARN_BASE + p;
 }

@@ -1,8 +1,8 @@
-// page.tsx
+// TODO: A landing page for different books
+
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {
-  // Use properly encoded URL parts to avoid redirect loops
   const subject = encodeURIComponent('النحو');
   const author = encodeURIComponent('سليمان_العيوني');
   const book = encodeURIComponent('النحو_الصغير');

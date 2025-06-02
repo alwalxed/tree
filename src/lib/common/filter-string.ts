@@ -14,13 +14,6 @@ type FilterOptions = {
   custom?: string;
 };
 
-/**
- * Remove any character *not* explicitly allowed by `options`.
- *
- * @param input  The string to filter
- * @param options  Which character sets (or literals) to permit
- * @returns A new string containing only allowed characters
- */
 export function filterString({
   input,
   options,
@@ -30,7 +23,7 @@ export function filterString({
 }): string {
   const parts: string[] = [];
 
-  for (const [key, value] of Object.entries(options) as [
+  for (const [ key, value ] of Object.entries(options) as [
     keyof FilterOptions,
     boolean | string,
   ][]) {
@@ -41,23 +34,13 @@ export function filterString({
   }
 
   const allowed = parts.join('');
-  // If 'allowed' is empty, regex '[^]' will match all characters,
-  // effectively removing everything, which is correct.
-  const regex = new RegExp(`[^${allowed}]`, 'gu');
+  const regex = new RegExp(`[^${ allowed }]`, 'gu');
   return input.replace(regex, '');
 }
 
-/**
- * Map each FilterOptions key to its corresponding
- * regex‐safe range or literal characters.
- *
- * To support a new option:
- * 1. Add it to FilterOptions.
- * 2. Add a new `case 'yourOption':` here.
- */
 function getRangeForOption<K extends keyof FilterOptions>(
   option: K,
-  value: FilterOptions[K]
+  value: FilterOptions[ K ]
 ): string | null {
   if (!value) return null;
 
@@ -94,11 +77,6 @@ function getRangeForOption<K extends keyof FilterOptions>(
   }
 }
 
-/**
- * Escape all RegExp-special characters in `str`.
- * E.g. "." -> "\.", "*" -> "\*", etc.
- * Forward slash is also escaped here, which is fine if it's part of a custom string.
- */
 function escapeRegExp(str: string): string {
   return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 }

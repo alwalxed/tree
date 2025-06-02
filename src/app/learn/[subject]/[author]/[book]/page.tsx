@@ -1,4 +1,3 @@
-// [subject]/[author]/[book]/page.tsx
 import { Section } from '@/components/common/section';
 import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
 import { CONTENT_URL } from '@/config/site';
@@ -16,7 +15,6 @@ type Props = {
   params: Params;
 };
 
-// Helper function to safely decode URI components
 function safeDecodeURIComponent(str: string): string {
   try {
     const decoded = decodeURIComponent(str);
@@ -32,7 +30,6 @@ function safeDecodeURIComponent(str: string): string {
 export default async function BookPage({ params }: Props) {
   const resolvedParams = await params;
 
-  // Safely decode parameters
   const d = {
     subject: safeDecodeURIComponent(resolvedParams.subject),
     author: safeDecodeURIComponent(resolvedParams.author),
@@ -40,7 +37,6 @@ export default async function BookPage({ params }: Props) {
   };
 
   try {
-    // Fetch config
     const cfgUrl = `${CONTENT_URL}/${encodeURIComponent(d.subject)}/${encodeURIComponent(d.author)}/${encodeURIComponent(d.book)}/config.json`;
 
     const cfgRes = await fetch(cfgUrl, {
@@ -60,7 +56,6 @@ export default async function BookPage({ params }: Props) {
 
     const cfgParsedData: Config = cfgParsed.data as Config;
 
-    // Fetch tree
     const treeUrl = `${CONTENT_URL}/${encodeURIComponent(d.subject)}/${encodeURIComponent(d.author)}/${encodeURIComponent(d.book)}/tree.json`;
 
     const treeRes = await fetch(treeUrl, {
@@ -121,7 +116,6 @@ export default async function BookPage({ params }: Props) {
     );
   } catch (error) {
     console.error('Error in BookPage:', error);
-    // Return a fallback UI instead of throwing
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

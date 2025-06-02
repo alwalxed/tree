@@ -1,4 +1,3 @@
-// [subject]/[author]/[book]/layout.tsx
 import { DevDebuggers } from '@/components/debug';
 import { Sidebar } from '@/components/layout/sidebar';
 import {
@@ -22,7 +21,6 @@ type Props = {
   params: Params;
 };
 
-// Helper function to safely decode URI components
 function safeDecodeURIComponent(str: string): string {
   try {
     const decoded = decodeURIComponent(str);
@@ -38,7 +36,6 @@ function safeDecodeURIComponent(str: string): string {
 export default async function BookLayout({ children, params }: Props) {
   const resolvedParams = await params;
 
-  // Safely decode parameters
   const d = {
     subject: safeDecodeURIComponent(resolvedParams.subject),
     author: safeDecodeURIComponent(resolvedParams.author),
@@ -65,7 +62,6 @@ export default async function BookLayout({ children, params }: Props) {
 
     const tree: Node[] = parsed.data;
 
-    // Create book URL path more safely
     const bookUrlPath = `/${[d.subject, d.author, d.book]
       .map((part) =>
         filterString({
@@ -100,7 +96,6 @@ export default async function BookLayout({ children, params }: Props) {
     );
   } catch (error) {
     console.error('Error in BookLayout:', error);
-    // Return a fallback UI instead of throwing
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
