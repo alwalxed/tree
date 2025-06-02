@@ -36,8 +36,6 @@ function safeDecodeURIComponent(str: string): string {
 }
 
 export default async function BookLayout({ children, params }: Props) {
-  console.info('RAN: src/app/[subject]/[author]/[book]/layout.tsx');
-
   const resolvedParams = await params;
 
   // Safely decode parameters
@@ -49,15 +47,12 @@ export default async function BookLayout({ children, params }: Props) {
 
   const treeUrl = `${CONTENT_URL}/${encodeURIComponent(d.subject)}/${encodeURIComponent(d.author)}/${encodeURIComponent(d.book)}/tree.json`;
 
-  console.log('Fetching tree from:', treeUrl);
-
   try {
     const treeRes = await fetch(treeUrl, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!treeRes.ok) {
-      console.error('Failed to fetch tree:', treeRes.status);
       throw new Error('Failed to fetch TREE');
     }
 
@@ -65,14 +60,13 @@ export default async function BookLayout({ children, params }: Props) {
     const parsed = TreeSchema.safeParse(treeJSON);
 
     if (!parsed.success) {
-      console.error('Tree schema validation failed:', parsed.error);
       throw parsed.error;
     }
 
     const tree: Node[] = parsed.data;
 
     // Create book URL path more safely
-    const bookUrlPath = `/learn/${[d.subject, d.author, d.book]
+    const bookUrlPath = `/${[d.subject, d.author, d.book]
       .map((part) =>
         filterString({
           input: part,
@@ -90,7 +84,6 @@ export default async function BookLayout({ children, params }: Props) {
       options: { arabicLetters: true, underscores: true },
     }).replace('_', ' ');
 
-    console.dir(tree, { depth: null });
     return (
       <>
         <DevDebuggers tree={tree} />

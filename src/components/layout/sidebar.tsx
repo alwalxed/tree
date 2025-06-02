@@ -1,4 +1,3 @@
-// src/components/layout/sidebar/Sidebar.tsx
 'use client';
 
 import {
@@ -38,6 +37,7 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
     toggleSection,
     isCurrentPage,
     toggleAll,
+    homeHref,
   } = useSidebar({ tree, bookUrlPath });
 
   return (
@@ -56,28 +56,24 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/*
-                “Home” link
-              */}
+              {/* Home link */}
               <SidebarMenuItem key="__home">
                 <SidebarMenuButton
                   asChild
                   isActive={isCurrentPage('__home')}
                   className="pl-1.5"
                 >
-                  <a href={bookUrlPath}>
+                  <a href={homeHref}>
                     <BookOpen className="h-4 w-4 shrink-0" />
                     <span>مقدمة</span>
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {flatItems.map(({ node, level, parentNodeFullPath }) => {
-                // only render children if their parent folder is expanded
+              {flatItems.map(({ node, level, parentNodeFullPath, href }) => {
                 if (level > 0 && !expandedSections[parentNodeFullPath!]) {
                   return null;
                 }
-
                 const hasChildren = node.children.length > 0;
                 const isExpanded =
                   hasChildren && !!expandedSections[node.fullPathWithPrefixes];
@@ -113,7 +109,7 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
                         )}
                         style={{ '--level': level + 1 } as React.CSSProperties}
                       >
-                        <a href={node.fullPathWithPrefixes}>
+                        <a href={href}>
                           <FileText className="h-4 w-4 shrink-0" />
                           <span>{node.title}</span>
                         </a>

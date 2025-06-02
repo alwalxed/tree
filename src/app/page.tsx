@@ -2,8 +2,6 @@
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {
-  console.info('RAN: src/app/page.tsx');
-
   // Use properly encoded URL parts to avoid redirect loops
   const subject = encodeURIComponent('النحو');
   const author = encodeURIComponent('سليمان_العيوني');

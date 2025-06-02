@@ -53,23 +53,17 @@ export default async function ContentPage({
   const book = safeDecodeURIComponent(rawParams.book);
   const slugSegments = rawParams.slug.map(safeDecodeURIComponent);
 
-  console.log('Resolved segments:', { subject, author, book, slugSegments });
-  console.log('CONTENT_URL:', CONTENT_URL);
-
   const url = buildContentUrl(subject, author, book, slugSegments);
-  console.log('Fetching from:', url);
 
   try {
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) {
-      console.warn('Fetch failed', res.status, 'for', url);
       return notFound();
     }
 
     const json = await res.json();
     const parsed = ContentSchema.safeParse(json);
     if (!parsed.success) {
-      console.error('Schema failure', parsed.error);
       throw new Error('Invalid content schema');
     }
 

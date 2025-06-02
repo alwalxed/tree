@@ -1,12 +1,14 @@
-// src/hooks/use-sidebar.ts
 import type { Node } from '@/lib/schema/bookTree';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+
+export const LEARN_BASE = '/learn';
 
 export type FlatSidebarItem = {
   node: Node;
   level: number;
   parentNodeFullPath?: string;
+  href: string;
 };
 
 export function useSidebar({
@@ -17,72 +19,46 @@ export function useSidebar({
   bookUrlPath: string;
 }) {
   const pathname = usePathname();
-
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
 
+  const homeHref = buildLearnHref(bookUrlPath);
+
   const toggleSection = useCallback((path: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [path]: !prev[path],
-    }));
+    setExpandedSections((prev) => ({ ...prev, [path]: !prev[path] }));
   }, []);
 
   const isCurrentPage = useCallback(
-    (itemFullPathOrHome: string) => {
-      const preparedPathname =
-        pathname !== '/' && pathname.endsWith('/')
-          ? pathname.slice(0, -1)
-          : pathname;
-
-      if (itemFullPathOrHome === '__home') {
-        const preparedBookUrlPath =
-          bookUrlPath !== '/' && bookUrlPath.endsWith('/')
-            ? bookUrlPath.slice(0, -1)
-            : bookUrlPath;
-        return preparedPathname === preparedBookUrlPath;
+    (itemPathOrHome: string) => {
+      const norm = (u: string) =>
+        u !== '/' && u.endsWith('/') ? u.slice(0, -1) : u;
+      const current = norm(pathname);
+      if (itemPathOrHome === '__home') {
+        return current === norm(homeHref);
       }
-
-      const preparedItemPath =
-        itemFullPathOrHome !== '/' && itemFullPathOrHome.endsWith('/')
-          ? itemFullPathOrHome.slice(0, -1)
-          : itemFullPathOrHome;
-      return preparedPathname === preparedItemPath;
+      return current === norm(buildLearnHref(itemPathOrHome));
     },
-    [pathname, bookUrlPath]
+    [pathname, homeHref]
   );
 
-  const flatItems = useMemo((): FlatSidebarItem[] => {
-    const performWalk = (
-      nodes: Node[],
-      currentLevel = 0,
-      parentPrefixedPath?: string
-    ): FlatSidebarItem[] => {
-      let result: FlatSidebarItem[] = [];
-
-      for (const currentNode of nodes) {
-        result.push({
-          node: currentNode,
-          level: currentLevel,
-          parentNodeFullPath: parentPrefixedPath,
+  const flatItems = useMemo<FlatSidebarItem[]>(() => {
+    function walk(nodes: Node[], lvl = 0, parent?: string): FlatSidebarItem[] {
+      let out: FlatSidebarItem[] = [];
+      for (const nd of nodes) {
+        out.push({
+          node: nd,
+          level: lvl,
+          parentNodeFullPath: parent,
+          href: buildLearnHref(nd.fullPathWithPrefixes),
         });
-
-        if (currentNode.children.length > 0) {
-          result = result.concat(
-            performWalk(
-              currentNode.children,
-              currentLevel + 1,
-              currentNode.fullPathWithPrefixes
-            )
-          );
+        if (nd.children.length) {
+          out.push(...walk(nd.children, lvl + 1, nd.fullPathWithPrefixes));
         }
       }
-
-      return result;
-    };
-
-    return performWalk(tree);
+      return out;
+    }
+    return walk(tree);
   }, [tree]);
 
   const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
@@ -124,7 +100,27 @@ export function useSidebar({
       toggleSection,
       isCurrentPage,
       toggleAll,
+      homeHref,
     }),
-    [flatItems, expandedSections, toggleSection, isCurrentPage, toggleAll]
+    [
+      flatItems,
+      expandedSections,
+      toggleSection,
+      isCurrentPage,
+      toggleAll,
+      homeHref,
+    ]
   );
+}
+
+/**
+ * Build a sidebar href by stripping any trailing `/` (except for `/` itself),
+ * ensuring a leading `/`, and then prefixing with LEARN_BASE.
+ */
+export function buildLearnHref(raw: string): string {
+  // normalize raw path
+  let p = raw === '/' ? '' : raw.endsWith('/') ? raw.slice(0, -1) : raw;
+  // ensure it starts with a slash
+  if (!p.startsWith('/')) p = '/' + p;
+  return LEARN_BASE + p;
 }

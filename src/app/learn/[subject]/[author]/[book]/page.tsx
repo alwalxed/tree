@@ -30,8 +30,6 @@ function safeDecodeURIComponent(str: string): string {
 }
 
 export default async function BookPage({ params }: Props) {
-  console.info('RAN: src/app/[subject]/[author]/[book]/page.tsx');
-
   const resolvedParams = await params;
 
   // Safely decode parameters
@@ -44,14 +42,12 @@ export default async function BookPage({ params }: Props) {
   try {
     // Fetch config
     const cfgUrl = `${CONTENT_URL}/${encodeURIComponent(d.subject)}/${encodeURIComponent(d.author)}/${encodeURIComponent(d.book)}/config.json`;
-    console.log('Fetching config from:', cfgUrl);
 
     const cfgRes = await fetch(cfgUrl, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!cfgRes.ok) {
-      console.error('Failed to fetch config:', cfgRes.status);
       throw new Error('Failed to fetch CONF');
     }
 
@@ -59,7 +55,6 @@ export default async function BookPage({ params }: Props) {
     const cfgParsed = ConfigSchema.safeParse(cfgJSON);
 
     if (!cfgParsed.success) {
-      console.error('Config schema validation failed:', cfgParsed.error);
       throw cfgParsed.error;
     }
 
@@ -67,14 +62,12 @@ export default async function BookPage({ params }: Props) {
 
     // Fetch tree
     const treeUrl = `${CONTENT_URL}/${encodeURIComponent(d.subject)}/${encodeURIComponent(d.author)}/${encodeURIComponent(d.book)}/tree.json`;
-    console.log('Fetching tree from:', treeUrl);
 
     const treeRes = await fetch(treeUrl, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
     if (!treeRes.ok) {
-      console.error('Failed to fetch tree:', treeRes.status);
       throw new Error('Failed to fetch TREE');
     }
 
@@ -82,7 +75,6 @@ export default async function BookPage({ params }: Props) {
     const treeParsed = TreeSchema.safeParse(treeJSON);
 
     if (!treeParsed.success) {
-      console.error('Tree schema validation failed:', treeParsed.error);
       throw treeParsed.error;
     }
 
