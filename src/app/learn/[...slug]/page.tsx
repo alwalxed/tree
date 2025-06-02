@@ -12,19 +12,23 @@ import type { Content } from '@/lib/schema/bookContent';
 import { Node } from '@/lib/schema/bookTree';
 
 export async function generateStaticParams() {
-  const pages = await listAllPages();
-  const books = await listAllBooks();
+  try {
+    const pages = await listAllPages();
+    const books = await listAllBooks();
 
-  const pageParams = pages.map((p) => ({
-    slug: [p.subject, p.author, p.book, ...p.slug],
-  }));
+    const pageParams = pages.map((p) => ({
+      slug: [p.subject, p.author, p.book, ...p.slug],
+    }));
 
-  const rootParams = books.map(({ subject, author, book }) => ({
-    slug: [subject, author, book],
-  }));
+    const rootParams = books.map(({ subject, author, book }) => ({
+      slug: [subject, author, book],
+    }));
 
-  const allParams = [...pageParams, ...rootParams];
-  return allParams;
+    const allParams = [...pageParams, ...rootParams];
+    return allParams;
+  } catch (error) {
+    throw error;
+  }
 }
 
 type Props = {
