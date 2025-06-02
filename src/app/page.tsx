@@ -3,11 +3,11 @@
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {
-  const subject = encodeURIComponent('النحو');
-  const author = encodeURIComponent('سليمان_العيوني');
-  const book = encodeURIComponent('النحو_الصغير');
+  const subject = encodeURI('النحو');
+  const author = encodeURI('سليمان_العيوني');
+  const book = encodeURI('النحو_الصغير');
 
-  const target = `/learn/${subject}/${author}/${book}/`;
+  const target = `/learn/${subject}/${author}/${book}`;
 
   redirect(target);
 }

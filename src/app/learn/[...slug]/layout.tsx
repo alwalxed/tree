@@ -9,25 +9,40 @@ import { loadTree } from '@/lib/common/content';
 import { filterString } from '@/lib/common/filter-string';
 import type { ReactNode } from 'react';
 
-export default async function BookLayout({
-  children,
-  params: { subject, author, book },
-}: {
+type Props = {
   children: ReactNode;
-  params: {
-    subject: string;
-    author: string;
-    book: string;
-  };
-}) {
+  params: Promise<{
+    slug: string[];
+  }>;
+};
+
+export default async function Layout({ children, params }: Props) {
+  const awaitedParams = await params;
+  const parts = awaitedParams.slug;
+
+  if (parts.length < 3) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1 className="text-2xl font-bold text-red-600">
+          ❌ Missing subject/author/book in layout
+        </h1>
+      </div>
+    );
+  }
+
+  const decodedParts = parts.map(decodeURIComponent);
+  const [subject, author, book] = decodedParts;
+
   const real = {
-    subject: decodeURIComponent(subject),
-    author: decodeURIComponent(author),
-    book: decodeURIComponent(book),
-  };
+    subject,
+    author,
+    book,
+  } as const;
+
   try {
     const tree = await loadTree(real);
-    const baseUrl = `/${[real.subject, real.author, real.book]
+
+    const baseUrl = `/${[subject, author, book]
       .map((s) =>
         filterString({
           input: s,
@@ -35,10 +50,12 @@ export default async function BookLayout({
         })
       )
       .join('/')}/`;
+
     const label = filterString({
-      input: real.book,
+      input: book,
       options: { arabicLetters: true, underscores: true },
     }).replace('_', ' ');
+
     return (
       <>
         <DevDebuggers tree={tree} />

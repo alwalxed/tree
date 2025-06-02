@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Define Node type
 export type Node = {
   title: string;
   slug: string;

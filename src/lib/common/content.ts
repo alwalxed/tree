@@ -19,56 +19,81 @@ export type PageParams = BookParams & {
   slug: string[];
 };
 
-// list all books (for book‐list page)
 export async function listAllBooks(): Promise<BookParams[]> {
   const out: BookParams[] = [];
-  for (const subject of await fs.readdir(CONTENT_DIR)) {
-    for (const author of await fs.readdir(path.join(CONTENT_DIR, subject))) {
-      for (const book of await fs.readdir(
-        path.join(CONTENT_DIR, subject, author)
-      )) {
-        out.push({ subject, author, book });
-      }
-    }
-  }
-  return out;
-}
 
-// list all leaf pages in a book (for [...slug] page)
-export async function listAllPages(): Promise<PageParams[]> {
-  const books = await listAllBooks();
-  const out: PageParams[] = [];
-  for (const { subject, author, book } of books) {
-    const treeRaw = await fs.readFile(
-      path.join(
-        CONTENT_DIR,
-        subject,
-        author,
-        book,
-        'tree.json'
-      ),
-      'utf-8'
-    );
-    const tree = JSON.parse(treeRaw) as Array<{
-      slug: string;
-      children: any[];
-    }>;
-    function walk(nodes: typeof tree, prefix: string[] = []) {
-      for (const node of nodes) {
-        const here = [ ...prefix, node.slug ];
-        if (!node.children?.length) {
-          out.push({ subject, author, book, slug: here });
-        } else {
-          walk(node.children, here);
+  try {
+    for (const subject of await fs.readdir(CONTENT_DIR)) {
+      const subjectPath = path.join(CONTENT_DIR, subject);
+      if (!(await fs.stat(subjectPath)).isDirectory()) continue;
+
+      for (const author of await fs.readdir(subjectPath)) {
+        const authorPath = path.join(subjectPath, author);
+        if (!(await fs.stat(authorPath)).isDirectory()) continue;
+
+        for (const book of await fs.readdir(authorPath)) {
+          const bookPath = path.join(authorPath, book);
+          if ((await fs.stat(bookPath)).isDirectory()) {
+            out.push({ subject, author, book });
+          }
         }
       }
     }
-    walk(tree);
+  } catch (error) {
+    console.error('Error listing all books:', error);
+    throw error;
   }
+
   return out;
 }
 
-// load a book's config.json
+export async function listAllPages(): Promise<PageParams[]> {
+  const books = await listAllBooks();
+  const out: PageParams[] = [];
+
+  for (const { subject, author, book } of books) {
+    const treeFilePath = path.join(
+      CONTENT_DIR,
+      subject,
+      author,
+      book,
+      'tree.json'
+    );
+
+    try {
+      const treeRaw = await fs.readFile(treeFilePath, 'utf-8');
+      const parsed = TreeSchema.safeParse(JSON.parse(treeRaw));
+
+      if (!parsed.success) {
+        throw parsed.error;
+      }
+
+      const tree = parsed.data;
+
+      function walk(nodes: Node[], currentPathParts: string[] = []) {
+        for (const node of nodes) {
+          const newPathParts = [ ...currentPathParts, node.slugWithPrefix ];
+          if (!node.children || node.children.length === 0) {
+            out.push({ subject, author, book, slug: newPathParts });
+          } else {
+            walk(node.children, newPathParts);
+          }
+        }
+      }
+
+      walk(tree);
+    } catch (error) {
+      console.error(
+        `Error processing tree.json for ${ subject }/${ author }/${ book }:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  return out;
+}
+
 export async function loadConfig(params: BookParams): Promise<Config> {
   const raw = await fs.readFile(
     path.join(
@@ -80,10 +105,15 @@ export async function loadConfig(params: BookParams): Promise<Config> {
     ),
     'utf-8'
   );
-  return ConfigSchema.parse(JSON.parse(raw));
+
+  const json = JSON.parse(raw);
+  const parsed = ConfigSchema.safeParse(json);
+  if (!parsed.success) {
+    throw parsed.error;
+  }
+  return parsed.data;
 }
 
-// load a book's tree.json
 export async function loadTree(params: BookParams): Promise<Node[]> {
   const raw = await fs.readFile(
     path.join(
@@ -95,34 +125,38 @@ export async function loadTree(params: BookParams): Promise<Node[]> {
     ),
     'utf-8'
   );
-  return TreeSchema.parse(JSON.parse(raw));
+
+  const json = JSON.parse(raw);
+  const parsed = TreeSchema.safeParse(json);
+  if (!parsed.success) {
+    throw parsed.error;
+  }
+  return parsed.data;
 }
 
-// load a markdown page, parse front-matter + HTML
-export async function loadPage(
-  params: PageParams
-): Promise<Content> {
-  const mdRaw = await fs.readFile(
-    path.join(
-      CONTENT_DIR,
-      params.subject,
-      params.author,
-      params.book,
-      ...params.slug,
-      'index.md'
-    ),
-    'utf-8'
+export async function loadPage(params: PageParams): Promise<Content> {
+  const filePath = path.join(
+    CONTENT_DIR,
+    params.subject,
+    params.author,
+    params.book,
+    ...params.slug,
+    'index.md'
   );
+
+  const mdRaw = await fs.readFile(filePath, 'utf-8');
   const { data, content } = matter(mdRaw);
+
   const processed = await remark().use(html).process(content);
-  const parsed = ContentSchema.parse({
-    title:
-      typeof data.title === 'string' ? data.title : undefined,
-    excerpt:
-      typeof data.excerpt === 'string'
-        ? data.excerpt
-        : undefined,
+
+  const parsed = ContentSchema.safeParse({
+    title: typeof data.title === 'string' ? data.title : undefined,
+    excerpt: typeof data.excerpt === 'string' ? data.excerpt : undefined,
     contentHtml: processed.toString(),
   });
-  return parsed;
+
+  if (!parsed.success) {
+    throw parsed.error;
+  }
+  return parsed.data;
 }

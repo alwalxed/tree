@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const Fs = require('fs');
 const path = require('path');
 
-// === your constants + helpers ===
+// === constants + helpers ===
 const MIN_DEPTH_FOR_PREFIXED_DIRS = 3;
 
 function convertArabicNumeralsToEn(value) {
