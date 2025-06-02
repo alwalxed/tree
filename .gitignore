@@ -3,6 +3,8 @@
 # Manual
 repomix-output.xml
 ./public/og/*
+public/og/*
+/public/og/*
 
 output.txt
 ./output.txt
