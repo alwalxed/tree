@@ -1,11 +1,12 @@
+// src/app/page.tsx
 // TODO: A landing page for different books
 
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {
-  const subject = encodeURI('النحو');
-  const author = encodeURI('سليمان_العيوني');
-  const book = encodeURI('النحو_الصغير');
+  const subject = encodeURIComponent('النحو');
+  const author = encodeURIComponent('سليمان_العيوني');
+  const book = encodeURIComponent('النحو_الصغير');
 
   const target = `/learn/${subject}/${author}/${book}`;
 

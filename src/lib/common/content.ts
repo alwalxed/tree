@@ -23,18 +23,46 @@ export async function listAllBooks(): Promise<BookParams[]> {
   const out: BookParams[] = [];
 
   try {
-    for (const subject of await fs.readdir(CONTENT_DIR)) {
+    console.log('Starting to list all books from:', CONTENT_DIR);
+
+    const subjects = await fs.readdir(CONTENT_DIR);
+    console.log('Found subjects:', subjects);
+
+    for (const subject of subjects) {
       const subjectPath = path.join(CONTENT_DIR, subject);
-      if (!(await fs.stat(subjectPath)).isDirectory()) continue;
+      const subjectStat = await fs.stat(subjectPath);
 
-      for (const author of await fs.readdir(subjectPath)) {
+      if (!subjectStat.isDirectory()) {
+        console.log(`Skipping ${ subject } - not a directory`);
+        continue;
+      }
+
+      console.log(`Processing subject: ${ subject }`);
+      const authors = await fs.readdir(subjectPath);
+      console.log(`Found authors in ${ subject }:`, authors);
+
+      for (const author of authors) {
         const authorPath = path.join(subjectPath, author);
-        if (!(await fs.stat(authorPath)).isDirectory()) continue;
+        const authorStat = await fs.stat(authorPath);
 
-        for (const book of await fs.readdir(authorPath)) {
+        if (!authorStat.isDirectory()) {
+          console.log(`Skipping ${ author } - not a directory`);
+          continue;
+        }
+
+        console.log(`Processing author: ${ author }`);
+        const books = await fs.readdir(authorPath);
+        console.log(`Found books for ${ author }:`, books);
+
+        for (const book of books) {
           const bookPath = path.join(authorPath, book);
-          if ((await fs.stat(bookPath)).isDirectory()) {
+          const bookStat = await fs.stat(bookPath);
+
+          if (bookStat.isDirectory()) {
+            console.log(`Adding book: ${ subject }/${ author }/${ book }`);
             out.push({ subject, author, book });
+          } else {
+            console.log(`Skipping ${ book } - not a directory`);
           }
         }
       }
@@ -44,6 +72,7 @@ export async function listAllBooks(): Promise<BookParams[]> {
     throw error;
   }
 
+  console.log('Final book list:', out);
   return out;
 }
 
@@ -72,7 +101,7 @@ export async function listAllPages(): Promise<PageParams[]> {
 
       function walk(nodes: Node[], currentPathParts: string[] = []) {
         for (const node of nodes) {
-          const newPathParts = [...currentPathParts, node.slugWithPrefix];
+          const newPathParts = [ ...currentPathParts, node.slugWithPrefix ];
           if (!node.children || node.children.length === 0) {
             out.push({ subject, author, book, slug: newPathParts });
           } else {
@@ -84,7 +113,7 @@ export async function listAllPages(): Promise<PageParams[]> {
       walk(tree);
     } catch (error) {
       console.error(
-        `Error processing tree.json for ${subject}/${author}/${book}:`,
+        `Error processing tree.json for ${ subject }/${ author }/${ book }:`,
         error
       );
       throw error;

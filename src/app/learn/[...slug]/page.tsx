@@ -17,16 +17,16 @@ export async function generateStaticParams() {
     const books = await listAllBooks();
 
     const pageParams = pages.map((p) => ({
-      slug: [p.subject, p.author, p.book, ...p.slug],
+      slug: [p.subject, p.author, p.book, ...p.slug].map(encodeURIComponent),
     }));
 
     const rootParams = books.map(({ subject, author, book }) => ({
-      slug: [subject, author, book],
+      slug: [subject, author, book].map(encodeURIComponent),
     }));
 
-    const allParams = [...pageParams, ...rootParams];
-    return allParams;
+    return [...rootParams, ...pageParams];
   } catch (error) {
+    console.error('Error in generateStaticParams:', error);
     throw error;
   }
 }
@@ -98,6 +98,10 @@ export default async function ContentPage({ params }: Props) {
         </div>
       );
     } catch (error) {
+      console.error(
+        `Error loading config/tree for ${subject}/${author}/${book}:`,
+        error
+      );
       throw error;
     }
   }
@@ -112,6 +116,10 @@ export default async function ContentPage({ params }: Props) {
       </article>
     );
   } catch (error) {
+    console.error(
+      `Error loading page ${subject}/${author}/${book}/${restSlug.join('/')}:`,
+      error
+    );
     throw error;
   }
 }

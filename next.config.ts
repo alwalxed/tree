@@ -5,7 +5,7 @@ setupDevPlatform().catch(console.error);
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // output: 'export',
+  output: 'export',
   trailingSlash: true,
   devIndicators: false,
   compiler: {
