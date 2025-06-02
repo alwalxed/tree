@@ -5,6 +5,8 @@ import { ConfigSchema, type Config } from '@/lib/schema/bookConfig';
 import { TreeSchema } from '@/lib/schema/bookTree';
 import { Fragment } from 'react';
 
+export const runtime = 'edge';
+
 type Params = Promise<{
   subject: string;
   author: string;

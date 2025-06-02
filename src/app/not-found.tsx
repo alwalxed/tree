@@ -1,4 +1,5 @@
 import { AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function NotFound() {
   console.info('RAN: src/app/not-found.tsx');
@@ -10,12 +11,12 @@ export default function NotFound() {
         <p className="mb-6 text-zinc-600">
           عفواً! الصفحة التي تبحث عنها غير موجودة.
         </p>
-        <a
+        <Link
           href="/"
           className="inline-block rounded-md bg-zinc-800 px-4 py-2 text-white transition-colors hover:bg-zinc-700 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
         >
           العودة إلى الرئيسية
-        </a>
+        </Link>
       </div>
     </main>
   );

@@ -44,7 +44,7 @@ export function useSidebar({
 
   const flatItems = useMemo<FlatSidebarItem[]>(() => {
     function walk(nodes: Node[], lvl = 0, parent?: string): FlatSidebarItem[] {
-      let out: FlatSidebarItem[] = [];
+      const out: FlatSidebarItem[] = [];
       for (const nd of nodes) {
         out.push({
           node: nd,
