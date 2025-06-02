@@ -1,3 +1,4 @@
+// src/hooks/use-sidebar.ts
 import type { Node } from '@/lib/schema/bookTree';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -56,35 +57,39 @@ export function useSidebar({
     const performWalk = (
       nodes: Node[],
       currentLevel = 0,
-      parentPath?: string
+      parentPrefixedPath?: string
     ): FlatSidebarItem[] => {
       let result: FlatSidebarItem[] = [];
+
       for (const currentNode of nodes) {
         result.push({
           node: currentNode,
           level: currentLevel,
-          parentNodeFullPath: parentPath,
+          parentNodeFullPath: parentPrefixedPath,
         });
-        if (currentNode.children && currentNode.children.length > 0) {
+
+        if (currentNode.children.length > 0) {
           result = result.concat(
             performWalk(
               currentNode.children,
               currentLevel + 1,
-              currentNode.fullPath
+              currentNode.fullPathWithPrefixes
             )
           );
         }
       }
+
       return result;
     };
+
     return performWalk(tree);
   }, [tree]);
 
   const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
     let paths: string[] = [];
     for (const node of nodes) {
-      if (node.children && node.children.length > 0) {
-        paths.push(node.fullPath);
+      if (node.children.length > 0) {
+        paths.push(node.fullPathWithPrefixes);
         paths = paths.concat(getAllPathsWithChildren(node.children));
       }
     }

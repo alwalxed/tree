@@ -80,14 +80,14 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
 
                 const hasChildren = node.children.length > 0;
                 const isExpanded =
-                  hasChildren && !!expandedSections[node.fullPath];
-                const isActive = isCurrentPage(node.fullPath);
+                  hasChildren && !!expandedSections[node.fullPathWithPrefixes];
+                const isActive = isCurrentPage(node.fullPathWithPrefixes);
 
                 return (
-                  <SidebarMenuItem key={node.fullPath}>
+                  <SidebarMenuItem key={node.fullPathWithPrefixes}>
                     {hasChildren ? (
                       <SidebarMenuButton
-                        onClick={() => toggleSection(node.fullPath)}
+                        onClick={() => toggleSection(node.fullPathWithPrefixes)}
                         aria-expanded={isExpanded}
                         className={cn(
                           'cursor-pointer pr-[calc(0.5rem*var(--level))] pl-1.5',
@@ -113,7 +113,7 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
                         )}
                         style={{ '--level': level + 1 } as React.CSSProperties}
                       >
-                        <a href={node.fullPath}>
+                        <a href={node.fullPathWithPrefixes}>
                           <FileText className="h-4 w-4 shrink-0" />
                           <span>{node.title}</span>
                         </a>
