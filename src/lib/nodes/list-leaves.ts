@@ -8,7 +8,7 @@ export type LeafNode = {
 export function listLeafNodes(tree: Node[]): LeafNode[] {
   const leaves: LeafNode[] = [];
   function walk(node: Node, pathSoFar: string[] = []) {
-    const full = [ ...pathSoFar, node.slug ];
+    const full = [...pathSoFar, node.slug];
     if (node.children.length === 0) {
       leaves.push({ title: node.title, fullSlugPath: full.join('/') });
     } else {

@@ -1,6 +1,6 @@
 # Tree (Book Content Visualizer)
 
-**Tree** is an open-source static website ([tree.alwalxed.com](https://tree.alwalxed.com)) for exploring and visualizing the hierarchical structure of books. Simply drop your content into a nested-folder hierarchy, and **Tree** will render it into a production-ready, shareable visualization that anyone can benefit from and improve.
+_**Tree**_ is an open-source educational website ([tree.alwalxed.com](https://tree.alwalxed.com)) designed to visualize the hierarchical structure of books. It leverages the recursive nature of book content to generate clear, navigable visualizations. We simply drop our content into a nested folder hierarchy, and _**Tree**_ renders it, automatically generating all the visualizations and sidebar links we need.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@
 
 ## Structure
 
-Books follow a recursive, tree-like organization: parts, chapters, sections, concepts, sub-concepts, and so on. **Tree** mirrors this by reading your local folder structure:
+Books follow a recursive, tree-like organization: parts, chapters, sections, concepts, sub-concepts, and so on. _**Tree**_ mirrors this by reading our local folder structure:
 
 ```bash
 subject/
@@ -25,7 +25,7 @@ subject/
                └─ ...
 ```
 
-See [`/content`](./content) for reference. Place your Markdown files (`index.md`) at the leaves. **Tree**’s loader will discover them and build a navigable node tree.
+See [`/content`](./content) to learn how we render the actual content.
 
 ## Visualizations
 
@@ -48,7 +48,7 @@ We’re open to adding more. If you have ideas, please contribute.
 Before adding new books, please email **hey@alwalxed.com** to ensure they fit our focus (foundational subjects like grammar, morphology, jurisprudence, logic, etc.).
 
 1. Fork the repo.
-2. Follow the folder pattern in `content/` to add your book’s hierarchy.
+2. Follow the folder pattern in [`/content`](./content) to add your book’s hierarchy.
 3. Summarize or annotate each `index.md` as you like.
 4. Submit a pull request.
 

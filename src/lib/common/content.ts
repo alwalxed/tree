@@ -72,7 +72,7 @@ export async function listAllPages(): Promise<PageParams[]> {
 
       function walk(nodes: Node[], currentPathParts: string[] = []) {
         for (const node of nodes) {
-          const newPathParts = [ ...currentPathParts, node.slugWithPrefix ];
+          const newPathParts = [...currentPathParts, node.slugWithPrefix];
           if (!node.children || node.children.length === 0) {
             out.push({ subject, author, book, slug: newPathParts });
           } else {
@@ -84,7 +84,7 @@ export async function listAllPages(): Promise<PageParams[]> {
       walk(tree);
     } catch (error) {
       console.error(
-        `Error processing tree.json for ${ subject }/${ author }/${ book }:`,
+        `Error processing tree.json for ${subject}/${author}/${book}:`,
         error
       );
       throw error;

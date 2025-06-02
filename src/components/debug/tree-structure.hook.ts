@@ -34,21 +34,19 @@ export interface UseTreeDebuggerResult {
   helpers: TreeDebuggerHelpers;
 }
 
-export function useTreeStructureDebugger(
-  tree: Node[]
-): UseTreeDebuggerResult {
+export function useTreeStructureDebugger(tree: Node[]): UseTreeDebuggerResult {
   // State
-  const [ open, setOpen ] = React.useState(false);
-  const [ copied, setCopied ] = React.useState(false);
-  const [ searchTerm, setSearchTerm ] = React.useState('');
-  const [ expandedNodes, setExpandedNodes ] = React.useState<string[]>([]);
-  const [ expandAll, setExpandAll ] = React.useState(false);
-  const [ activeTab, setActiveTab ] = React.useState('visual');
+  const [open, setOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [expandedNodes, setExpandedNodes] = React.useState<string[]>([]);
+  const [expandAll, setExpandAll] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('visual');
 
   // Memoized values
   const formattedTree = React.useMemo(
     () => JSON.stringify(tree, null, 2),
-    [ tree ]
+    [tree]
   );
 
   // Actions
@@ -57,11 +55,11 @@ export function useTreeStructureDebugger(
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });
-  }, [ formattedTree ]);
+  }, [formattedTree]);
 
   const toggleNode = React.useCallback((path: string) => {
     setExpandedNodes((prev) =>
-      prev.includes(path) ? prev.filter((p) => p !== path) : [ ...prev, path ]
+      prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path]
     );
   }, []);
 
@@ -73,7 +71,7 @@ export function useTreeStructureDebugger(
       const collectPaths = (nodes: Node[], currentPath = '') => {
         nodes.forEach((node) => {
           const nodePath = currentPath
-            ? `${ currentPath }.${ node.slug }`
+            ? `${currentPath}.${node.slug}`
             : node.slug;
           allPaths.push(nodePath);
           if (node.children.length) {
@@ -86,7 +84,7 @@ export function useTreeStructureDebugger(
     } else {
       setExpandedNodes([]);
     }
-  }, [ expandAll, tree ]);
+  }, [expandAll, tree]);
 
   // Helper functions
   const countNodes = React.useCallback((nodes: Node[]): number => {
@@ -107,16 +105,20 @@ export function useTreeStructureDebugger(
         let maxDepth = currentDepth;
         for (const node of nodes) {
           if (node.children.length > 0) {
-            const childDepth = calculateMaxDepth(node.children, currentDepth + 1);
+            const childDepth = calculateMaxDepth(
+              node.children,
+              currentDepth + 1
+            );
             maxDepth = Math.max(maxDepth, childDepth);
           }
         }
 
         return maxDepth;
-      } else { return 0; }
-
-    }
-    , []
+      } else {
+        return 0;
+      }
+    },
+    []
   );
 
   const matchesSearch = React.useCallback(

@@ -9,3 +9,6 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 public/
+.vercel
+env.d.ts
+worker-configuration.d.ts

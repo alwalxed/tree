@@ -29,7 +29,7 @@ export function generateASCIITree(
         return '';
       }
 
-      output += `${ indent }${ branch }${ label }\n`;
+      output += `${indent}${branch}${label}\n`;
 
       if (node.children.length > 0) {
         output += generateASCIITree(node.children, {

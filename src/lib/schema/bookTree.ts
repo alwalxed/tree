@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export type Node = {
   title: string;
@@ -39,7 +39,7 @@ export const TreeSchema = z
         if (seen.has(node.fullPath)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Duplicate fullPath at depth ≥ 3: ${ node.fullPath }`,
+            message: `Duplicate fullPath at depth ≥ 3: ${node.fullPath}`,
           });
         }
         seen.add(node.fullPath);

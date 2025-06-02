@@ -23,7 +23,7 @@ export function filterString({
 }): string {
   const parts: string[] = [];
 
-  for (const [ key, value ] of Object.entries(options) as [
+  for (const [key, value] of Object.entries(options) as [
     keyof FilterOptions,
     boolean | string,
   ][]) {
@@ -34,13 +34,13 @@ export function filterString({
   }
 
   const allowed = parts.join('');
-  const regex = new RegExp(`[^${ allowed }]`, 'gu');
+  const regex = new RegExp(`[^${allowed}]`, 'gu');
   return input.replace(regex, '');
 }
 
 function getRangeForOption<K extends keyof FilterOptions>(
   option: K,
-  value: FilterOptions[ K ]
+  value: FilterOptions[K]
 ): string | null {
   if (!value) return null;
 
