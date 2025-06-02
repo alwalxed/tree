@@ -29,7 +29,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "content/النحو/سليمان_العيوني/النحو_الصغير/landing.js",
-    "scripts/generateTree.js"
+    "scripts/generateTree.mjs"
   ],
   "exclude": ["node_modules"]
 }

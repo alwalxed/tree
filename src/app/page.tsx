@@ -2,11 +2,12 @@
 // TODO: A landing page for different books
 
 import { redirect } from 'next/navigation';
+import { slugify } from 'reversible-arabic-slugifier';
 
 export default function RootPage() {
-  const subject = encodeURIComponent('النحو');
-  const author = encodeURIComponent('سليمان_العيوني');
-  const book = encodeURIComponent('النحو_الصغير');
+  const subject = slugify('النحو');
+  const author = slugify('سليمان_العيوني');
+  const book = slugify('النحو_الصغير');
 
   const target = `/learn/${subject}/${author}/${book}`;
 

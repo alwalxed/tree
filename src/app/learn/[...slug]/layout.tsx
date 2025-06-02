@@ -8,6 +8,7 @@ import {
 import { loadTree } from '@/lib/common/content';
 import { filterString } from '@/lib/common/filter-string';
 import type { ReactNode } from 'react';
+import { deslugify, slugify } from 'reversible-arabic-slugifier';
 
 type Props = {
   children: ReactNode;
@@ -30,7 +31,7 @@ export default async function Layout({ children, params }: Props) {
     );
   }
 
-  const decodedParts = parts.map(decodeURIComponent);
+  const decodedParts = parts.map((item) => deslugify(item));
   const [subject, author, book] = decodedParts;
 
   const real = {
@@ -42,14 +43,7 @@ export default async function Layout({ children, params }: Props) {
   try {
     const tree = await loadTree(real);
 
-    const baseUrl = `/${[subject, author, book]
-      .map((s) =>
-        filterString({
-          input: s,
-          options: { arabicLetters: true, underscores: true },
-        })
-      )
-      .join('/')}/`;
+    const baseUrl = `/${[subject, author, book].map((item) => typeof item === 'string' && slugify(item)).join('/')}/`;
 
     const label = filterString({
       input: book,

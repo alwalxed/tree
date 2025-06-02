@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 export type Node = {
+  urlSafeSlug?: string;
+  parentUrlSafePath?: string[];
+  fullUrlSafePath?: string;
   title: string;
   slug: string;
   slugWithPrefix: string;
@@ -15,6 +18,9 @@ export type Node = {
 export const NodeSchema: z.ZodType<Node> = z.lazy(() =>
   z
     .object({
+      urlSafeSlug: z.string().optional(),
+      parentUrlSafePath: z.array(z.string()).optional(),
+      fullUrlSafePath: z.string().optional(),
       title: z.string().min(1),
       slug: z.string().min(1),
       slugWithPrefix: z.string(),

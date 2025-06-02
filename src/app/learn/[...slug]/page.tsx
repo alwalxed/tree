@@ -10,6 +10,7 @@ import {
 } from '@/lib/common/content';
 import type { Content } from '@/lib/schema/bookContent';
 import { Node } from '@/lib/schema/bookTree';
+import { deslugify, slugify } from 'reversible-arabic-slugifier';
 
 export async function generateStaticParams() {
   try {
@@ -17,11 +18,13 @@ export async function generateStaticParams() {
     const books = await listAllBooks();
 
     const pageParams = pages.map((p) => ({
-      slug: [p.subject, p.author, p.book, ...p.slug].map(encodeURIComponent),
+      slug: [p.subject, p.author, p.book, ...p.slug].map((item) =>
+        slugify(item)
+      ),
     }));
 
     const rootParams = books.map(({ subject, author, book }) => ({
-      slug: [subject, author, book].map(encodeURIComponent),
+      slug: [subject, author, book].map((item) => slugify(item)),
     }));
 
     return [...rootParams, ...pageParams];
@@ -37,7 +40,7 @@ type Props = {
   }>;
 };
 
-export default async function ContentPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const awaitedParams = await params;
   const parts = awaitedParams.slug;
 
@@ -49,7 +52,7 @@ export default async function ContentPage({ params }: Props) {
     );
   }
 
-  const decodedParts = parts.map(decodeURIComponent);
+  const decodedParts = parts.map((item) => deslugify(item));
   const [subject, author, book, ...restSlug] = decodedParts;
 
   const real = {

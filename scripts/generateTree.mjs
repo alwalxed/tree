@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const fs = require('fs/promises');
-const Fs = require('fs');
-const path = require('path');
+import Fs from 'fs';
+import fs from 'fs/promises';
+import path from 'path';
+import { slugify } from 'reversible-arabic-slugifier';
 
 // === constants + helpers ===
 const MIN_DEPTH_FOR_PREFIXED_DIRS = 3;
@@ -172,8 +173,10 @@ async function buildTree({
   dirNames = [],
   slugs = [],
   slugsWithPrefix = [],
+  urlSafeSlugs = [], // New: URL-safe slugified versions
   prefix = '',
   prefixWithPrefixes = '',
+  urlSafePrefix = '', // New: URL-safe prefix
   depth = 0,
 }) {
   const root = path.join(fileSystemBasePath, ...dirNames);
@@ -214,26 +217,36 @@ async function buildTree({
     const slug = fileName;
     const slugWithPrefix = originalDirectoryName;
 
+    // Generate URL-safe slug using reversible-arabic-slugifier
+    const urlSafeSlug = slugify(originalDirectoryName);
+
     const newSlugs = [...slugs, slug];
     const newSlugsWithPrefix = [...slugsWithPrefix, slugWithPrefix];
+    const newUrlSafeSlugs = [...urlSafeSlugs, urlSafeSlug];
 
     // build the "flat" prefix (no leading slash)
     const flatPrefix = prefix ? `${prefix}/${slug}` : slug;
     const flatPrefixWithPrefixes = prefixWithPrefixes
       ? `${prefixWithPrefixes}/${slugWithPrefix}`
       : slugWithPrefix;
+    const flatUrlSafePrefix = urlSafePrefix
+      ? `${urlSafePrefix}/${urlSafeSlug}`
+      : urlSafeSlug;
 
     // make it absolute
     const fullPath = `/${flatPrefix}`;
     const fullPathWithPrefixes = `/${flatPrefixWithPrefixes}`;
+    const fullUrlSafePath = `/${flatUrlSafePrefix}`;
 
     const children = await buildTree({
       fileSystemBasePath,
       dirNames: [...dirNames, de.name],
       slugs: newSlugs,
       slugsWithPrefix: newSlugsWithPrefix,
+      urlSafeSlugs: newUrlSafeSlugs,
       prefix: flatPrefix,
       prefixWithPrefixes: flatPrefixWithPrefixes,
+      urlSafePrefix: flatUrlSafePrefix,
       depth: depth + 1,
     });
     if (children === null) return null;
@@ -242,11 +255,14 @@ async function buildTree({
       title,
       slug,
       slugWithPrefix,
+      urlSafeSlug, // New: URL-safe version for routing
       order: fileOrder,
       parentPath: slugs,
       parentPathWithPrefixedSlugs: slugsWithPrefix,
+      parentUrlSafePath: urlSafeSlugs, // New: URL-safe parent path
       fullPath,
       fullPathWithPrefixes,
+      fullUrlSafePath, // New: URL-safe full path
       children,
     });
   }
@@ -283,8 +299,10 @@ async function main() {
     fileSystemBasePath: CONTENT_ROOT,
     slugs: [],
     slugsWithPrefix: [],
+    urlSafeSlugs: [],
     prefix: '',
     prefixWithPrefixes: '',
+    urlSafePrefix: '',
     depth: 0,
   });
   if (!baseTree) {
@@ -312,11 +330,21 @@ async function main() {
             author.slugWithPrefix,
             book.slugWithPrefix,
           ],
+          urlSafeSlugs: [
+            subject.urlSafeSlug,
+            author.urlSafeSlug,
+            book.urlSafeSlug,
+          ],
           prefix: lineageSlugs.join('/'),
           prefixWithPrefixes: [
             subject.slugWithPrefix,
             author.slugWithPrefix,
             book.slugWithPrefix,
+          ].join('/'),
+          urlSafePrefix: [
+            subject.urlSafeSlug,
+            author.urlSafeSlug,
+            book.urlSafeSlug,
           ].join('/'),
           depth: 3,
         });

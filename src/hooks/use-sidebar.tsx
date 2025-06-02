@@ -1,6 +1,7 @@
 import type { Node } from '@/lib/schema/bookTree';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+import { slugify } from 'reversible-arabic-slugifier';
 
 export const LEARN_BASE = '/learn';
 
@@ -42,6 +43,30 @@ export function useSidebar({
     [pathname, homeHref]
   );
 
+  // Helper function to build URL-safe href from node
+  const buildNodeHref = useCallback((node: Node): string => {
+    // Use urlSafeSlug if available, otherwise convert slugWithPrefix
+    const urlSafeSlug = node.urlSafeSlug || slugify(node.slugWithPrefix);
+
+    // Build URL-safe path by converting each segment
+    const buildUrlSafePath = (targetNode: Node): string => {
+      const pathParts: string[] = [];
+
+      // Get parent path segments and convert them to URL-safe
+      if (targetNode.parentPathWithPrefixedSlugs) {
+        pathParts.push(...targetNode.parentPathWithPrefixedSlugs.map(slugify));
+      }
+
+      // Add current node's URL-safe slug
+      pathParts.push(urlSafeSlug);
+
+      return `/${pathParts.join('/')}`;
+    };
+
+    const urlSafePath = buildUrlSafePath(node);
+    return buildLearnHref(urlSafePath);
+  }, []);
+
   const flatItems = useMemo<FlatSidebarItem[]>(() => {
     function walk(nodes: Node[], lvl = 0, parent?: string): FlatSidebarItem[] {
       const out: FlatSidebarItem[] = [];
@@ -50,7 +75,7 @@ export function useSidebar({
           node: nd,
           level: lvl,
           parentNodeFullPath: parent,
-          href: buildLearnHref(nd.fullPathWithPrefixes),
+          href: buildNodeHref(nd),
         });
         if (nd.children.length) {
           out.push(...walk(nd.children, lvl + 1, nd.fullPathWithPrefixes));
@@ -59,18 +84,25 @@ export function useSidebar({
       return out;
     }
     return walk(tree);
-  }, [tree]);
+  }, [tree, buildNodeHref]);
 
-  const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
-    let paths: string[] = [];
-    for (const node of nodes) {
-      if (node.children.length > 0) {
-        paths.push(node.fullPathWithPrefixes);
-        paths = paths.concat(getAllPathsWithChildren(node.children));
+  const getAllPathsWithChildren = useCallback(
+    (nodes: Node[]): string[] => {
+      let paths: string[] = [];
+      for (const node of nodes) {
+        if (node.children.length > 0) {
+          // Use URL-safe path for expansion tracking
+          const urlSafePath = node.urlSafeSlug
+            ? node.fullUrlSafePath || buildNodeHref(node)
+            : slugify(node.fullPathWithPrefixes);
+          paths.push(urlSafePath);
+          paths = paths.concat(getAllPathsWithChildren(node.children));
+        }
       }
-    }
-    return paths;
-  }, []);
+      return paths;
+    },
+    [buildNodeHref]
+  );
 
   const expandAll = useCallback(() => {
     const allPaths = getAllPathsWithChildren(tree);
@@ -101,6 +133,7 @@ export function useSidebar({
       isCurrentPage,
       toggleAll,
       homeHref,
+      buildNodeHref, // Expose this helper for other components
     }),
     [
       flatItems,
@@ -109,6 +142,7 @@ export function useSidebar({
       isCurrentPage,
       toggleAll,
       homeHref,
+      buildNodeHref,
     ]
   );
 }
@@ -117,4 +151,9 @@ export function buildLearnHref(raw: string): string {
   let p = raw === '/' ? '' : raw.endsWith('/') ? raw.slice(0, -1) : raw;
   if (!p.startsWith('/')) p = '/' + p;
   return LEARN_BASE + p;
+}
+
+// Helper function to convert a full Arabic path to URL-safe path
+export function convertToUrlSafePath(arabicPath: string): string {
+  return arabicPath.split('/').filter(Boolean).map(slugify).join('/');
 }
