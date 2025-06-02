@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import { slugify } from 'reversible-arabic-slugifier';
 
 export const metadata: Metadata = {
-  title: 'شجرة - موقع الكتب المشجرة',
-  description:
-    'موقع مفتوح المصدر لتصفح الكتب الإسلامية مشجرة ملخصة بطريقة تفاعلية ومنظمة',
+  title: 'شجرة: لتصفح الكتب',
+  description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة وملخصة',
   keywords: [
     'كتب إسلامية',
     'تعليم',
@@ -18,9 +17,8 @@ export const metadata: Metadata = {
     'تصفح تفاعلي',
   ],
   openGraph: {
-    title: 'شجرة - موقع الكتب المشجرة',
-    description:
-      'موقع مفتوح المصدر لتصفح الكتب الإسلامية مشجرة ملخصة بطريقة تفاعلية ومنظمة',
+    title: 'شجرة: لتصفح الكتب',
+    description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة وملخصة',
     type: 'website',
     locale: 'ar_SA',
     siteName: 'شجرة',
@@ -29,14 +27,14 @@ export const metadata: Metadata = {
         url: getHomeOGImagePath(),
         width: 1200,
         height: 630,
-        alt: 'شجرة - موقع الكتب المشجرة',
+        alt: 'شجرة: لتصفح الكتب',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'شجرة - موقع الكتب المشجرة',
-    description: 'موقع مفتوح المصدر لتصفح الكتب الإسلامية مشجرة ملخصة',
+    title: 'شجرة: لتصفح الكتب',
+    description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة وملخصة',
     images: [getHomeOGImagePath()],
   },
   alternates: {
