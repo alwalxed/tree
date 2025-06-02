@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: *.json
+
+Sitemap: https://tree.alwalxed.com/sitemap.xml
+Host: https://tree.alwalxed.com

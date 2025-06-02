@@ -1,5 +1,6 @@
 import { isDev } from '@/config/env';
 import { SITE_URL } from '@/config/site';
+import { getHomeOGImagePath } from '@/lib/common/og';
 import { cn } from '@/lib/common/tailwind-utils';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Metadata } from 'next';
@@ -13,6 +14,33 @@ export const metadata: Metadata = {
     default: 'شجرة',
   },
   description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة ملخصة',
+  icons: {
+    icon: '/logo.svg',
+  },
+  openGraph: {
+    title: 'شجرة - موقع الكتب المشجرة',
+    description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة ملخصة',
+    type: 'website',
+    locale: 'ar_SA',
+    siteName: 'شجرة',
+    images: [
+      {
+        url: getHomeOGImagePath(),
+        width: 1200,
+        height: 630,
+        alt: 'شجرة - موقع الكتب المشجرة',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'شجرة - موقع الكتب المشجرة',
+    description: 'موقع مفتوح المصدر لتصفح الكتب مشجرة ملخصة',
+    images: [getHomeOGImagePath()],
+  },
+  other: {
+    google: 'notranslate',
+  },
 };
 
 export default async function RootLayout({

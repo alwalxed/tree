@@ -1,6 +1,8 @@
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
 import { Section } from '@/components/common/section';
+import { StructuredData } from '@/components/seo/structured-data';
 import { VisualizationSwitcher } from '@/components/visualizations/visualization-switcher';
+import { SITE_URL } from '@/config/site';
 import {
   listAllBooks,
   listAllPages,
@@ -8,8 +10,10 @@ import {
   loadPage,
   loadTree,
 } from '@/lib/common/content';
+import { getOGImagePath } from '@/lib/common/og';
 import type { Content } from '@/lib/schema/bookContent';
 import { Node } from '@/lib/schema/bookTree';
+import type { Metadata } from 'next';
 import { deslugify, slugify } from 'reversible-arabic-slugifier';
 
 export async function generateStaticParams() {
@@ -40,6 +44,123 @@ type Props = {
   }>;
 };
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const awaitedParams = await params;
+  const parts = awaitedParams.slug;
+
+  if (parts.length < 3) {
+    return {
+      title: 'صفحة غير صحيحة',
+      description: 'رابط غير صحيح - مفقود الموضوع/المؤلف/الكتاب',
+    };
+  }
+
+  const decodedParts = parts.map((item) => deslugify(item));
+  const [subject, author, book, ...restSlug] = decodedParts;
+
+  const real = {
+    subject,
+    author,
+    book,
+    slug: restSlug,
+  } as const;
+
+  // Generate OG image path
+  const urlPath = `/learn/${parts.join('/')}`;
+  const ogImagePath = getOGImagePath(urlPath);
+
+  try {
+    if (restSlug.length === 0) {
+      // Book root page metadata
+      const cfg = await loadConfig(real);
+      const cleanBookName = book.replace(/_/g, ' ');
+      const cleanAuthorName = author.replace(/_/g, ' ');
+
+      return {
+        title: `${cfg.title} - ${cleanAuthorName}`,
+        description: cfg.description,
+        keywords: [
+          cleanBookName,
+          cleanAuthorName,
+          subject,
+          'كتب',
+          'تعليم',
+          'مراجع',
+        ],
+        openGraph: {
+          title: `${cfg.title} - ${cleanAuthorName}`,
+          description: cfg.description,
+          type: 'website',
+          locale: 'ar_SA',
+          images: [
+            {
+              url: ogImagePath,
+              width: 1200,
+              height: 630,
+              alt: `${cfg.title} - ${cleanAuthorName}`,
+            },
+          ],
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${cfg.title} - ${cleanAuthorName}`,
+          description: cfg.description,
+          images: [ogImagePath],
+        },
+      };
+    } else {
+      const content = await loadPage(real);
+      const cleanBookName = book.replace(/_/g, ' ');
+      const cleanAuthorName = author.replace(/_/g, ' ');
+      const pageTitle = content.title || 'صفحة بدون عنوان';
+
+      return {
+        title: `${pageTitle} - ${cleanBookName}`,
+        description:
+          content.excerpt ||
+          `${pageTitle} من كتاب ${cleanBookName} للمؤلف ${cleanAuthorName}`,
+        keywords: [
+          pageTitle,
+          cleanBookName,
+          cleanAuthorName,
+          subject,
+          'شرح',
+          'دروس',
+        ],
+        openGraph: {
+          title: `${pageTitle} - ${cleanBookName}`,
+          description:
+            content.excerpt ||
+            `${pageTitle} من كتاب ${cleanBookName} للمؤلف ${cleanAuthorName}`,
+          type: 'article',
+          locale: 'ar_SA',
+          images: [
+            {
+              url: ogImagePath,
+              width: 1200,
+              height: 630,
+              alt: `${pageTitle} - ${cleanBookName}`,
+            },
+          ],
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${pageTitle} - ${cleanBookName}`,
+          description:
+            content.excerpt || `${pageTitle} من كتاب ${cleanBookName}`,
+          images: [ogImagePath],
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'خطأ في تحميل الصفحة',
+      description: 'حدث خطأ أثناء تحميل محتوى الصفحة',
+    };
+  }
+}
+
 export default async function Page({ params }: Props) {
   const awaitedParams = await params;
   const parts = awaitedParams.slug;
@@ -62,43 +183,63 @@ export default async function Page({ params }: Props) {
     slug: restSlug,
   } as const;
 
+  // Build the current page URL
+  const currentUrl = `${SITE_URL}/learn/${parts.join('/')}`;
+
+  // Clean up names for display and structured data
+  const cleanBookName = book.replace(/_/g, ' ');
+  const cleanAuthorName = author.replace(/_/g, ' ');
+  const cleanSubject = subject.replace(/_/g, ' ');
+
   if (restSlug.length === 0) {
     try {
       const cfg = await loadConfig(real);
       const tree = await loadTree(real);
 
       return (
-        <div className="mx-auto max-w-4xl space-y-12 p-6">
-          {cfg.sections?.map((sec, i) => {
-            if (sec.type === 'text') {
-              return (
-                <Section key={i}>
-                  <Section.H level={2}>{sec.title}</Section.H>
-                  <Section.P>
-                    {sec.content.map((line, j) => (
-                      <span key={j}>
-                        {line}
-                        <br />
-                      </span>
-                    ))}
-                  </Section.P>
-                </Section>
-              );
-            }
-            if (sec.type === 'visualization') {
-              const nodes = (tree as Node[]).filter((n) =>
-                n.title.includes(sec.chapterIdentifier)
-              );
-              return (
-                <Section key={i}>
-                  <Section.H level={2}>{sec.title}</Section.H>
-                  <VisualizationSwitcher nodes={nodes} />
-                </Section>
-              );
-            }
-            return null;
-          })}
-        </div>
+        <>
+          {/* Structured Data for Book */}
+          <StructuredData
+            type="book"
+            title={cfg.title}
+            description={cfg.description}
+            author={cleanAuthorName}
+            subject={cleanSubject}
+            url={currentUrl}
+          />
+
+          <div className="mx-auto max-w-4xl space-y-12 p-6">
+            {cfg.sections?.map((sec, i) => {
+              if (sec.type === 'text') {
+                return (
+                  <Section key={i}>
+                    <Section.H level={2}>{sec.title}</Section.H>
+                    <Section.P>
+                      {sec.content.map((line, j) => (
+                        <span key={j}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </Section.P>
+                  </Section>
+                );
+              }
+              if (sec.type === 'visualization') {
+                const nodes = (tree as Node[]).filter((n) =>
+                  n.title.includes(sec.chapterIdentifier)
+                );
+                return (
+                  <Section key={i}>
+                    <Section.H level={2}>{sec.title}</Section.H>
+                    <VisualizationSwitcher nodes={nodes} />
+                  </Section>
+                );
+              }
+              return null;
+            })}
+          </div>
+        </>
       );
     } catch (error) {
       console.error(
@@ -111,12 +252,30 @@ export default async function Page({ params }: Props) {
 
   try {
     const content: Content = await loadPage(real);
+    const pageTitle = content.title || 'صفحة بدون عنوان';
+
     return (
-      <article className="prose mx-auto max-w-4xl p-6">
-        <h1>{content.title ?? 'Untitled'}</h1>
-        {content.excerpt && <p className="lead">{content.excerpt}</p>}
-        <MarkdownRenderer content={content.contentHtml} />
-      </article>
+      <>
+        {/* Structured Data for Article */}
+        <StructuredData
+          type="article"
+          title={pageTitle}
+          description={
+            content.excerpt ||
+            `${pageTitle} من كتاب ${cleanBookName} للمؤلف ${cleanAuthorName}`
+          }
+          author={cleanAuthorName}
+          bookTitle={cleanBookName}
+          url={currentUrl}
+          dateModified={new Date().toISOString()}
+        />
+
+        <article className="prose mx-auto max-w-4xl p-6">
+          <h1>{pageTitle}</h1>
+          {content.excerpt && <p className="lead">{content.excerpt}</p>}
+          <MarkdownRenderer content={content.contentHtml} />
+        </article>
+      </>
     );
   } catch (error) {
     console.error(
