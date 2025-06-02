@@ -2,6 +2,7 @@
 
 # Manual
 repomix-output.xml
+./public/og/*
 
 output.txt
 ./output.txt
