@@ -20,7 +20,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.info('RAN: src/app/layout.tsx');
   return (
     <>
       <html

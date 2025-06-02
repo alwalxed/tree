@@ -274,7 +274,7 @@ async function buildTree({
 
 // === main entrypoint ===
 async function main() {
-  const CONTENT_ROOT = path.join(process.cwd(), 'public', 'content');
+  const CONTENT_ROOT = path.join(process.cwd(), 'content');
 
   console.log('🔍 Starting content validation and tree generation...\n');
 

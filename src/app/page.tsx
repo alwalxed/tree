@@ -9,6 +9,5 @@ export default function RootPage() {
 
   const target = `/learn/${subject}/${author}/${book}/`;
 
-  console.log('Redirecting to:', target);
   redirect(target);
 }

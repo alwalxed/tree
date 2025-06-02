@@ -2,7 +2,6 @@ import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NotFound() {
-  console.info('RAN: src/app/not-found.tsx');
   return (
     <main className="flex h-screen items-center justify-center bg-zinc-50 p-4">
       <div className="w-full max-w-sm text-center">
