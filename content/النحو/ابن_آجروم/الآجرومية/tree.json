@@ -5,8 +5,16 @@
     "slugWithPrefix": "١_مقدمة",
     "urlSafeSlug": "~1_~m~q~d~m~ta",
     "order": 1,
-    "parentPath": ["النحو", "ابن_آجروم", "الآجرومية"],
-    "parentPathWithPrefixedSlugs": ["النحو", "ابن_آجروم", "الآجرومية"],
+    "parentPath": [
+      "النحو",
+      "ابن_آجروم",
+      "الآجرومية"
+    ],
+    "parentPathWithPrefixedSlugs": [
+      "النحو",
+      "ابن_آجروم",
+      "الآجرومية"
+    ],
     "parentUrlSafePath": [
       "~a~l~n~h~w",
       "~a~b~n_~Aa~j~r~w~m",
