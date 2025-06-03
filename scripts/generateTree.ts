@@ -1,40 +1,101 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 import Fs from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { slugify } from 'reversible-arabic-slugifier';
+import type { Node } from '../src/lib/schema/bookTree.js';
 
-// === constants + helpers ===
+// ============================================================================
+// TYPES
+// ============================================================================
+
+type TreeNode = Node;
+
+interface ParsedDirName {
+  fileOrder: number;
+  fileName: string;
+  isPrefixed: boolean;
+  originalDirectoryName: string;
+}
+
+interface BuildTreeParams {
+  fileSystemBasePath: string;
+  dirNames?: string[];
+  slugs?: string[];
+  slugsWithPrefix?: string[];
+  urlSafeSlugs?: string[];
+  prefix?: string;
+  prefixWithPrefixes?: string;
+  urlSafePrefix?: string;
+  depth?: number;
+}
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
 const MIN_DEPTH_FOR_PREFIXED_DIRS = 3;
+const DEFAULT_ORDER = 0;
 
-function convertArabicNumeralsToEn(value) {
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+function convertArabicNumeralsToEn(value: string): string {
   const ar = '٠١٢٣٤٥٦٧٨٩';
   return value.replace(/[٠-٩]/g, (d) => String(ar.indexOf(d)));
 }
 
-function parseDirName({ directoryName, isDirectoryPrefixMandatory }) {
-  const DEFAULT_ORDER = 0;
+function requiresPrefix(depth: number): boolean {
+  return depth >= MIN_DEPTH_FOR_PREFIXED_DIRS;
+}
+
+function normalizeTitle(raw: string): string {
+  return raw.replace(/[^\u0600-\u06FF_]/g, '').replace(/_+/g, ' ');
+}
+
+function isLeafDirectory(children: TreeNode[]): boolean {
+  return children.length === 0;
+}
+
+// ============================================================================
+// DIRECTORY NAME PARSING
+// ============================================================================
+
+function parseDirName({ 
+  directoryName, 
+  isDirectoryPrefixMandatory 
+}: {
+  directoryName: string;
+  isDirectoryPrefixMandatory: boolean;
+}): ParsedDirName {
   if (/\.[a-z0-9]+$/i.test(directoryName)) {
     throw new Error(`"${directoryName}" must not contain an extension.`);
   }
-  const m = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
-  if (m) {
-    const [, prefix, rest] = m;
+
+  const match = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
+  
+  if (match) {
+    const [, prefix, rest] = match;
     const order = parseInt(convertArabicNumeralsToEn(prefix), 10);
+    
     if (isNaN(order)) {
       throw new Error(`Invalid numeric prefix in "${directoryName}"`);
     }
+    
     return {
       fileOrder: order,
       fileName: rest,
       isPrefixed: true,
-      originalDirectoryName: directoryName, // Keep the original name with prefix
+      originalDirectoryName: directoryName,
     };
   }
+
   if (isDirectoryPrefixMandatory) {
     throw new Error(`"${directoryName}" missing numeric prefix at this level.`);
   }
+
   return {
     fileOrder: DEFAULT_ORDER,
     fileName: directoryName,
@@ -43,17 +104,12 @@ function parseDirName({ directoryName, isDirectoryPrefixMandatory }) {
   };
 }
 
-function requiresPrefix(depth) {
-  return depth >= MIN_DEPTH_FOR_PREFIXED_DIRS;
-}
+// ============================================================================
+// VALIDATION FUNCTIONS
+// ============================================================================
 
-function normalizeTitle(raw) {
-  return raw.replace(/[^\u0600-\u06FF_]/g, '').replace(/_+/g, ' ');
-}
-
-// === VALIDATION FUNCTIONS ===
-function validateDirectoryName(dirName, dirPath, depth) {
-  const issues = [];
+function validateDirectoryName(dirName: string, dirPath: string, depth: number): void {
+  const issues: string[] = [];
 
   // Check if it should have a numeric prefix
   const shouldHavePrefix = requiresPrefix(depth);
@@ -86,17 +142,12 @@ function validateDirectoryName(dirName, dirPath, depth) {
   const withoutPrefixAndUnderscores = dirName
     .replace(/^[٠-٩0-9]+_+/, '')
     .replace(/_/g, '');
-  const hasNonArabicChars = /[^\u0600-\u06FF]/.test(
-    withoutPrefixAndUnderscores
-  );
+  const hasNonArabicChars = /[^\u0600-\u06FF]/.test(withoutPrefixAndUnderscores);
 
   if (hasNonArabicChars) {
-    const nonArabicChars =
-      withoutPrefixAndUnderscores.match(/[^\u0600-\u06FF]/g);
+    const nonArabicChars = withoutPrefixAndUnderscores.match(/[^\u0600-\u06FF]/g);
     if (nonArabicChars) {
-      issues.push(
-        `Contains non-Arabic characters: "${nonArabicChars.join(', ')}"`
-      );
+      issues.push(`Contains non-Arabic characters: "${nonArabicChars.join(', ')}"`);
     }
   }
 
@@ -116,7 +167,7 @@ function validateDirectoryName(dirName, dirPath, depth) {
   }
 }
 
-async function validateLeafDirectory(dirPath) {
+async function validateLeafDirectory(dirPath: string): Promise<void> {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     const hasIndexMd = entries.some(
@@ -138,7 +189,7 @@ async function validateLeafDirectory(dirPath) {
 
     otherFiles.forEach((file) => {
       const fileName = file.name;
-      const issues = [];
+      const issues: string[] = [];
 
       // Check for spaces in file names
       if (fileName.includes(' ')) {
@@ -163,29 +214,30 @@ async function validateLeafDirectory(dirPath) {
   }
 }
 
-function isLeafDirectory(children) {
-  return children.length === 0;
-}
+// ============================================================================
+// TREE BUILDING
+// ============================================================================
 
-// === the generic tree-builder ===
 async function buildTree({
   fileSystemBasePath,
   dirNames = [],
   slugs = [],
   slugsWithPrefix = [],
-  urlSafeSlugs = [], // New: URL-safe slugified versions
+  urlSafeSlugs = [],
   prefix = '',
   prefixWithPrefixes = '',
-  urlSafePrefix = '', // New: URL-safe prefix
+  urlSafePrefix = '',
   depth = 0,
-}) {
+}: BuildTreeParams): Promise<TreeNode[] | null> {
   const root = path.join(fileSystemBasePath, ...dirNames);
+  
   try {
     await fs.access(root, Fs.constants.R_OK);
   } catch {
     console.warn(`Cannot access ${root}`);
     return null;
   }
+
   let entries;
   try {
     entries = await fs.readdir(root, { withFileTypes: true });
@@ -194,7 +246,8 @@ async function buildTree({
     return null;
   }
 
-  const nodes = [];
+  const nodes: TreeNode[] = [];
+  
   for (const de of entries) {
     if (!de.isDirectory()) continue;
 
@@ -202,29 +255,28 @@ async function buildTree({
     const currentDirPath = path.join(root, de.name);
     validateDirectoryName(de.name, currentDirPath, depth);
 
-    let fileName, fileOrder, originalDirectoryName;
+    let fileName: string, fileOrder: number, originalDirectoryName: string;
+    
     try {
       ({ fileName, fileOrder, originalDirectoryName } = parseDirName({
         directoryName: de.name,
         isDirectoryPrefixMandatory: requiresPrefix(depth),
       }));
     } catch (err) {
-      console.warn(`Skipping "${de.name}" in ${root}: ${err.message}`);
+      console.warn(`Skipping "${de.name}" in ${root}: ${err instanceof Error ? err.message : 'Unknown error'}`);
       continue;
     }
 
     const title = normalizeTitle(fileName);
     const slug = fileName;
     const slugWithPrefix = originalDirectoryName;
-
-    // Generate URL-safe slug using reversible-arabic-slugifier
     const urlSafeSlug = slugify(originalDirectoryName);
 
     const newSlugs = [...slugs, slug];
     const newSlugsWithPrefix = [...slugsWithPrefix, slugWithPrefix];
     const newUrlSafeSlugs = [...urlSafeSlugs, urlSafeSlug];
 
-    // build the "flat" prefix (no leading slash)
+    // Build the "flat" prefix (no leading slash)
     const flatPrefix = prefix ? `${prefix}/${slug}` : slug;
     const flatPrefixWithPrefixes = prefixWithPrefixes
       ? `${prefixWithPrefixes}/${slugWithPrefix}`
@@ -233,7 +285,7 @@ async function buildTree({
       ? `${urlSafePrefix}/${urlSafeSlug}`
       : urlSafeSlug;
 
-    // make it absolute
+    // Make it absolute
     const fullPath = `/${flatPrefix}`;
     const fullPathWithPrefixes = `/${flatPrefixWithPrefixes}`;
     const fullUrlSafePath = `/${flatUrlSafePrefix}`;
@@ -249,20 +301,21 @@ async function buildTree({
       urlSafePrefix: flatUrlSafePrefix,
       depth: depth + 1,
     });
+    
     if (children === null) return null;
 
     nodes.push({
       title,
       slug,
       slugWithPrefix,
-      urlSafeSlug, // New: URL-safe version for routing
+      urlSafeSlug,
       order: fileOrder,
       parentPath: slugs,
       parentPathWithPrefixedSlugs: slugsWithPrefix,
-      parentUrlSafePath: urlSafeSlugs, // New: URL-safe parent path
+      parentUrlSafePath: urlSafeSlugs,
       fullPath,
       fullPathWithPrefixes,
-      fullUrlSafePath, // New: URL-safe full path
+      fullUrlSafePath,
       children,
     });
   }
@@ -276,11 +329,7 @@ async function buildTree({
   // Validate leaf directories
   for (const node of sortedNodes) {
     if (isLeafDirectory(node.children)) {
-      const leafPath = path.join(
-        fileSystemBasePath,
-        ...dirNames,
-        node.slugWithPrefix
-      );
+      const leafPath = path.join(fileSystemBasePath, ...dirNames, node.slugWithPrefix);
       await validateLeafDirectory(leafPath);
     }
   }
@@ -288,41 +337,23 @@ async function buildTree({
   return sortedNodes;
 }
 
-// === main entrypoint ===
-async function main() {
-  const CONTENT_ROOT = path.join(process.cwd(), 'content');
+// ============================================================================
+// TREE FILE GENERATION
+// ============================================================================
 
-  console.log('🔍 Starting content validation and tree generation...\n');
-
-  // build full tree from root
-  const baseTree = await buildTree({
-    fileSystemBasePath: CONTENT_ROOT,
-    slugs: [],
-    slugsWithPrefix: [],
-    urlSafeSlugs: [],
-    prefix: '',
-    prefixWithPrefixes: '',
-    urlSafePrefix: '',
-    depth: 0,
-  });
-  if (!baseTree) {
-    console.error('✖ failed to build base content tree');
-    process.exit(1);
-  }
-
+async function generateTreeFiles(baseTree: TreeNode[], contentRoot: string): Promise<void> {
   console.log('\n📁 Generating tree.json files...\n');
 
-  // for each subject/author/book, write a tree.json at depth 3
   for (const subject of baseTree) {
     for (const author of subject.children) {
       for (const book of author.children) {
         const lineageSlugs = [subject.slug, author.slug, book.slug];
-        const outDir = path.join(CONTENT_ROOT, ...lineageSlugs);
+        const outDir = path.join(contentRoot, ...lineageSlugs);
         const outFile = path.join(outDir, 'tree.json');
 
-        // build subtree
+        // Build subtree
         const subtree = await buildTree({
-          fileSystemBasePath: CONTENT_ROOT,
+          fileSystemBasePath: contentRoot,
           dirNames: lineageSlugs,
           slugs: lineageSlugs,
           slugsWithPrefix: [
@@ -348,48 +379,83 @@ async function main() {
           ].join('/'),
           depth: 3,
         });
+
         if (!subtree) {
           console.warn(`⚠ skipped tree for ${lineageSlugs.join('/')}`);
           continue;
         }
 
-        // prepare new content
-        const newContent = JSON.stringify(subtree, null, 2);
-
-        // read existing and compare
-        let existingRaw = null;
-        try {
-          existingRaw = await fs.readFile(outFile, 'utf-8');
-        } catch (err) {
-          if (err.code !== 'ENOENT') throw err;
-        }
-
-        let shouldWrite = true;
-        if (existingRaw !== null) {
-          try {
-            const existingObj = JSON.parse(existingRaw);
-            const oldContent = JSON.stringify(existingObj, null, 2);
-            if (oldContent === newContent) shouldWrite = false;
-          } catch {
-            // if parse fails, overwrite
-          }
-        }
-
-        if (shouldWrite) {
-          await fs.mkdir(outDir, { recursive: true });
-          await fs.writeFile(outFile, newContent, 'utf-8');
-          console.log(`✔ wrote ${path.relative(process.cwd(), outFile)}`);
-        } else {
-          console.log(
-            `✓ skip (no changes) ${path.relative(process.cwd(), outFile)}`
-          );
-        }
+        await writeTreeFile(outFile, subtree, outDir);
       }
     }
   }
+}
+
+async function writeTreeFile(outFile: string, subtree: TreeNode[], outDir: string): Promise<void> {
+  const newContent = JSON.stringify(subtree, null, 2);
+
+  // Read existing and compare
+  let existingRaw: string | null = null;
+  try {
+    existingRaw = await fs.readFile(outFile, 'utf-8');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+  }
+
+  let shouldWrite = true;
+  if (existingRaw !== null) {
+    try {
+      const existingObj = JSON.parse(existingRaw);
+      const oldContent = JSON.stringify(existingObj, null, 2);
+      if (oldContent === newContent) shouldWrite = false;
+    } catch {
+      // If parse fails, overwrite
+    }
+  }
+
+  if (shouldWrite) {
+    await fs.mkdir(outDir, { recursive: true });
+    await fs.writeFile(outFile, newContent, 'utf-8');
+    console.log(`✔ wrote ${path.relative(process.cwd(), outFile)}`);
+  } else {
+    console.log(`✓ skip (no changes) ${path.relative(process.cwd(), outFile)}`);
+  }
+}
+
+// ============================================================================
+// MAIN FUNCTION
+// ============================================================================
+
+async function main(): Promise<void> {
+  const CONTENT_ROOT = path.join(process.cwd(), 'content');
+
+  console.log('🔍 Starting content validation and tree generation...\n');
+
+  // Build full tree from root
+  const baseTree = await buildTree({
+    fileSystemBasePath: CONTENT_ROOT,
+    slugs: [],
+    slugsWithPrefix: [],
+    urlSafeSlugs: [],
+    prefix: '',
+    prefixWithPrefixes: '',
+    urlSafePrefix: '',
+    depth: 0,
+  });
+
+  if (!baseTree) {
+    console.error('✖ failed to build base content tree');
+    process.exit(1);
+  }
+
+  await generateTreeFiles(baseTree, CONTENT_ROOT);
 
   console.log('\n✅ Validation and tree generation completed!');
 }
+
+// ============================================================================
+// ENTRY POINT
+// ============================================================================
 
 main().catch((err) => {
   console.error(err);

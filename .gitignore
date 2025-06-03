@@ -5,6 +5,7 @@ repomix-output.xml
 ./public/og/*
 public/og/*
 /public/og/*
+public/sitemap.xml
 
 output.txt
 ./output.txt

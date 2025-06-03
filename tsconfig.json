@@ -20,16 +20,14 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "types": ["./env.d.ts", "node"]
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "content/النحو/سليمان_العيوني/النحو_الصغير/landing.js",
-    "scripts/generateTree.mjs"
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
