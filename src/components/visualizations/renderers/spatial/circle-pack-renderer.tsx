@@ -77,7 +77,7 @@ export const CirclePackRenderer = memo(
       // Set up pan-only interaction (no zoom)
       const panBehavior = d3
         .drag()
-        .on('start', function (event) {
+        .on('start', function () {
           svg.style('cursor', 'grabbing');
         })
         .on('drag', function (event) {
@@ -91,11 +91,11 @@ export const CirclePackRenderer = memo(
 
           g.attr('transform', newTransform.toString());
         })
-        .on('end', function (event) {
+        .on('end', function () {
           svg.style('cursor', 'grab');
         });
 
-      // Apply pan behavior to SVG
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       svg.style('cursor', 'grab').call(panBehavior as any);
 
       // Function to wrap text
