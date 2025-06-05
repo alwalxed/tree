@@ -43,21 +43,16 @@ export function useSidebar({
     [pathname, homeHref]
   );
 
-  // Helper function to build URL-safe href from node
   const buildNodeHref = useCallback((node: Node): string => {
-    // Use urlSafeSlug if available, otherwise convert slugWithPrefix
     const urlSafeSlug = node.urlSafeSlug || slugify(node.slugWithPrefix);
 
-    // Build URL-safe path by converting each segment
     const buildUrlSafePath = (targetNode: Node): string => {
       const pathParts: string[] = [];
 
-      // Get parent path segments and convert them to URL-safe
       if (targetNode.parentPathWithPrefixedSlugs) {
         pathParts.push(...targetNode.parentPathWithPrefixedSlugs.map(slugify));
       }
 
-      // Add current node's URL-safe slug
       pathParts.push(urlSafeSlug);
 
       return `/${pathParts.join('/')}`;
@@ -86,23 +81,16 @@ export function useSidebar({
     return walk(tree);
   }, [tree, buildNodeHref]);
 
-  const getAllPathsWithChildren = useCallback(
-    (nodes: Node[]): string[] => {
-      let paths: string[] = [];
-      for (const node of nodes) {
-        if (node.children.length > 0) {
-          // Use URL-safe path for expansion tracking
-          const urlSafePath = node.urlSafeSlug
-            ? node.fullUrlSafePath || buildNodeHref(node)
-            : slugify(node.fullPathWithPrefixes);
-          paths.push(urlSafePath);
-          paths = paths.concat(getAllPathsWithChildren(node.children));
-        }
+  const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
+    let paths: string[] = [];
+    for (const node of nodes) {
+      if (node.children.length > 0) {
+        paths.push(node.fullPathWithPrefixes);
+        paths = paths.concat(getAllPathsWithChildren(node.children));
       }
-      return paths;
-    },
-    [buildNodeHref]
-  );
+    }
+    return paths;
+  }, []);
 
   const expandAll = useCallback(() => {
     const allPaths = getAllPathsWithChildren(tree);
@@ -133,7 +121,7 @@ export function useSidebar({
       isCurrentPage,
       toggleAll,
       homeHref,
-      buildNodeHref, // Expose this helper for other components
+      buildNodeHref,
     }),
     [
       flatItems,
@@ -153,7 +141,6 @@ export function buildLearnHref(raw: string): string {
   return LEARN_BASE + p;
 }
 
-// Helper function to convert a full Arabic path to URL-safe path
 export function convertToUrlSafePath(arabicPath: string): string {
   return arabicPath.split('/').filter(Boolean).map(slugify).join('/');
 }

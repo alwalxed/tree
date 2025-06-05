@@ -1,7 +1,9 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import {
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupAction,
   SidebarGroupContent,
@@ -21,8 +23,9 @@ import {
   ChevronsDownUp,
   FileText,
   Folder,
+  Search,
 } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 
 type SidebarProps = {
   tree: Node[];
@@ -31,6 +34,8 @@ type SidebarProps = {
 };
 
 export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const {
     flatItems,
     expandedSections,
@@ -39,6 +44,27 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
     toggleAll,
     homeHref,
   } = useSidebar({ tree, bookUrlPath });
+
+  const isSearching = searchQuery.trim().length > 0;
+
+  const shouldShowItem = (item: (typeof flatItems)[0]) => {
+    if (isSearching) {
+      const itemTitle = item.node.title.toLowerCase();
+      const searchTerm = searchQuery.toLowerCase().trim();
+      return itemTitle.includes(searchTerm);
+    }
+
+    if (item.level > 0 && !expandedSections[item.parentNodeFullPath!]) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const visibleItems = flatItems.filter(shouldShowItem);
+  const homeMatches =
+    !isSearching ||
+    'مقدمة'.toLowerCase().includes(searchQuery.toLowerCase().trim());
 
   return (
     <UISidebar side="right">
@@ -56,24 +82,29 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Home link */}
-              <SidebarMenuItem key="__home">
-                <SidebarMenuButton
-                  asChild
-                  isActive={isCurrentPage('__home')}
-                  className="pl-1.5"
-                >
-                  <a href={homeHref}>
-                    <BookOpen className="h-4 w-4 shrink-0" />
-                    <span>مقدمة</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Home link - show if not searching or matches search */}
+              {homeMatches && (
+                <SidebarMenuItem key="__home">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isCurrentPage('__home')}
+                    className="pl-1.5"
+                  >
+                    <a href={homeHref}>
+                      <BookOpen className="h-4 w-4 shrink-0" />
+                      <span>مقدمة</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
 
               {flatItems.map(({ node, level, parentNodeFullPath, href }) => {
-                if (level > 0 && !expandedSections[parentNodeFullPath!]) {
+                if (
+                  !shouldShowItem({ node, level, parentNodeFullPath, href })
+                ) {
                   return null;
                 }
+
                 const hasChildren = node.children.length > 0;
                 const isExpanded =
                   hasChildren && !!expandedSections[node.fullPathWithPrefixes];
@@ -118,10 +149,33 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
                   </SidebarMenuItem>
                 );
               })}
+
+              {/* Show message when searching and no results found */}
+              {isSearching && visibleItems.length === 0 && !homeMatches && (
+                <SidebarMenuItem>
+                  <div className="text-muted-foreground px-2 py-3 text-center text-sm">
+                    لا توجد نتائج
+                  </div>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <div className="relative">
+          <Search className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            type="text"
+            placeholder="بحث..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pr-10 text-right"
+            dir="rtl"
+          />
+        </div>
+      </SidebarFooter>
     </UISidebar>
   );
 }
