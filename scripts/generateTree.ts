@@ -63,9 +63,9 @@ function isLeafDirectory(children: TreeNode[]): boolean {
 // DIRECTORY NAME PARSING
 // ============================================================================
 
-function parseDirName({ 
-  directoryName, 
-  isDirectoryPrefixMandatory 
+function parseDirName({
+  directoryName,
+  isDirectoryPrefixMandatory,
 }: {
   directoryName: string;
   isDirectoryPrefixMandatory: boolean;
@@ -75,15 +75,15 @@ function parseDirName({
   }
 
   const match = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
-  
+
   if (match) {
     const [, prefix, rest] = match;
     const order = parseInt(convertArabicNumeralsToEn(prefix), 10);
-    
+
     if (isNaN(order)) {
       throw new Error(`Invalid numeric prefix in "${directoryName}"`);
     }
-    
+
     return {
       fileOrder: order,
       fileName: rest,
@@ -108,7 +108,11 @@ function parseDirName({
 // VALIDATION FUNCTIONS
 // ============================================================================
 
-function validateDirectoryName(dirName: string, dirPath: string, depth: number): void {
+function validateDirectoryName(
+  dirName: string,
+  dirPath: string,
+  depth: number
+): void {
   const issues: string[] = [];
 
   // Check if it should have a numeric prefix
@@ -142,12 +146,17 @@ function validateDirectoryName(dirName: string, dirPath: string, depth: number):
   const withoutPrefixAndUnderscores = dirName
     .replace(/^[٠-٩0-9]+_+/, '')
     .replace(/_/g, '');
-  const hasNonArabicChars = /[^\u0600-\u06FF]/.test(withoutPrefixAndUnderscores);
+  const hasNonArabicChars = /[^\u0600-\u06FF]/.test(
+    withoutPrefixAndUnderscores
+  );
 
   if (hasNonArabicChars) {
-    const nonArabicChars = withoutPrefixAndUnderscores.match(/[^\u0600-\u06FF]/g);
+    const nonArabicChars =
+      withoutPrefixAndUnderscores.match(/[^\u0600-\u06FF]/g);
     if (nonArabicChars) {
-      issues.push(`Contains non-Arabic characters: "${nonArabicChars.join(', ')}"`);
+      issues.push(
+        `Contains non-Arabic characters: "${nonArabicChars.join(', ')}"`
+      );
     }
   }
 
@@ -230,7 +239,7 @@ async function buildTree({
   depth = 0,
 }: BuildTreeParams): Promise<TreeNode[] | null> {
   const root = path.join(fileSystemBasePath, ...dirNames);
-  
+
   try {
     await fs.access(root, Fs.constants.R_OK);
   } catch {
@@ -247,7 +256,7 @@ async function buildTree({
   }
 
   const nodes: TreeNode[] = [];
-  
+
   for (const de of entries) {
     if (!de.isDirectory()) continue;
 
@@ -256,14 +265,16 @@ async function buildTree({
     validateDirectoryName(de.name, currentDirPath, depth);
 
     let fileName: string, fileOrder: number, originalDirectoryName: string;
-    
+
     try {
       ({ fileName, fileOrder, originalDirectoryName } = parseDirName({
         directoryName: de.name,
         isDirectoryPrefixMandatory: requiresPrefix(depth),
       }));
     } catch (err) {
-      console.warn(`Skipping "${de.name}" in ${root}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.warn(
+        `Skipping "${de.name}" in ${root}: ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
       continue;
     }
 
@@ -301,7 +312,7 @@ async function buildTree({
       urlSafePrefix: flatUrlSafePrefix,
       depth: depth + 1,
     });
-    
+
     if (children === null) return null;
 
     nodes.push({
@@ -329,7 +340,11 @@ async function buildTree({
   // Validate leaf directories
   for (const node of sortedNodes) {
     if (isLeafDirectory(node.children)) {
-      const leafPath = path.join(fileSystemBasePath, ...dirNames, node.slugWithPrefix);
+      const leafPath = path.join(
+        fileSystemBasePath,
+        ...dirNames,
+        node.slugWithPrefix
+      );
       await validateLeafDirectory(leafPath);
     }
   }
@@ -341,7 +356,10 @@ async function buildTree({
 // TREE FILE GENERATION
 // ============================================================================
 
-async function generateTreeFiles(baseTree: TreeNode[], contentRoot: string): Promise<void> {
+async function generateTreeFiles(
+  baseTree: TreeNode[],
+  contentRoot: string
+): Promise<void> {
   console.log('\n📁 Generating tree.json files...\n');
 
   for (const subject of baseTree) {
@@ -391,7 +409,11 @@ async function generateTreeFiles(baseTree: TreeNode[], contentRoot: string): Pro
   }
 }
 
-async function writeTreeFile(outFile: string, subtree: TreeNode[], outDir: string): Promise<void> {
+async function writeTreeFile(
+  outFile: string,
+  subtree: TreeNode[],
+  outDir: string
+): Promise<void> {
   const newContent = JSON.stringify(subtree, null, 2);
 
   // Read existing and compare

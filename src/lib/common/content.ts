@@ -31,7 +31,7 @@ export async function listAllBooks(): Promise<BookParams[]> {
       const subjectStat = await fs.stat(subjectPath);
 
       if (!subjectStat.isDirectory()) {
-        console.log(`Skipping ${ subject } - not a directory`);
+        console.log(`Skipping ${subject} - not a directory`);
         continue;
       }
 
@@ -42,7 +42,7 @@ export async function listAllBooks(): Promise<BookParams[]> {
         const authorStat = await fs.stat(authorPath);
 
         if (!authorStat.isDirectory()) {
-          console.log(`Skipping ${ author } - not a directory`);
+          console.log(`Skipping ${author} - not a directory`);
           continue;
         }
 
@@ -55,7 +55,7 @@ export async function listAllBooks(): Promise<BookParams[]> {
           if (bookStat.isDirectory()) {
             out.push({ subject, author, book });
           } else {
-            console.log(`Skipping ${ book } - not a directory`);
+            console.log(`Skipping ${book} - not a directory`);
           }
         }
       }
@@ -78,7 +78,7 @@ export async function listAllPages(): Promise<PageParams[]> {
   }
 
   for (const { subject, author, book } of books) {
-    const bookPathIdentifier = `${ subject }/${ author }/${ book }`;
+    const bookPathIdentifier = `${subject}/${author}/${book}`;
 
     const treeFilePath = path.join(
       CONTENT_DIR,
@@ -94,7 +94,7 @@ export async function listAllPages(): Promise<PageParams[]> {
 
       if (!parsed.success) {
         console.error(
-          `Error parsing tree.json for ${ bookPathIdentifier }:`,
+          `Error parsing tree.json for ${bookPathIdentifier}:`,
           parsed.error
         );
         throw parsed.error;
@@ -107,7 +107,7 @@ export async function listAllPages(): Promise<PageParams[]> {
         currentPathParts: string[] = []
       ) {
         for (const node of nodes) {
-          const newPathParts = [ ...currentPathParts, node.slugWithPrefix ];
+          const newPathParts = [...currentPathParts, node.slugWithPrefix];
 
           if (!node.children || node.children.length === 0) {
             const filePath = path.join(
@@ -126,7 +126,7 @@ export async function listAllPages(): Promise<PageParams[]> {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
               console.warn(
-                `Warning: Expected file does not exist: ${ filePath }. Skipping this page.`
+                `Warning: Expected file does not exist: ${filePath}. Skipping this page.`
               );
             }
           } else {
@@ -140,11 +140,11 @@ export async function listAllPages(): Promise<PageParams[]> {
     } catch (error: any) {
       if (error.code === 'ENOENT') {
         console.warn(
-          `Warning: tree.json not found for ${ bookPathIdentifier } at ${ treeFilePath }. Skipping this book for page listing.`
+          `Warning: tree.json not found for ${bookPathIdentifier} at ${treeFilePath}. Skipping this book for page listing.`
         );
       } else {
         console.error(
-          `Error processing tree.json or walking tree for ${ bookPathIdentifier }:`,
+          `Error processing tree.json or walking tree for ${bookPathIdentifier}:`,
           error
         );
         throw error;
@@ -223,8 +223,8 @@ export async function loadPage(params: PageParams): Promise<Content> {
     return parsed.data;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error(`File not found: ${ filePath }`);
-    throw new Error(`Content file not found: ${ filePath }`);
+    console.error(`File not found: ${filePath}`);
+    throw new Error(`Content file not found: ${filePath}`);
   }
 }
 

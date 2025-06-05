@@ -62,7 +62,7 @@ async function generateSitemap() {
         url: `${SITE_URL}/learn/${urlSafePath}`,
         lastModified: currentDate,
         changeFrequency: 'weekly',
-        priority: '0.8',
+        priority: '0.9',
       });
     });
 
@@ -74,8 +74,8 @@ async function generateSitemap() {
       sitemapEntries.push({
         url: `${SITE_URL}/learn/${urlSafePath}`,
         lastModified: currentDate,
-        changeFrequency: 'monthly',
-        priority: '0.6',
+        changeFrequency: 'weekly',
+        priority: '0.8',
       });
     });
 

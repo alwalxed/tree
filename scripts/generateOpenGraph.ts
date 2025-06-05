@@ -37,7 +37,13 @@ function escapeXml(unsafe: string): string {
   });
 }
 
-function calculateOptimalFontSize(text: string, maxWidth: number, maxHeight: number, minFontSize: number = 16, maxFontSize: number = 60): { fontSize: number; lines: string[]; } {
+function calculateOptimalFontSize(
+  text: string,
+  maxWidth: number,
+  maxHeight: number,
+  minFontSize: number = 16,
+  maxFontSize: number = 60
+): { fontSize: number; lines: string[] } {
   let fontSize = maxFontSize;
   let lines: string[] = [];
 
@@ -124,7 +130,7 @@ function generateOpenGraphSVG(breadcrumb: string): string {
   const titleHeight = titleFontSize * 1.2;
 
   // Calculate available space for breadcrumb
-  const maxBreadcrumbWidth = WIDTH - (horizontalMargin * 2);
+  const maxBreadcrumbWidth = WIDTH - horizontalMargin * 2;
   const titleBottomY = verticalMargin + titleHeight;
 
   // Gap between title and breadcrumb
@@ -135,26 +141,28 @@ function generateOpenGraphSVG(breadcrumb: string): string {
   const maxBreadcrumbHeight = HEIGHT - breadcrumbStartY - verticalMargin;
 
   // Calculate optimal font size and lines for breadcrumb
-  const { fontSize: breadcrumbFontSize, lines: breadcrumbLines } = calculateOptimalFontSize(
-    breadcrumb,
-    maxBreadcrumbWidth,
-    maxBreadcrumbHeight,
-    22, // min font size
-    48  // max font size
-  );
+  const { fontSize: breadcrumbFontSize, lines: breadcrumbLines } =
+    calculateOptimalFontSize(
+      breadcrumb,
+      maxBreadcrumbWidth,
+      maxBreadcrumbHeight,
+      22, // min font size
+      48 // max font size
+    );
 
   const lineHeight = breadcrumbFontSize * 1.6;
   const totalBreadcrumbHeight = breadcrumbLines.length * lineHeight;
 
   // Center the breadcrumb vertically in available space
-  const breadcrumbCenterY = breadcrumbStartY + (maxBreadcrumbHeight - totalBreadcrumbHeight) / 2;
+  const breadcrumbCenterY =
+    breadcrumbStartY + (maxBreadcrumbHeight - totalBreadcrumbHeight) / 2;
   const firstLineY = breadcrumbCenterY + breadcrumbFontSize;
 
   const escapedLines = breadcrumbLines.map(escapeXml);
   const escapedTitle = escapeXml('شجرة');
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${ WIDTH }" height="${ HEIGHT }" xmlns="http://www.w3.org/2000/svg">
+<svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Gradient background -->
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -169,51 +177,54 @@ function generateOpenGraphSVG(breadcrumb: string): string {
   </defs>
   
   <!-- Gradient background -->
-  <rect width="${ WIDTH }" height="${ HEIGHT }" fill="url(#bgGradient)"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bgGradient)"/>
   
   <!-- Subtle border -->
-  <rect x="2" y="2" width="${ WIDTH - 4 }" height="${ HEIGHT - 4 }" fill="none" stroke="#cbd5e1" stroke-width="2" rx="8"/>
+  <rect x="2" y="2" width="${WIDTH - 4}" height="${HEIGHT - 4}" fill="none" stroke="#cbd5e1" stroke-width="2" rx="8"/>
   
   <!-- Site title - centered with proper spacing -->
-  <text x="${ WIDTH / 2 }" y="${ verticalMargin + titleFontSize }" 
+  <text x="${WIDTH / 2}" y="${verticalMargin + titleFontSize}" 
         font-family="system-ui, -apple-system, Arial, sans-serif" 
-        font-size="${ titleFontSize }" 
+        font-size="${titleFontSize}" 
         font-weight="900" 
         fill="#0f172a" 
         text-anchor="middle" 
         direction="rtl" 
-        filter="url(#textShadow)">${ escapedTitle }</text>
+        filter="url(#textShadow)">${escapedTitle}</text>
   
   <!-- Breadcrumb lines - dynamically sized and centered -->
-  ${ escapedLines
-      .map(
-        (line, index) => `
-  <text x="${ WIDTH / 2 }" y="${ firstLineY + index * lineHeight }" 
+  ${escapedLines
+    .map(
+      (line, index) => `
+  <text x="${WIDTH / 2}" y="${firstLineY + index * lineHeight}" 
         font-family="system-ui, -apple-system, Arial, sans-serif" 
-        font-size="${ breadcrumbFontSize }" 
+        font-size="${breadcrumbFontSize}" 
         font-weight="500"
         fill="#1e293b" 
         text-anchor="middle" 
-        direction="rtl">${ line }</text>`
-      )
-      .join('') }
+        direction="rtl">${line}</text>`
+    )
+    .join('')}
 </svg>`;
 
   return svg;
 }
 
-async function convertSvgToPng(svgContent: string, outputPath: string): Promise<void> {
+async function convertSvgToPng(
+  svgContent: string,
+  outputPath: string
+): Promise<void> {
   try {
     await sharp(Buffer.from(svgContent))
       .png({
         quality: 90,
         compressionLevel: 9,
         adaptiveFiltering: true,
-        force: true
+        force: true,
       })
       .toFile(outputPath);
   } catch (error) {
-    console.error(`Error converting SVG to PNG for ${ outputPath }:`, error);
+    console.error(`Error converting SVG to PNG for ${outputPath}:`, error);
     throw error;
   }
 }
@@ -225,7 +236,7 @@ async function generateAllOpenGraphImages() {
     // Create output directory
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-    const [ books, pages ] = await Promise.all([ listAllBooks(), listAllPages() ]);
+    const [books, pages] = await Promise.all([listAllBooks(), listAllPages()]);
 
     let generatedCount = 0;
 
@@ -237,8 +248,8 @@ async function generateAllOpenGraphImages() {
 
     // Generate book images
     for (const { subject, author, book } of books) {
-      const urlSafePath = [ subject, author, book ].map(slugify);
-      const breadcrumb = createBreadcrumb([ subject, author, book ]);
+      const urlSafePath = [subject, author, book].map(slugify);
+      const breadcrumb = createBreadcrumb([subject, author, book]);
       const filename = urlSafePath.join('-') + '.png';
 
       const image = generateOpenGraphSVG(breadcrumb);
@@ -246,14 +257,14 @@ async function generateAllOpenGraphImages() {
       generatedCount++;
 
       if (generatedCount % 10 === 0) {
-        console.log(`📊 Generated ${ generatedCount } images so far...`);
+        console.log(`📊 Generated ${generatedCount} images so far...`);
       }
     }
 
     // Generate page images
     for (const { subject, author, book, slug } of pages) {
-      const urlSafePath = [ subject, author, book, ...slug ].map(slugify);
-      const breadcrumb = createBreadcrumb([ subject, author, book, ...slug ]);
+      const urlSafePath = [subject, author, book, ...slug].map(slugify);
+      const breadcrumb = createBreadcrumb([subject, author, book, ...slug]);
       const filename = urlSafePath.join('-') + '.png';
 
       const image = generateOpenGraphSVG(breadcrumb);
@@ -261,15 +272,15 @@ async function generateAllOpenGraphImages() {
       generatedCount++;
 
       if (generatedCount % 50 === 0) {
-        console.log(`📊 Generated ${ generatedCount } images so far...`);
+        console.log(`📊 Generated ${generatedCount} images so far...`);
       }
     }
 
     console.log(
-      `✅ Generated ${ generatedCount } OpenGraph PNG images successfully`
+      `✅ Generated ${generatedCount} OpenGraph PNG images successfully`
     );
     console.log(
-      `📁 Images saved to: ${ path.relative(process.cwd(), OUTPUT_DIR) }`
+      `📁 Images saved to: ${path.relative(process.cwd(), OUTPUT_DIR)}`
     );
   } catch (error) {
     console.error('❌ Error generating OpenGraph images:', error);
@@ -279,7 +290,7 @@ async function generateAllOpenGraphImages() {
 
 export function generateSingleOGImage(urlPath: string): string {
   const parts = urlPath.split('/').filter(Boolean);
-  if (parts[ 0 ] === 'learn') parts.shift();
+  if (parts[0] === 'learn') parts.shift();
 
   const filename = parts.map(slugify).join('-') + '.png';
   return filename;
