@@ -16,6 +16,14 @@ import { Node } from '@/lib/schema/bookTree';
 import type { Metadata } from 'next';
 import { deslugify, slugify } from 'reversible-arabic-slugifier';
 
+// Import our new navigation components
+import { ArticleNavigation } from '@/components/navigation/article-navigation';
+import {
+  Breadcrumbs,
+  generateBreadcrumbsFromPath,
+} from '@/components/navigation/breadcrumbs';
+import { NavigationHelper } from '@/components/navigation/navigation-utilities';
+
 export async function generateStaticParams() {
   try {
     const pages = await listAllPages();
@@ -185,11 +193,15 @@ export default async function Page({ params }: Props) {
 
   // Build the current page URL
   const currentUrl = `${SITE_URL}/learn/${parts.join('/')}`;
+  const currentPath = `/learn/${parts.join('/')}`;
 
   // Clean up names for display and structured data
   const cleanBookName = book.replace(/_/g, ' ');
   const cleanAuthorName = author.replace(/_/g, ' ');
   const cleanSubject = subject.replace(/_/g, ' ');
+
+  // Generate breadcrumbs for all pages
+  const breadcrumbs = generateBreadcrumbsFromPath(currentPath);
 
   if (restSlug.length === 0) {
     try {
@@ -208,36 +220,41 @@ export default async function Page({ params }: Props) {
             url={currentUrl}
           />
 
-          <div className="flex w-full flex-col gap-16">
-            {cfg.sections?.map((sec, i) => {
-              if (sec.type === 'text') {
-                return (
-                  <Section key={i}>
-                    <Section.H level={2}>{sec.title}</Section.H>
-                    <Section.P>
-                      {sec.content.map((line, j) => (
-                        <span key={j}>
-                          {line}
-                          <br />
-                        </span>
-                      ))}
-                    </Section.P>
-                  </Section>
-                );
-              }
-              if (sec.type === 'visualization') {
-                const nodes = (tree as Node[]).filter((n) =>
-                  n.title.includes(sec.chapterIdentifier)
-                );
-                return (
-                  <Section key={i}>
-                    <Section.H level={2}>{sec.title}</Section.H>
-                    <VisualizationSwitcher nodes={nodes} />
-                  </Section>
-                );
-              }
-              return null;
-            })}
+          <div className="flex w-full flex-col gap-6">
+            {/* Breadcrumbs for book root */}
+            <Breadcrumbs items={breadcrumbs} className="mb-4" />
+
+            <div className="flex flex-col gap-16">
+              {cfg.sections?.map((sec, i) => {
+                if (sec.type === 'text') {
+                  return (
+                    <Section key={i}>
+                      <Section.H level={2}>{sec.title}</Section.H>
+                      <Section.P>
+                        {sec.content.map((line, j) => (
+                          <span key={j}>
+                            {line}
+                            <br />
+                          </span>
+                        ))}
+                      </Section.P>
+                    </Section>
+                  );
+                }
+                if (sec.type === 'visualization') {
+                  const nodes = (tree as Node[]).filter((n) =>
+                    n.title.includes(sec.chapterIdentifier)
+                  );
+                  return (
+                    <Section key={i}>
+                      <Section.H level={2}>{sec.title}</Section.H>
+                      <VisualizationSwitcher nodes={nodes} />
+                    </Section>
+                  );
+                }
+                return null;
+              })}
+            </div>
           </div>
         </>
       );
@@ -252,7 +269,21 @@ export default async function Page({ params }: Props) {
 
   try {
     const content: Content = await loadPage(real);
+    const tree = await loadTree(real);
     const pageTitle = content.title || 'صفحة بدون عنوان';
+
+    // Set up navigation helper
+    const bookBasePath = `/learn/${parts.slice(0, 3).join('/')}`;
+    const navigationHelper = new NavigationHelper(tree, bookBasePath);
+
+    // Get navigation for current page
+    const navigation = navigationHelper.getNavigation(restSlug);
+
+    // Update breadcrumbs with actual page title
+    const enhancedBreadcrumbs = generateBreadcrumbsFromPath(
+      currentPath,
+      pageTitle
+    );
 
     return (
       <>
@@ -270,9 +301,36 @@ export default async function Page({ params }: Props) {
           dateModified={new Date().toISOString()}
         />
 
-        <article className="prose w-full">
-          <MarkdownRenderer content={content.contentHtml} />
-        </article>
+        <div className="flex w-full flex-col">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={enhancedBreadcrumbs} className="mb-6" />
+
+          {/* Article Content */}
+          <article className="prose w-full">
+            <MarkdownRenderer content={content.contentHtml} />
+          </article>
+
+          {/* Article Navigation */}
+          <ArticleNavigation
+            previousArticle={
+              navigation.previous
+                ? {
+                    title: navigation.previous.title,
+                    href: navigation.previous.href,
+                  }
+                : undefined
+            }
+            nextArticle={
+              navigation.next
+                ? {
+                    title: navigation.next.title,
+                    href: navigation.next.href,
+                  }
+                : undefined
+            }
+            className="mt-8"
+          />
+        </div>
       </>
     );
   } catch (error) {
