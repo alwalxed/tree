@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export type Node = {
-  urlSafeSlug?: string;
+  urlSafeSlug: string;
   parentUrlSafePath?: string[];
   fullUrlSafePath?: string;
   title: string;
@@ -18,7 +18,7 @@ export type Node = {
 export const NodeSchema: z.ZodType<Node> = z.lazy(() =>
   z
     .object({
-      urlSafeSlug: z.string().optional(),
+      urlSafeSlug: z.string(),
       parentUrlSafePath: z.array(z.string()).optional(),
       fullUrlSafePath: z.string().optional(),
       title: z.string().min(1),
@@ -45,7 +45,7 @@ export const TreeSchema = z
         if (seen.has(node.fullPath)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Duplicate fullPath at depth ≥ 3: ${node.fullPath}`,
+            message: `Duplicate fullPath at depth ≥ 3: ${ node.fullPath }`,
           });
         }
         seen.add(node.fullPath);
