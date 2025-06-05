@@ -2,7 +2,7 @@
 
 import type { Node } from '@/lib/schema/bookTree';
 import * as d3 from 'd3';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 export type CirclePackRendererProps = {
   nodes: Node[];
@@ -19,6 +19,32 @@ export const CirclePackRenderer = memo(
   ({ nodes, width = 800, height = 800 }: CirclePackRendererProps) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [dimensions, setDimensions] = useState({ width, height });
+
+    useEffect(() => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const updateDimensions = () => {
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          setDimensions({
+            width: rect.width || width,
+            height: rect.height || height,
+          });
+        }
+      };
+
+      updateDimensions();
+
+      const resizeObserver = new ResizeObserver(updateDimensions);
+      resizeObserver.observe(el);
+
+      return () => {
+        resizeObserver.unobserve(el);
+        resizeObserver.disconnect();
+      };
+    }, [width, height]);
 
     useEffect(() => {
       if (!svgRef.current || !containerRef.current || nodes.length === 0)
@@ -35,25 +61,42 @@ export const CirclePackRenderer = memo(
         .sum((d) => Math.max(20, d.title.length)); // Base size on text length
 
       // Create the pack layout with proper typing
-      const pack = d3.pack<HierarchyData>().size([width, height]).padding(20);
+      const pack = d3
+        .pack<HierarchyData>()
+        .size([dimensions.width, dimensions.height])
+        .padding(20);
       const packedData = pack(root);
 
       // Create the visualization
       const svg = d3.select(svgRef.current);
       svg.selectAll('*').remove(); // Clear previous content
 
-      // Create a container for zooming
+      // Create a container for panning
       const g = svg.append('g');
 
-      // Add zoom behavior
-      const zoom = d3
-        .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.1, 4])
-        .on('zoom', (event) => {
-          g.attr('transform', event.transform);
+      // Set up pan-only interaction (no zoom)
+      const panBehavior = d3
+        .drag()
+        .on('start', function (event) {
+          svg.style('cursor', 'grabbing');
+        })
+        .on('drag', function (event) {
+          const currentTransform = d3.zoomTransform(g.node()!);
+          const newTransform = d3.zoomIdentity
+            .translate(
+              currentTransform.x + event.dx,
+              currentTransform.y + event.dy
+            )
+            .scale(currentTransform.k);
+
+          g.attr('transform', newTransform.toString());
+        })
+        .on('end', function (event) {
+          svg.style('cursor', 'grab');
         });
 
-      svg.call(zoom);
+      // Apply pan behavior to SVG
+      svg.style('cursor', 'grab').call(panBehavior as any);
 
       // Function to wrap text
       function wrap(
@@ -188,6 +231,7 @@ export const CirclePackRenderer = memo(
         .attr('stroke', '#999')
         .attr('stroke-width', 1)
         .style('cursor', 'pointer')
+        .style('pointer-events', 'none') // Disable click events since we removed zoom
         .on('mouseover', function () {
           d3.select(this).attr('stroke-width', 2);
         })
@@ -204,6 +248,7 @@ export const CirclePackRenderer = memo(
         .attr('stroke', '#999')
         .attr('stroke-width', 1)
         .style('cursor', 'pointer')
+        .style('pointer-events', 'none') // Disable click events since we removed zoom
         .on('mouseover', function () {
           d3.select(this).attr('stroke-width', 2);
         })
@@ -239,30 +284,61 @@ export const CirclePackRenderer = memo(
         wrap(d3.select(this), wrapWidth);
       });
 
-      // Add double-click to zoom behavior
-      node.on('dblclick', (event, d) => {
-        event.stopPropagation();
-        const dx = d.x;
-        const dy = d.y;
-        const scale = Math.min(width / (d.r * 2), height / (d.r * 2)) * 0.9;
+      // Calculate initial centering and default zoom
+      const bounds = g.node()?.getBBox();
+      if (bounds) {
+        const isMobile = window.innerWidth < 768;
+        // Default zoom scale - quite zoomed in
+        const defaultScale = isMobile ? 1.2 : 1.8;
 
-        svg
-          .transition()
-          .duration(750)
-          .call(
-            zoom.transform,
-            d3.zoomIdentity
-              .translate(width / 2, height / 2)
-              .scale(scale)
-              .translate(-dx, -dy)
-          );
-      });
+        // Calculate center position of the packed circles
+        const contentCenterX = bounds.x + bounds.width / 2;
+        const contentCenterY = bounds.y + bounds.height / 2;
 
-      // Add double-click on background to reset zoom
-      svg.on('dblclick', () => {
-        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-      });
-    }, [nodes, width, height]);
+        const viewportCenterX = dimensions.width / 2;
+        const viewportCenterY = dimensions.height / 2;
+
+        // Calculate translation to center the content at the default scale
+        const translateX = viewportCenterX - contentCenterX * defaultScale;
+        const translateY = viewportCenterY - contentCenterY * defaultScale;
+
+        // Apply the initial transform
+        const initialTransform = d3.zoomIdentity
+          .translate(translateX, translateY)
+          .scale(defaultScale);
+
+        g.attr('transform', initialTransform.toString());
+      }
+
+      // Re-center function for window resize
+      const recenter = () => {
+        const bounds = g.node()?.getBBox();
+        if (bounds) {
+          const currentTransform = d3.zoomTransform(g.node()!);
+          const currentScale = currentTransform.k;
+
+          const contentCenterX = bounds.x + bounds.width / 2;
+          const contentCenterY = bounds.y + bounds.height / 2;
+
+          const viewportCenterX = dimensions.width / 2;
+          const viewportCenterY = dimensions.height / 2;
+
+          const translateX = viewportCenterX - contentCenterX * currentScale;
+          const translateY = viewportCenterY - contentCenterY * currentScale;
+
+          const centeredTransform = d3.zoomIdentity
+            .translate(translateX, translateY)
+            .scale(currentScale);
+
+          g.transition()
+            .duration(300)
+            .attr('transform', centeredTransform.toString());
+        }
+      };
+
+      // Add a small delay to ensure proper centering after render
+      setTimeout(recenter, 50);
+    }, [nodes, dimensions.width, dimensions.height]);
 
     return (
       <div
@@ -274,7 +350,7 @@ export const CirclePackRenderer = memo(
           ref={svgRef}
           width={'100%'}
           height={'100%'}
-          viewBox={`0 0 ${width} ${height}`}
+          viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
           style={{ maxWidth: '100%', height: 'auto' }}
         />
       </div>
