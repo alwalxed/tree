@@ -271,8 +271,6 @@ export default async function Page({ params }: Props) {
         />
 
         <article className="prose mx-auto max-w-4xl p-6">
-          <h1>{pageTitle}</h1>
-          {content.excerpt && <p className="lead">{content.excerpt}</p>}
           <MarkdownRenderer content={content.contentHtml} />
         </article>
       </>

@@ -5,8 +5,16 @@
     "slugWithPrefix": "١_الكلمة",
     "urlSafeSlug": "~1_~a~l~k~l~m~ta",
     "order": 1,
-    "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير"],
-    "parentPathWithPrefixedSlugs": ["النحو", "سليمان_العيوني", "النحو_الصغير"],
+    "parentPath": [
+      "النحو",
+      "سليمان_العيوني",
+      "النحو_الصغير"
+    ],
+    "parentPathWithPrefixedSlugs": [
+      "النحو",
+      "سليمان_العيوني",
+      "النحو_الصغير"
+    ],
     "parentUrlSafePath": [
       "~a~l~n~h~w",
       "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
@@ -22,7 +30,12 @@
         "slugWithPrefix": "١_أنواع_الكلمة",
         "urlSafeSlug": "~1_~A~n~w~a~E_~a~l~k~l~m~ta",
         "order": 1,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلمة"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلمة"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -38,210 +51,7 @@
         "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة",
         "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة",
         "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta",
-        "children": [
-          {
-            "title": "الاسم",
-            "slug": "الاسم",
-            "slugWithPrefix": "١_الاسم",
-            "urlSafeSlug": "~1_~a~l~a~s~m",
-            "order": 1,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلمة",
-              "أنواع_الكلمة"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "١_الكلمة",
-              "١_أنواع_الكلمة"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~1_~a~l~k~l~m~ta",
-              "~1_~A~n~w~a~E_~a~l~k~l~m~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الاسم",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/١_الاسم",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~1_~a~l~a~s~m",
-            "children": []
-          },
-          {
-            "title": "الفعل",
-            "slug": "الفعل",
-            "slugWithPrefix": "٢_الفعل",
-            "urlSafeSlug": "~2_~a~l~f~E~l",
-            "order": 2,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلمة",
-              "أنواع_الكلمة"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "١_الكلمة",
-              "١_أنواع_الكلمة"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~1_~a~l~k~l~m~ta",
-              "~1_~A~n~w~a~E_~a~l~k~l~m~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الفعل",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/٢_الفعل",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~2_~a~l~f~E~l",
-            "children": [
-              {
-                "title": "الماضي",
-                "slug": "الماضي",
-                "slugWithPrefix": "١_الماضي",
-                "urlSafeSlug": "~1_~a~l~m~a~D~y",
-                "order": 1,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "أنواع_الكلمة",
-                  "الفعل"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "١_أنواع_الكلمة",
-                  "٢_الفعل"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~1_~A~n~w~a~E_~a~l~k~l~m~ta",
-                  "~2_~a~l~f~E~l"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الفعل/الماضي",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/٢_الفعل/١_الماضي",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~2_~a~l~f~E~l/~1_~a~l~m~a~D~y",
-                "children": []
-              },
-              {
-                "title": "المضارع",
-                "slug": "المضارع",
-                "slugWithPrefix": "٢_المضارع",
-                "urlSafeSlug": "~2_~a~l~m~D~a~r~E",
-                "order": 2,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "أنواع_الكلمة",
-                  "الفعل"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "١_أنواع_الكلمة",
-                  "٢_الفعل"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~1_~A~n~w~a~E_~a~l~k~l~m~ta",
-                  "~2_~a~l~f~E~l"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الفعل/المضارع",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/٢_الفعل/٢_المضارع",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~2_~a~l~f~E~l/~2_~a~l~m~D~a~r~E",
-                "children": []
-              },
-              {
-                "title": "الأمر",
-                "slug": "الأمر",
-                "slugWithPrefix": "٣_الأمر",
-                "urlSafeSlug": "~3_~a~l~A~m~r",
-                "order": 3,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "أنواع_الكلمة",
-                  "الفعل"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "١_أنواع_الكلمة",
-                  "٢_الفعل"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~1_~A~n~w~a~E_~a~l~k~l~m~ta",
-                  "~2_~a~l~f~E~l"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الفعل/الأمر",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/٢_الفعل/٣_الأمر",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~2_~a~l~f~E~l/~3_~a~l~A~m~r",
-                "children": []
-              }
-            ]
-          },
-          {
-            "title": "الحرف",
-            "slug": "الحرف",
-            "slugWithPrefix": "٣_الحرف",
-            "urlSafeSlug": "~3_~a~l~h~r~f",
-            "order": 3,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلمة",
-              "أنواع_الكلمة"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "١_الكلمة",
-              "١_أنواع_الكلمة"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~1_~a~l~k~l~m~ta",
-              "~1_~A~n~w~a~E_~a~l~k~l~m~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/أنواع_الكلمة/الحرف",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/١_أنواع_الكلمة/٣_الحرف",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~1_~A~n~w~a~E_~a~l~k~l~m~ta/~3_~a~l~h~r~f",
-            "children": []
-          }
-        ]
+        "children": []
       },
       {
         "title": "النكرة والمعرفة",
@@ -249,7 +59,12 @@
         "slugWithPrefix": "٢_النكرة_والمعرفة",
         "urlSafeSlug": "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
         "order": 2,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلمة"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلمة"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -265,283 +80,7 @@
         "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة",
         "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة",
         "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-        "children": [
-          {
-            "title": "النكرة",
-            "slug": "النكرة",
-            "slugWithPrefix": "١_النكرة",
-            "urlSafeSlug": "~1_~a~l~n~k~r~ta",
-            "order": 1,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلمة",
-              "النكرة_والمعرفة"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "١_الكلمة",
-              "٢_النكرة_والمعرفة"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~1_~a~l~k~l~m~ta",
-              "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/النكرة",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/١_النكرة",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~1_~a~l~n~k~r~ta",
-            "children": []
-          },
-          {
-            "title": "المعرفة",
-            "slug": "المعرفة",
-            "slugWithPrefix": "٢_المعرفة",
-            "urlSafeSlug": "~2_~a~l~m~E~r~f~ta",
-            "order": 2,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلمة",
-              "النكرة_والمعرفة"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "١_الكلمة",
-              "٢_النكرة_والمعرفة"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~1_~a~l~k~l~m~ta",
-              "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta",
-            "children": [
-              {
-                "title": "الضمير",
-                "slug": "الضمير",
-                "slugWithPrefix": "١_الضمير",
-                "urlSafeSlug": "~1_~a~l~D~m~y~r",
-                "order": 1,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/الضمير",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/١_الضمير",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~1_~a~l~D~m~y~r",
-                "children": []
-              },
-              {
-                "title": "العلم",
-                "slug": "العلم",
-                "slugWithPrefix": "٢_العلم",
-                "urlSafeSlug": "~2_~a~l~E~l~m",
-                "order": 2,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/العلم",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/٢_العلم",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~2_~a~l~E~l~m",
-                "children": []
-              },
-              {
-                "title": "أسماء الإشارة",
-                "slug": "أسماء_الإشارة",
-                "slugWithPrefix": "٣_أسماء_الإشارة",
-                "urlSafeSlug": "~3_~A~s~m~a~~x_~a~l~I~sh~a~r~ta",
-                "order": 3,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/أسماء_الإشارة",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/٣_أسماء_الإشارة",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~3_~A~s~m~a~~x_~a~l~I~sh~a~r~ta",
-                "children": []
-              },
-              {
-                "title": "الأسماء الموصولة",
-                "slug": "الأسماء_الموصولة",
-                "slugWithPrefix": "٤_الأسماء_الموصولة",
-                "urlSafeSlug": "~4_~a~l~A~s~m~a~~x_~a~l~m~w~S~w~l~ta",
-                "order": 4,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/الأسماء_الموصولة",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/٤_الأسماء_الموصولة",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~4_~a~l~A~s~m~a~~x_~a~l~m~w~S~w~l~ta",
-                "children": []
-              },
-              {
-                "title": "المعرف بـأل",
-                "slug": "المعرف_بـ(أل)",
-                "slugWithPrefix": "٥_المعرف_بـ(أل)",
-                "urlSafeSlug": "~5_~a~l~m~E~r~f_~b~tt~lp~A~l~rp",
-                "order": 5,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/المعرف_بـ(أل)",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/٥_المعرف_بـ(أل)",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~5_~a~l~m~E~r~f_~b~tt~lp~A~l~rp",
-                "children": []
-              },
-              {
-                "title": "المضاف إلى معرفة",
-                "slug": "المضاف_إلى_معرفة",
-                "slugWithPrefix": "٦_المضاف_إلى_معرفة",
-                "urlSafeSlug": "~6_~a~l~m~D~a~f_~I~l~Y_~m~E~r~f~ta",
-                "order": 6,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلمة",
-                  "النكرة_والمعرفة",
-                  "المعرفة"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "١_الكلمة",
-                  "٢_النكرة_والمعرفة",
-                  "٢_المعرفة"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~1_~a~l~k~l~m~ta",
-                  "~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta",
-                  "~2_~a~l~m~E~r~f~ta"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلمة/النكرة_والمعرفة/المعرفة/المضاف_إلى_معرفة",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/١_الكلمة/٢_النكرة_والمعرفة/٢_المعرفة/٦_المضاف_إلى_معرفة",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~1_~a~l~k~l~m~ta/~2_~a~l~n~k~r~ta_~w~a~l~m~E~r~f~ta/~2_~a~l~m~E~r~f~ta/~6_~a~l~m~D~a~f_~I~l~Y_~m~E~r~f~ta",
-                "children": []
-              }
-            ]
-          }
-        ]
+        "children": []
       },
       {
         "title": "المعرب والمبني",
@@ -549,7 +88,12 @@
         "slugWithPrefix": "٣_المعرب_والمبني",
         "urlSafeSlug": "~3_~a~l~m~E~r~b_~w~a~l~m~b~n~y",
         "order": 3,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلمة"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلمة"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -575,8 +119,16 @@
     "slugWithPrefix": "٢_الكلام",
     "urlSafeSlug": "~2_~a~l~k~l~a~m",
     "order": 2,
-    "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير"],
-    "parentPathWithPrefixedSlugs": ["النحو", "سليمان_العيوني", "النحو_الصغير"],
+    "parentPath": [
+      "النحو",
+      "سليمان_العيوني",
+      "النحو_الصغير"
+    ],
+    "parentPathWithPrefixedSlugs": [
+      "النحو",
+      "سليمان_العيوني",
+      "النحو_الصغير"
+    ],
     "parentUrlSafePath": [
       "~a~l~n~h~w",
       "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
@@ -592,7 +144,12 @@
         "slugWithPrefix": "١_الجملة_الفعلية",
         "urlSafeSlug": "~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta",
         "order": 1,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلام"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلام"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -608,72 +165,7 @@
         "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/الجملة_الفعلية",
         "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/١_الجملة_الفعلية",
         "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta",
-        "children": [
-          {
-            "title": "الفاعل",
-            "slug": "الفاعل",
-            "slugWithPrefix": "١_الفاعل",
-            "urlSafeSlug": "~1_~a~l~f~a~E~l",
-            "order": 1,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلام",
-              "الجملة_الفعلية"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "٢_الكلام",
-              "١_الجملة_الفعلية"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~2_~a~l~k~l~a~m",
-              "~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/الجملة_الفعلية/الفاعل",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/١_الجملة_الفعلية/١_الفاعل",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta/~1_~a~l~f~a~E~l",
-            "children": []
-          },
-          {
-            "title": "نائب الفاعل",
-            "slug": "نائب_الفاعل",
-            "slugWithPrefix": "٢_نائب_الفاعل",
-            "urlSafeSlug": "~2_~n~a~yx~b_~a~l~f~a~E~l",
-            "order": 2,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلام",
-              "الجملة_الفعلية"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "٢_الكلام",
-              "١_الجملة_الفعلية"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~2_~a~l~k~l~a~m",
-              "~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/الجملة_الفعلية/نائب_الفاعل",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/١_الجملة_الفعلية/٢_نائب_الفاعل",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~1_~a~l~j~m~l~ta_~a~l~f~E~l~y~ta/~2_~n~a~yx~b_~a~l~f~a~E~l",
-            "children": []
-          }
-        ]
+        "children": []
       },
       {
         "title": "الجملة الاسمية",
@@ -681,7 +173,12 @@
         "slugWithPrefix": "٢_الجملة_الاسمية",
         "urlSafeSlug": "~2_~a~l~j~m~l~ta_~a~l~a~s~m~y~ta",
         "order": 2,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلام"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلام"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -834,7 +331,12 @@
         "slugWithPrefix": "٣_مكملات_الجملتين",
         "urlSafeSlug": "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
         "order": 3,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلام"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلام"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -1089,78 +591,7 @@
             "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_المجرورات",
             "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٢_المكملات_المجرورات",
             "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~2_~a~l~m~k~m~l~a~t_~a~l~m~j~r~w~r~a~t",
-            "children": [
-              {
-                "title": "المجرور بحرف جر",
-                "slug": "المجرور_بحرف_جر",
-                "slugWithPrefix": "١_المجرور_بحرف_جر",
-                "urlSafeSlug": "~1_~a~l~m~j~r~w~r_~b~h~r~f_~j~r",
-                "order": 1,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_المجرورات"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٢_المكملات_المجرورات"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~2_~a~l~m~k~m~l~a~t_~a~l~m~j~r~w~r~a~t"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_المجرورات/المجرور_بحرف_جر",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٢_المكملات_المجرورات/١_المجرور_بحرف_جر",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~2_~a~l~m~k~m~l~a~t_~a~l~m~j~r~w~r~a~t/~1_~a~l~m~j~r~w~r_~b~h~r~f_~j~r",
-                "children": []
-              },
-              {
-                "title": "المجرور بالإضافة",
-                "slug": "المجرور_بالإضافة",
-                "slugWithPrefix": "٢_المجرور_بالإضافة",
-                "urlSafeSlug": "~2_~a~l~m~j~r~w~r_~b~a~l~I~D~a~f~ta",
-                "order": 2,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_المجرورات"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٢_المكملات_المجرورات"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~2_~a~l~m~k~m~l~a~t_~a~l~m~j~r~w~r~a~t"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_المجرورات/المجرور_بالإضافة",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٢_المكملات_المجرورات/٢_المجرور_بالإضافة",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~2_~a~l~m~k~m~l~a~t_~a~l~m~j~r~w~r~a~t/~2_~a~l~m~j~r~w~r_~b~a~l~I~D~a~f~ta",
-                "children": []
-              }
-            ]
+            "children": []
           },
           {
             "title": "المكملات التوابع",
@@ -1192,148 +623,7 @@
             "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_التوابع",
             "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٣_المكملات_التوابع",
             "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E",
-            "children": [
-              {
-                "title": "النعت",
-                "slug": "النعت",
-                "slugWithPrefix": "١_النعت",
-                "urlSafeSlug": "~1_~a~l~n~E~t",
-                "order": 1,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_التوابع"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٣_المكملات_التوابع"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_التوابع/النعت",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٣_المكملات_التوابع/١_النعت",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E/~1_~a~l~n~E~t",
-                "children": []
-              },
-              {
-                "title": "المعطوف",
-                "slug": "المعطوف",
-                "slugWithPrefix": "٢_المعطوف",
-                "urlSafeSlug": "~2_~a~l~m~E~T~w~f",
-                "order": 2,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_التوابع"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٣_المكملات_التوابع"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_التوابع/المعطوف",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٣_المكملات_التوابع/٢_المعطوف",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E/~2_~a~l~m~E~T~w~f",
-                "children": []
-              },
-              {
-                "title": "التوكيد",
-                "slug": "التوكيد",
-                "slugWithPrefix": "٣_التوكيد",
-                "urlSafeSlug": "~3_~a~l~t~w~k~y~d",
-                "order": 3,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_التوابع"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٣_المكملات_التوابع"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_التوابع/التوكيد",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٣_المكملات_التوابع/٣_التوكيد",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E/~3_~a~l~t~w~k~y~d",
-                "children": []
-              },
-              {
-                "title": "البدل",
-                "slug": "البدل",
-                "slugWithPrefix": "٤_البدل",
-                "urlSafeSlug": "~4_~a~l~b~d~l",
-                "order": 4,
-                "parentPath": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "الكلام",
-                  "مكملات_الجملتين",
-                  "المكملات_التوابع"
-                ],
-                "parentPathWithPrefixedSlugs": [
-                  "النحو",
-                  "سليمان_العيوني",
-                  "النحو_الصغير",
-                  "٢_الكلام",
-                  "٣_مكملات_الجملتين",
-                  "٣_المكملات_التوابع"
-                ],
-                "parentUrlSafePath": [
-                  "~a~l~n~h~w",
-                  "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-                  "~a~l~n~h~w_~a~l~S~gh~y~r",
-                  "~2_~a~l~k~l~a~m",
-                  "~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n",
-                  "~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E"
-                ],
-                "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/مكملات_الجملتين/المكملات_التوابع/البدل",
-                "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٣_مكملات_الجملتين/٣_المكملات_التوابع/٤_البدل",
-                "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~3_~m~k~m~l~a~t_~a~l~j~m~l~t~y~n/~3_~a~l~m~k~m~l~a~t_~a~l~t~w~a~b~E/~4_~a~l~b~d~l",
-                "children": []
-              }
-            ]
+            "children": []
           }
         ]
       },
@@ -1343,7 +633,12 @@
         "slugWithPrefix": "٤_إعراب_المضارع",
         "urlSafeSlug": "~4_~I~E~r~a~b_~a~l~m~D~a~r~E",
         "order": 4,
-        "parentPath": ["النحو", "سليمان_العيوني", "النحو_الصغير", "الكلام"],
+        "parentPath": [
+          "النحو",
+          "سليمان_العيوني",
+          "النحو_الصغير",
+          "الكلام"
+        ],
         "parentPathWithPrefixedSlugs": [
           "النحو",
           "سليمان_العيوني",
@@ -1359,104 +654,7 @@
         "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/إعراب_المضارع",
         "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٤_إعراب_المضارع",
         "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~4_~I~E~r~a~b_~a~l~m~D~a~r~E",
-        "children": [
-          {
-            "title": "نصب المضارع",
-            "slug": "نصب_المضارع",
-            "slugWithPrefix": "١_نصب_المضارع",
-            "urlSafeSlug": "~1_~n~S~b_~a~l~m~D~a~r~E",
-            "order": 1,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلام",
-              "إعراب_المضارع"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "٢_الكلام",
-              "٤_إعراب_المضارع"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~2_~a~l~k~l~a~m",
-              "~4_~I~E~r~a~b_~a~l~m~D~a~r~E"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/إعراب_المضارع/نصب_المضارع",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٤_إعراب_المضارع/١_نصب_المضارع",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~4_~I~E~r~a~b_~a~l~m~D~a~r~E/~1_~n~S~b_~a~l~m~D~a~r~E",
-            "children": []
-          },
-          {
-            "title": "جزم المضارع",
-            "slug": "جزم_المضارع",
-            "slugWithPrefix": "٢_جزم_المضارع",
-            "urlSafeSlug": "~2_~j~z~m_~a~l~m~D~a~r~E",
-            "order": 2,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلام",
-              "إعراب_المضارع"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "٢_الكلام",
-              "٤_إعراب_المضارع"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~2_~a~l~k~l~a~m",
-              "~4_~I~E~r~a~b_~a~l~m~D~a~r~E"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/إعراب_المضارع/جزم_المضارع",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٤_إعراب_المضارع/٢_جزم_المضارع",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~4_~I~E~r~a~b_~a~l~m~D~a~r~E/~2_~j~z~m_~a~l~m~D~a~r~E",
-            "children": []
-          },
-          {
-            "title": "رفع المضارع",
-            "slug": "رفع_المضارع",
-            "slugWithPrefix": "٣_رفع_المضارع",
-            "urlSafeSlug": "~3_~r~f~E_~a~l~m~D~a~r~E",
-            "order": 3,
-            "parentPath": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "الكلام",
-              "إعراب_المضارع"
-            ],
-            "parentPathWithPrefixedSlugs": [
-              "النحو",
-              "سليمان_العيوني",
-              "النحو_الصغير",
-              "٢_الكلام",
-              "٤_إعراب_المضارع"
-            ],
-            "parentUrlSafePath": [
-              "~a~l~n~h~w",
-              "~s~l~y~m~a~n_~a~l~E~y~w~n~y",
-              "~a~l~n~h~w_~a~l~S~gh~y~r",
-              "~2_~a~l~k~l~a~m",
-              "~4_~I~E~r~a~b_~a~l~m~D~a~r~E"
-            ],
-            "fullPath": "/النحو/سليمان_العيوني/النحو_الصغير/الكلام/إعراب_المضارع/رفع_المضارع",
-            "fullPathWithPrefixes": "/النحو/سليمان_العيوني/النحو_الصغير/٢_الكلام/٤_إعراب_المضارع/٣_رفع_المضارع",
-            "fullUrlSafePath": "/~a~l~n~h~w/~s~l~y~m~a~n_~a~l~E~y~w~n~y/~a~l~n~h~w_~a~l~S~gh~y~r/~2_~a~l~k~l~a~m/~4_~I~E~r~a~b_~a~l~m~D~a~r~E/~3_~r~f~E_~a~l~m~D~a~r~E",
-            "children": []
-          }
-        ]
+        "children": []
       }
     ]
   }
