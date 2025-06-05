@@ -69,7 +69,11 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
   return (
     <UISidebar side="right">
       <SidebarContent
-        className={cn('overflow-y-scroll', '[&::-webkit-scrollbar]:w-0')}
+        className={cn(
+          'overflow-y-scroll',
+          '[&::-webkit-scrollbar]:w-0',
+          'bg-white'
+        )}
       >
         <SidebarGroup>
           <SidebarGroupLabel>{label}</SidebarGroupLabel>
@@ -163,7 +167,7 @@ export function Sidebar({ tree, bookUrlPath, label }: SidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="bg-white">
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
           <Input
