@@ -61,7 +61,7 @@ export function generateBreadcrumbsFromPath(
 
   const breadcrumbs: BreadcrumbItem[] = [
     {
-      label: 'الرئيسية',
+      label: 'الرئيسة',
       href: '/',
     },
   ];

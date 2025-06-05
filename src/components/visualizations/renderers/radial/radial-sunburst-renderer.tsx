@@ -37,11 +37,8 @@ export const RadialSunburstRenderer = memo(
   }: RadialSunburstRendererProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
-    const zoomBehaviorRef = useRef<d3.ZoomBehavior<
-      SVGSVGElement,
-      unknown
-    > | null>(null);
     const [zoomLevel, setZoomLevel] = useState(1);
+    const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
     const [dimensions, setDimensions] = useState({
       width: initialWidth,
       height: initialHeight,
@@ -90,37 +87,24 @@ export const RadialSunburstRenderer = memo(
 
     // Zoom control handlers
     const handleZoomIn = useCallback(() => {
-      if (svgRef.current && zoomBehaviorRef.current) {
-        d3.select(svgRef.current)
-          .transition()
-          .duration(300)
-          .call(zoomBehaviorRef.current.scaleBy, 1.5);
-      }
-    }, []);
+      const newScale = Math.min(transform.scale * 1.5, 5);
+      setTransform((prev) => ({ ...prev, scale: newScale }));
+      setZoomLevel(newScale);
+    }, [transform.scale]);
 
     const handleZoomOut = useCallback(() => {
-      if (svgRef.current && zoomBehaviorRef.current) {
-        d3.select(svgRef.current)
-          .transition()
-          .duration(300)
-          .call(zoomBehaviorRef.current.scaleBy, 1 / 1.5);
-      }
-    }, []);
+      const newScale = Math.max(transform.scale / 1.5, 0.5);
+      setTransform((prev) => ({ ...prev, scale: newScale }));
+      setZoomLevel(newScale);
+    }, [transform.scale]);
 
     const handleResetZoom = useCallback(() => {
-      if (svgRef.current && zoomBehaviorRef.current) {
-        const { width, height } = dimensions;
-        const centerX = width / 2;
-        const centerY = height / 2;
+      const { width, height } = dimensions;
+      const centerX = width / 2;
+      const centerY = height / 2;
 
-        d3.select(svgRef.current)
-          .transition()
-          .duration(500)
-          .call(
-            zoomBehaviorRef.current.transform,
-            d3.zoomIdentity.translate(centerX, centerY).scale(1)
-          );
-      }
+      setTransform({ x: centerX, y: centerY, scale: 1 });
+      setZoomLevel(1);
     }, [dimensions]);
 
     // Main rendering effect
@@ -154,22 +138,130 @@ export const RadialSunburstRenderer = memo(
           .attr('stop-color', gradientDef.to);
       });
 
-      // Set up zoom behavior
-      const zoom = d3
-        .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.5, 5])
-        .on('zoom', (event) => {
-          g.attr('transform', event.transform);
-          setZoomLevel(event.transform.k);
-        });
-
-      zoomBehaviorRef.current = zoom;
-      svg.call(zoom);
-
-      // Create main group element
+      // Create main group element with transform
       const g = svg
         .append('g')
-        .attr('transform', `translate(${width / 2},${height / 2})`);
+        .attr(
+          'transform',
+          `translate(${transform.x || width / 2},${transform.y || height / 2}) scale(${transform.scale})`
+        );
+
+      // Mobile-friendly pan and zoom behavior
+      let isDragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      let lastDistance = 0;
+      let activePointers = new Map();
+
+      // Unified pointer event handlers for pan and pinch-zoom
+      const handlePointerStart = (event: PointerEvent) => {
+        event.preventDefault();
+        activePointers.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        if (activePointers.size === 1) {
+          // Single pointer - start pan
+          isDragging = true;
+          lastX = event.clientX;
+          lastY = event.clientY;
+          svg.style('cursor', 'grabbing');
+        } else if (activePointers.size === 2) {
+          // Two pointers - start pinch zoom
+          isDragging = false;
+          const pointers = Array.from(activePointers.values());
+          lastDistance = Math.sqrt(
+            Math.pow(pointers[1].x - pointers[0].x, 2) +
+              Math.pow(pointers[1].y - pointers[0].y, 2)
+          );
+        }
+
+        (event.target as Element).setPointerCapture(event.pointerId);
+      };
+
+      const handlePointerMove = (event: PointerEvent) => {
+        if (!activePointers.has(event.pointerId)) return;
+
+        event.preventDefault();
+        activePointers.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        if (activePointers.size === 1 && isDragging) {
+          // Single pointer pan
+          const deltaX = event.clientX - lastX;
+          const deltaY = event.clientY - lastY;
+
+          lastX = event.clientX;
+          lastY = event.clientY;
+
+          setTransform((prev) => ({
+            ...prev,
+            x: prev.x + deltaX,
+            y: prev.y + deltaY,
+          }));
+        } else if (activePointers.size === 2) {
+          // Two pointer pinch zoom
+          const pointers = Array.from(activePointers.values());
+          const currentDistance = Math.sqrt(
+            Math.pow(pointers[1].x - pointers[0].x, 2) +
+              Math.pow(pointers[1].y - pointers[0].y, 2)
+          );
+
+          if (lastDistance > 0) {
+            const scaleChange = currentDistance / lastDistance;
+            const newScale = Math.min(
+              Math.max(transform.scale * scaleChange, 0.5),
+              5
+            );
+
+            setTransform((prev) => ({ ...prev, scale: newScale }));
+            setZoomLevel(newScale);
+          }
+
+          lastDistance = currentDistance;
+        }
+      };
+
+      const handlePointerEnd = (event: PointerEvent) => {
+        if (!activePointers.has(event.pointerId)) return;
+
+        event.preventDefault();
+        activePointers.delete(event.pointerId);
+
+        if (activePointers.size === 0) {
+          isDragging = false;
+          svg.style('cursor', 'grab');
+        } else if (activePointers.size === 1) {
+          // Back to single pointer mode
+          const pointer = Array.from(activePointers.values())[0];
+          isDragging = true;
+          lastX = pointer.x;
+          lastY = pointer.y;
+        }
+
+        (event.target as Element).releasePointerCapture(event.pointerId);
+      };
+
+      // Add pointer event listeners to SVG
+      const svgElement = svg.node()!;
+      svgElement.addEventListener('pointerdown', handlePointerStart, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointermove', handlePointerMove, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointerup', handlePointerEnd, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointercancel', handlePointerEnd, {
+        passive: false,
+      });
+
+      // Set initial cursor and touch-action
+      svg.style('cursor', 'grab').style('touch-action', 'none');
 
       // Create hierarchy and partition layout
       const root = d3
@@ -390,12 +482,36 @@ export const RadialSunburstRenderer = memo(
           }
         }
       });
-    }, [nodes, dimensions, transformData]);
+
+      // Cleanup function
+      return () => {
+        svgElement.removeEventListener('pointerdown', handlePointerStart);
+        svgElement.removeEventListener('pointermove', handlePointerMove);
+        svgElement.removeEventListener('pointerup', handlePointerEnd);
+        svgElement.removeEventListener('pointercancel', handlePointerEnd);
+      };
+    }, [nodes, dimensions, transformData, transform]);
+
+    // Update transform when state changes
+    useEffect(() => {
+      if (!svgRef.current) return;
+
+      const svg = d3.select(svgRef.current);
+      const g = svg.select('g');
+
+      if (!g.empty()) {
+        g.attr(
+          'transform',
+          `translate(${transform.x || dimensions.width / 2},${transform.y || dimensions.height / 2}) scale(${transform.scale})`
+        );
+      }
+    }, [transform, dimensions]);
 
     return (
       <div
         ref={containerRef}
         className="relative h-[80vh] w-full rounded-lg bg-zinc-100/80 shadow ring-1 shadow-zinc-100 ring-zinc-200 dark:bg-slate-800"
+        style={{ touchAction: 'none' }}
       >
         {/* Zoom Controls */}
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">

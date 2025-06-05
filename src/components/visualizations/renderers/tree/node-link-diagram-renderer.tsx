@@ -162,30 +162,70 @@ export const NodeLinkDiagramRenderer = memo(
           }
         );
 
-      // Set up pan-only interaction (no zoom)
-      const panBehavior = d3
-        .drag()
-        .on('start', function () {
-          d3.select(this).style('cursor', 'grabbing');
-        })
-        .on('drag', function (event) {
-          const currentTransform = d3.zoomTransform(contentGroup.node()!);
-          const newTransform = d3.zoomIdentity
-            .translate(
-              currentTransform.x + event.dx,
-              currentTransform.y + event.dy
-            )
-            .scale(currentTransform.k);
+      // Mobile-friendly pan behavior
+      let isDragging = false;
+      let lastX = 0;
+      let lastY = 0;
 
-          contentGroup.attr('transform', newTransform.toString());
-        })
-        .on('end', function () {
-          d3.select(this).style('cursor', 'grab');
-        });
+      // Unified pointer event handlers for both mouse and touch
+      const handlePointerStart = (event: PointerEvent) => {
+        event.preventDefault();
+        isDragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        svg.style('cursor', 'grabbing');
 
-      // Apply pan behavior to SVG
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      svg.style('cursor', 'grab').call(panBehavior as any);
+        // Capture pointer for consistent tracking
+        (event.target as Element).setPointerCapture(event.pointerId);
+      };
+
+      const handlePointerMove = (event: PointerEvent) => {
+        if (!isDragging) return;
+
+        event.preventDefault();
+
+        const deltaX = event.clientX - lastX;
+        const deltaY = event.clientY - lastY;
+
+        lastX = event.clientX;
+        lastY = event.clientY;
+
+        const currentTransform = d3.zoomTransform(contentGroup.node()!);
+        const newTransform = d3.zoomIdentity
+          .translate(currentTransform.x + deltaX, currentTransform.y + deltaY)
+          .scale(currentTransform.k);
+
+        contentGroup.attr('transform', newTransform.toString());
+      };
+
+      const handlePointerEnd = (event: PointerEvent) => {
+        if (!isDragging) return;
+
+        event.preventDefault();
+        isDragging = false;
+        svg.style('cursor', 'grab');
+
+        // Release pointer capture
+        (event.target as Element).releasePointerCapture(event.pointerId);
+      };
+
+      // Add pointer event listeners to SVG
+      const svgElement = svg.node()!;
+      svgElement.addEventListener('pointerdown', handlePointerStart, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointermove', handlePointerMove, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointerup', handlePointerEnd, {
+        passive: false,
+      });
+      svgElement.addEventListener('pointercancel', handlePointerEnd, {
+        passive: false,
+      });
+
+      // Set initial cursor and touch-action
+      svg.style('cursor', 'grab').style('touch-action', 'none'); // Prevent default touch behaviors
 
       // Calculate initial centering and default zoom
       const bounds = contentGroup.node()?.getBBox();
@@ -241,13 +281,21 @@ export const NodeLinkDiagramRenderer = memo(
 
       // Add a small delay to ensure proper centering after render
       setTimeout(recenter, 50);
+
+      // Cleanup function
+      return () => {
+        svgElement.removeEventListener('pointerdown', handlePointerStart);
+        svgElement.removeEventListener('pointermove', handlePointerMove);
+        svgElement.removeEventListener('pointerup', handlePointerEnd);
+        svgElement.removeEventListener('pointercancel', handlePointerEnd);
+      };
     }, [nodes, dimensions.width, dimensions.height]);
 
     return (
       <div
         ref={containerRef}
         className="h-full w-full overflow-hidden rounded-lg bg-zinc-100 shadow ring-1 shadow-zinc-200 ring-zinc-200 dark:bg-zinc-900"
-        style={{ minHeight: height }}
+        style={{ minHeight: height, touchAction: 'none' }}
       />
     );
   }

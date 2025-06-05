@@ -301,7 +301,7 @@ export default async function Page({ params }: Props) {
           dateModified={new Date().toISOString()}
         />
 
-        <div className="flex w-full flex-col">
+        <div className="flex w-full flex-col gap-8">
           {/* Breadcrumbs */}
           <Breadcrumbs items={enhancedBreadcrumbs} className="mb-6" />
 

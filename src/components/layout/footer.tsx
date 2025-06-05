@@ -26,7 +26,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span>جتهب</span>
+                <span>قتهب</span>
                 <svg
                   className="h-4 w-4 opacity-60 transition-opacity group-hover:opacity-100"
                   fill="currentColor"

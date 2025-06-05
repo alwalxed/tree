@@ -1,6 +1,6 @@
 import type { Node } from '@/lib/schema/bookTree';
 import { usePathname } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { slugify } from 'reversible-arabic-slugifier';
 
 export const LEARN_BASE = '/learn';
@@ -23,6 +23,7 @@ export function useSidebar({
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const homeHref = buildLearnHref(bookUrlPath);
 
@@ -92,6 +93,17 @@ export function useSidebar({
     return paths;
   }, []);
 
+  // Initialize with all sections expanded - only once
+  useEffect(() => {
+    if (tree.length > 0 && !hasInitialized) {
+      const allPaths = getAllPathsWithChildren(tree);
+      const expanded: Record<string, boolean> = {};
+      allPaths.forEach((p) => (expanded[p] = true));
+      setExpandedSections(expanded);
+      setHasInitialized(true);
+    }
+  }, [tree, hasInitialized]); // Removed getAllPathsWithChildren from dependencies
+
   const expandAll = useCallback(() => {
     const allPaths = getAllPathsWithChildren(tree);
     const expanded: Record<string, boolean> = {};
@@ -137,7 +149,7 @@ export function useSidebar({
 
 export function buildLearnHref(raw: string): string {
   let p = raw === '/' ? '' : raw.endsWith('/') ? raw.slice(0, -1) : raw;
-  if (!p.startsWith('/')) p = '/' + p;
+  if (!p.startsWith('/') && p !== '') p = '/' + p;
   return LEARN_BASE + p;
 }
 

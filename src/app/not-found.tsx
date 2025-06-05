@@ -14,7 +14,7 @@ export default function NotFound() {
           href="/"
           className="inline-block rounded-md bg-zinc-800 px-4 py-2 text-white transition-colors hover:bg-zinc-700 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
         >
-          العودة إلى الرئيسية
+          العودة إلى الرئيسة
         </Link>
       </div>
     </main>
