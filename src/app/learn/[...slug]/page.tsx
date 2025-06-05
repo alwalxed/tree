@@ -208,7 +208,7 @@ export default async function Page({ params }: Props) {
             url={currentUrl}
           />
 
-          <div className="mx-auto max-w-4xl space-y-12 p-6">
+          <div className="flex w-full flex-col gap-16">
             {cfg.sections?.map((sec, i) => {
               if (sec.type === 'text') {
                 return (
@@ -270,7 +270,7 @@ export default async function Page({ params }: Props) {
           dateModified={new Date().toISOString()}
         />
 
-        <article className="prose mx-auto max-w-4xl p-6">
+        <article className="prose w-full">
           <MarkdownRenderer content={content.contentHtml} />
         </article>
       </>

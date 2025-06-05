@@ -87,6 +87,7 @@ export const NodeLinkDiagramRenderer = memo(
 
       treeLayout(root);
 
+      // Create links
       contentGroup
         .selectAll('path.link')
         .data(root.links())
@@ -106,6 +107,7 @@ export const NodeLinkDiagramRenderer = memo(
         .style('stroke', '#555')
         .style('stroke-width', 1.5);
 
+      // Create node groups
       const nodeGroups = contentGroup
         .selectAll('g.node')
         .data(root.descendants())
@@ -113,6 +115,7 @@ export const NodeLinkDiagramRenderer = memo(
         .attr('class', 'node')
         .attr('transform', (d) => `translate(${d.y},${d.x})`);
 
+      // Add circles
       nodeGroups
         .append('circle')
         .attr('r', 6)
@@ -122,17 +125,18 @@ export const NodeLinkDiagramRenderer = memo(
         .style('stroke', '#fff')
         .style('stroke-width', 2);
 
-      // Adjust text position to prevent overlap
+      // Add text labels
       nodeGroups
         .append('text')
-        .attr('dy', '-1.2em') // Move text above the node
-        .attr('x', 0) // Center text horizontally
-        .style('text-anchor', 'middle') // Center text alignment
+        .attr('dy', '-1.2em')
+        .attr('x', 0)
+        .style('text-anchor', 'middle')
         .text((d: d3.HierarchyNode<TreeNode>) => d.data.name)
-        .style('font-size', isMobile ? '10px' : '12px') // Smaller text on mobile
+        .style('font-size', isMobile ? '10px' : '12px')
         .style('font-family', 'sans-serif')
         .style('fill', '#333');
 
+      // Add hover effects
       nodeGroups
         .on('mouseover', function () {
           d3.select(this)
@@ -158,59 +162,84 @@ export const NodeLinkDiagramRenderer = memo(
           }
         );
 
-      const zoom = d3
-        .zoom()
-        .scaleExtent([0.3, 3])
-        .on('zoom', (event) => {
-          contentGroup.attr('transform', event.transform);
+      // Set up pan-only interaction (no zoom)
+      const panBehavior = d3
+        .drag()
+        .on('start', function (event) {
+          d3.select(this).style('cursor', 'grabbing');
+        })
+        .on('drag', function (event) {
+          const currentTransform = d3.zoomTransform(contentGroup.node()!);
+          const newTransform = d3.zoomIdentity
+            .translate(
+              currentTransform.x + event.dx,
+              currentTransform.y + event.dy
+            )
+            .scale(currentTransform.k);
+
+          contentGroup.attr('transform', newTransform.toString());
+        })
+        .on('end', function (event) {
+          d3.select(this).style('cursor', 'grab');
         });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      svg.call(zoom as any);
+      // Apply pan behavior to SVG
+      svg.style('cursor', 'grab').call(panBehavior as any);
 
-      if (isMobile) {
-        // Mobile: Center on the root node only
-        const rootNode = root;
+      // Calculate initial centering and default zoom
+      const bounds = contentGroup.node()?.getBBox();
+      if (bounds) {
+        // Default zoom scale - quite zoomed in
+        const defaultScale = isMobile ? 1.5 : 2.0;
 
-        // Get the actual positioned coordinates of the root node
-        const rootX = rootNode.y || 0; // horizontal position in tree layout
-        const rootY = rootNode.x || 0; // vertical position in tree layout
+        // Calculate center position
+        const treeCenterX = bounds.x + bounds.width / 2;
+        const treeCenterY = bounds.y + bounds.height / 2;
 
-        // Start with a scale that ensures the root is visible
-        const scale = 1.0;
-
-        // Calculate translation to center the root node
         const viewportCenterX = dimensions.width / 2;
         const viewportCenterY = dimensions.height / 2;
 
-        // Transform: viewport_center - (node_position * scale)
-        const translateX = viewportCenterX - rootX * scale;
-        const translateY = viewportCenterY - rootY * scale;
+        // Calculate translation to center the tree at the default scale
+        const translateX = viewportCenterX - treeCenterX * defaultScale;
+        const translateY = viewportCenterY - treeCenterY * defaultScale;
 
-        svg.call(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          zoom.transform as any,
-          d3.zoomIdentity.translate(translateX, translateY).scale(scale)
-        );
-      } else {
-        // Desktop: Center the entire tree
+        // Apply the initial transform
+        const initialTransform = d3.zoomIdentity
+          .translate(translateX, translateY)
+          .scale(defaultScale);
+
+        contentGroup.attr('transform', initialTransform.toString());
+      }
+
+      // Re-center function for window resize
+      const recenter = () => {
         const bounds = contentGroup.node()?.getBBox();
         if (bounds) {
-          const scale = Math.min(
-            dimensions.width / bounds.width,
-            dimensions.height / bounds.height,
-            0.9
-          );
-          const x = (dimensions.width - bounds.width * scale) / 2;
-          const y = (dimensions.height - bounds.height * scale) / 2;
+          const currentTransform = d3.zoomTransform(contentGroup.node()!);
+          const currentScale = currentTransform.k;
 
-          svg.call(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            zoom.transform as any,
-            d3.zoomIdentity.translate(x, y).scale(scale)
-          );
+          const treeCenterX = bounds.x + bounds.width / 2;
+          const treeCenterY = bounds.y + bounds.height / 2;
+
+          const viewportCenterX = dimensions.width / 2;
+          const viewportCenterY = dimensions.height / 2;
+
+          const translateX = viewportCenterX - treeCenterX * currentScale;
+          const translateY = viewportCenterY - treeCenterY * currentScale;
+
+          const centeredTransform = d3.zoomIdentity
+            .translate(translateX, translateY)
+            .scale(currentScale);
+
+          contentGroup
+            .transition()
+            .duration(300)
+            .attr('transform', centeredTransform.toString());
         }
-      }
+      };
+
+      // Add a small delay to ensure proper centering after render
+      setTimeout(recenter, 50);
     }, [nodes, dimensions.width, dimensions.height]);
 
     return (

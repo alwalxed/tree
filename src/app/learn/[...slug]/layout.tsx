@@ -9,6 +9,7 @@ import { loadConfig, loadTree } from '@/lib/common/content';
 import { filterString } from '@/lib/common/filter-string';
 import { getOGImagePath } from '@/lib/common/og';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { deslugify, slugify } from 'reversible-arabic-slugifier';
 
@@ -146,11 +147,12 @@ export default async function Layout({ children, params }: Props) {
         <DevDebuggers tree={tree} />
         <SidebarProvider>
           <Sidebar tree={tree} bookUrlPath={baseUrl} label={label} />
-          <SidebarInset className="px-4 py-6 md:px-8">
-            <header className="mb-4">
+          <SidebarInset className="flex flex-col items-center justify-center gap-6 px-4 py-6 md:px-8">
+            <header className="flex w-full max-w-2xl items-center justify-between">
               <SidebarTrigger />
+              <Link href="/">🌳</Link>
             </header>
-            <main>{children}</main>
+            <main className="w-full max-w-2xl">{children}</main>
           </SidebarInset>
         </SidebarProvider>
       </>

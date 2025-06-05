@@ -38,12 +38,7 @@ const SectionParagraph = memo(function SectionParagraph({
 });
 
 const SectionBase = memo(function Section({ children }: SectionProps) {
-  return (
-    <section className="flex flex-col gap-6">
-      {children}
-      <div className="h-2 w-full border-t border-zinc-200" />
-    </section>
-  );
+  return <section className="flex flex-col gap-6">{children}</section>;
 });
 
 type SectionComponent = typeof SectionBase & {
