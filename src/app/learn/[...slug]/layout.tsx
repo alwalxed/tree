@@ -1,4 +1,5 @@
 import { DevDebuggers } from '@/components/debug';
+import { Footer } from '@/components/layout/footer';
 import { Sidebar } from '@/components/layout/sidebar';
 import {
   SidebarInset,
@@ -147,12 +148,15 @@ export default async function Layout({ children, params }: Props) {
         <DevDebuggers tree={tree} />
         <SidebarProvider>
           <Sidebar tree={tree} bookUrlPath={baseUrl} label={label} />
-          <SidebarInset className="flex flex-col items-center justify-center gap-6 px-4 py-6 md:px-8">
-            <header className="flex w-full max-w-2xl items-center justify-between">
-              <SidebarTrigger />
-              <Link href="/">🌳</Link>
-            </header>
-            <main className="w-full max-w-2xl">{children}</main>
+          <SidebarInset className="flex min-h-screen flex-col">
+            <div className="flex flex-1 flex-col items-center justify-center gap-16 px-4 py-6 md:px-8">
+              <header className="flex w-full max-w-2xl items-center justify-between">
+                <SidebarTrigger />
+                <Link href="/">🌳</Link>
+              </header>
+              <main className="w-full max-w-2xl flex-1">{children}</main>
+              <Footer />
+            </div>
           </SidebarInset>
         </SidebarProvider>
       </>
