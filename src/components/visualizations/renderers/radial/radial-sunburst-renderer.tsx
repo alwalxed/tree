@@ -151,7 +151,7 @@ export const RadialSunburstRenderer = memo(
       let lastX = 0;
       let lastY = 0;
       let lastDistance = 0;
-      let activePointers = new Map();
+      const activePointers = new Map();
 
       // Unified pointer event handlers for pan and pinch-zoom
       const handlePointerStart = (event: PointerEvent) => {

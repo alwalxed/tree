@@ -82,17 +82,6 @@ export function useSidebar({
     return walk(tree);
   }, [tree, buildNodeHref]);
 
-  const getAllPathsWithChildren = useCallback((nodes: Node[]): string[] => {
-    let paths: string[] = [];
-    for (const node of nodes) {
-      if (node.children.length > 0) {
-        paths.push(node.fullPathWithPrefixes);
-        paths = paths.concat(getAllPathsWithChildren(node.children));
-      }
-    }
-    return paths;
-  }, []);
-
   // Initialize with all sections expanded - only once
   useEffect(() => {
     if (tree.length > 0 && !hasInitialized) {
@@ -102,14 +91,14 @@ export function useSidebar({
       setExpandedSections(expanded);
       setHasInitialized(true);
     }
-  }, [tree, hasInitialized]); // Removed getAllPathsWithChildren from dependencies
+  }, [tree, hasInitialized]);
 
   const expandAll = useCallback(() => {
     const allPaths = getAllPathsWithChildren(tree);
     const expanded: Record<string, boolean> = {};
     allPaths.forEach((p) => (expanded[p] = true));
     setExpandedSections(expanded);
-  }, [tree, getAllPathsWithChildren]);
+  }, [tree]);
 
   const collapseAll = useCallback(() => {
     setExpandedSections({});
@@ -123,7 +112,7 @@ export function useSidebar({
     } else {
       expandAll();
     }
-  }, [expandedSections, collapseAll, expandAll, getAllPathsWithChildren, tree]);
+  }, [expandedSections, collapseAll, expandAll, tree]);
 
   return useMemo(
     () => ({
@@ -145,6 +134,17 @@ export function useSidebar({
       buildNodeHref,
     ]
   );
+}
+
+function getAllPathsWithChildren(nodes: Node[]): string[] {
+  let paths: string[] = [];
+  for (const node of nodes) {
+    if (node.children.length > 0) {
+      paths.push(node.fullPathWithPrefixes);
+      paths = paths.concat(getAllPathsWithChildren(node.children));
+    }
+  }
+  return paths;
 }
 
 export function buildLearnHref(raw: string): string {

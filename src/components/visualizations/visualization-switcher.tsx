@@ -3,15 +3,7 @@
 import type React from 'react';
 
 import type { Node } from '@/lib/schema/bookTree';
-import {
-  GitBranch,
-  Grid,
-  Mail,
-  Network,
-  PieChart,
-  Target,
-  Terminal,
-} from 'lucide-react';
+import { GitBranch, Grid, Mail, Terminal } from 'lucide-react';
 import {
   memo,
   useMemo,
@@ -19,14 +11,8 @@ import {
   type JSX,
   type MemoExoticComponent,
 } from 'react';
-import {
-  RadialSunburstRenderer,
-  type RadialSunburstRendererProps,
-} from './renderers/radial/radial-sunburst-renderer';
-import {
-  CirclePackRenderer,
-  type CirclePackRendererProps,
-} from './renderers/spatial/circle-pack-renderer';
+import { type RadialSunburstRendererProps } from './renderers/radial/radial-sunburst-renderer';
+import { type CirclePackRendererProps } from './renderers/spatial/circle-pack-renderer';
 import {
   GridLayoutRenderer,
   type GridLayoutRendererProps,
@@ -43,19 +29,16 @@ import {
   CollapsibleTreeRenderer,
   type CollapsibleTreeRendererProps,
 } from './renderers/tree/collapsible-tree-renderer';
-import {
-  NodeLinkDiagramRenderer,
-  type NodeLinkDiagramRendererProps,
-} from './renderers/tree/node-link-diagram-renderer';
+import { type NodeLinkDiagramRendererProps } from './renderers/tree/node-link-diagram-renderer';
 
 type VisualizationType =
   | 'collapsible-tree'
   | 'ascii-tree'
   | 'nested-boxes'
-  | 'grid-layout'
-  | 'radial-sunburst'
-  | 'node-diagram'
-  | 'circle-pack';
+  | 'grid-layout';
+// | 'radial-sunburst'
+// | 'node-diagram'
+// | 'circle-pack';
 
 type Component =
   | MemoExoticComponent<
@@ -86,24 +69,24 @@ type VisualizationConfig = Readonly<{
 }>;
 
 const VISUALIZATION_CONFIGS: VisualizationConfig[] = [
-  {
-    type: 'node-diagram',
-    label: 'شبكة',
-    icon: <Network className="h-4 w-4" />,
-    component: NodeLinkDiagramRenderer,
-  },
-  {
-    type: 'circle-pack',
-    label: 'تراص',
-    icon: <Target className="h-4 w-4" />,
-    component: CirclePackRenderer,
-  },
-  {
-    type: 'radial-sunburst',
-    label: 'دائرة',
-    icon: <PieChart className="h-4 w-4" />,
-    component: RadialSunburstRenderer,
-  },
+  // {
+  //   type: 'node-diagram',
+  //   label: 'شبكة',
+  //   icon: <Network className="h-4 w-4" />,
+  //   component: NodeLinkDiagramRenderer,
+  // },
+  // {
+  //   type: 'circle-pack',
+  //   label: 'تراص',
+  //   icon: <Target className="h-4 w-4" />,
+  //   component: CirclePackRenderer,
+  // },
+  // {
+  //   type: 'radial-sunburst',
+  //   label: 'دائرة',
+  //   icon: <PieChart className="h-4 w-4" />,
+  //   component: RadialSunburstRenderer,
+  // },
   {
     type: 'ascii-tree',
     label: 'تفرع',
