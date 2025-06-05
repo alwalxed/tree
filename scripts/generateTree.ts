@@ -71,17 +71,17 @@ function parseDirName({
   isDirectoryPrefixMandatory: boolean;
 }): ParsedDirName {
   if (/\.[a-z0-9]+$/i.test(directoryName)) {
-    throw new Error(`"${ directoryName }" must not contain an extension.`);
+    throw new Error(`"${directoryName}" must not contain an extension.`);
   }
 
   const match = directoryName.match(/^([٠-٩0-9]+)_+(.+)$/);
 
   if (match) {
-    const [ , prefix, rest ] = match;
+    const [, prefix, rest] = match;
     const order = parseInt(convertArabicNumeralsToEn(prefix), 10);
 
     if (isNaN(order)) {
-      throw new Error(`Invalid numeric prefix in "${ directoryName }"`);
+      throw new Error(`Invalid numeric prefix in "${directoryName}"`);
     }
 
     return {
@@ -93,7 +93,7 @@ function parseDirName({
   }
 
   if (isDirectoryPrefixMandatory) {
-    throw new Error(`"${ directoryName }" missing numeric prefix at this level.`);
+    throw new Error(`"${directoryName}" missing numeric prefix at this level.`);
   }
 
   return {
@@ -120,19 +120,19 @@ function validateDirectoryName(
   const hasPrefix = /^([٠-٩0-9]+)_+/.test(dirName);
 
   if (shouldHavePrefix && !hasPrefix) {
-    issues.push(`Missing numeric prefix (required at depth ${ depth })`);
+    issues.push(`Missing numeric prefix (required at depth ${depth})`);
   }
 
   // Check for mixed Arabic/English numerals in prefix
   if (hasPrefix) {
     const prefixMatch = dirName.match(/^([٠-٩0-9]+)_+/);
     if (prefixMatch) {
-      const prefix = prefixMatch[ 1 ];
+      const prefix = prefixMatch[1];
       const hasArabicNums = /[٠-٩]/.test(prefix);
       const hasEnglishNums = /[0-9]/.test(prefix);
 
       if (hasArabicNums && hasEnglishNums) {
-        issues.push(`Mixed Arabic and English numerals in prefix: "${ prefix }"`);
+        issues.push(`Mixed Arabic and English numerals in prefix: "${prefix}"`);
       }
     }
   }
@@ -155,7 +155,7 @@ function validateDirectoryName(
       withoutPrefixAndUnderscores.match(/[^\u0600-\u06FF]/g);
     if (nonArabicChars) {
       issues.push(
-        `Contains non-Arabic characters: "${ nonArabicChars.join(', ') }"`
+        `Contains non-Arabic characters: "${nonArabicChars.join(', ')}"`
       );
     }
   }
@@ -171,8 +171,8 @@ function validateDirectoryName(
 
   // Log issues if any found
   if (issues.length > 0) {
-    console.log(`ℹ️  Directory validation - ${ dirPath }:`);
-    issues.forEach((issue) => console.log(`   • ${ issue }`));
+    console.log(`ℹ️  Directory validation - ${dirPath}:`);
+    issues.forEach((issue) => console.log(`   • ${issue}`));
   }
 }
 
@@ -184,7 +184,7 @@ async function validateLeafDirectory(dirPath: string): Promise<void> {
     );
 
     if (!hasIndexMd) {
-      console.log(`ℹ️  Missing index.md in leaf directory: ${ dirPath }`);
+      console.log(`ℹ️  Missing index.md in leaf directory: ${dirPath}`);
     }
 
     // Check for other files that might have naming issues
@@ -214,8 +214,8 @@ async function validateLeafDirectory(dirPath: string): Promise<void> {
       }
 
       if (issues.length > 0) {
-        console.log(`ℹ️  File validation - ${ path.join(dirPath, fileName) }:`);
-        issues.forEach((issue) => console.log(`   • ${ issue }`));
+        console.log(`ℹ️  File validation - ${path.join(dirPath, fileName)}:`);
+        issues.forEach((issue) => console.log(`   • ${issue}`));
       }
     });
   } catch (err) {
@@ -243,7 +243,7 @@ async function buildTree({
   try {
     await fs.access(root, Fs.constants.R_OK);
   } catch {
-    console.warn(`Cannot access ${ root }`);
+    console.warn(`Cannot access ${root}`);
     return null;
   }
 
@@ -251,7 +251,7 @@ async function buildTree({
   try {
     entries = await fs.readdir(root, { withFileTypes: true });
   } catch {
-    console.warn(`Cannot read dir ${ root }`);
+    console.warn(`Cannot read dir ${root}`);
     return null;
   }
 
@@ -273,7 +273,7 @@ async function buildTree({
       }));
     } catch (err) {
       console.warn(
-        `Skipping "${ de.name }" in ${ root }: ${ err instanceof Error ? err.message : 'Unknown error' }`
+        `Skipping "${de.name}" in ${root}: ${err instanceof Error ? err.message : 'Unknown error'}`
       );
       continue;
     }
@@ -283,27 +283,27 @@ async function buildTree({
     const slugWithPrefix = originalDirectoryName;
     const urlSafeSlug = slugify(originalDirectoryName);
 
-    const newSlugs = [ ...slugs, slug ];
-    const newSlugsWithPrefix = [ ...slugsWithPrefix, slugWithPrefix ];
-    const newUrlSafeSlugs = [ ...urlSafeSlugs, urlSafeSlug ];
+    const newSlugs = [...slugs, slug];
+    const newSlugsWithPrefix = [...slugsWithPrefix, slugWithPrefix];
+    const newUrlSafeSlugs = [...urlSafeSlugs, urlSafeSlug];
 
     // Build the "flat" prefix (no leading slash)
-    const flatPrefix = prefix ? `${ prefix }/${ slug }` : slug;
+    const flatPrefix = prefix ? `${prefix}/${slug}` : slug;
     const flatPrefixWithPrefixes = prefixWithPrefixes
-      ? `${ prefixWithPrefixes }/${ slugWithPrefix }`
+      ? `${prefixWithPrefixes}/${slugWithPrefix}`
       : slugWithPrefix;
     const flatUrlSafePrefix = urlSafePrefix
-      ? `${ urlSafePrefix }/${ urlSafeSlug }`
+      ? `${urlSafePrefix}/${urlSafeSlug}`
       : urlSafeSlug;
 
     // Make it absolute
-    const fullPath = `/${ flatPrefix }`;
-    const fullPathWithPrefixes = `/${ flatPrefixWithPrefixes }`;
-    const fullUrlSafePath = `/${ flatUrlSafePrefix }`;
+    const fullPath = `/${flatPrefix}`;
+    const fullPathWithPrefixes = `/${flatPrefixWithPrefixes}`;
+    const fullUrlSafePath = `/${flatUrlSafePrefix}`;
 
     const children = await buildTree({
       fileSystemBasePath,
-      dirNames: [ ...dirNames, de.name ],
+      dirNames: [...dirNames, de.name],
       slugs: newSlugs,
       slugsWithPrefix: newSlugsWithPrefix,
       urlSafeSlugs: newUrlSafeSlugs,
@@ -365,7 +365,7 @@ async function generateTreeFiles(
   for (const subject of baseTree) {
     for (const author of subject.children) {
       for (const book of author.children) {
-        const lineageSlugs = [ subject.slug, author.slug, book.slug ];
+        const lineageSlugs = [subject.slug, author.slug, book.slug];
         const outDir = path.join(contentRoot, ...lineageSlugs);
         const outFile = path.join(outDir, 'tree.json');
 
@@ -399,7 +399,7 @@ async function generateTreeFiles(
         });
 
         if (!subtree) {
-          console.warn(`⚠ skipped tree for ${ lineageSlugs.join('/') }`);
+          console.warn(`⚠ skipped tree for ${lineageSlugs.join('/')}`);
           continue;
         }
 
@@ -438,9 +438,9 @@ async function writeTreeFile(
   if (shouldWrite) {
     await fs.mkdir(outDir, { recursive: true });
     await fs.writeFile(outFile, newContent, 'utf-8');
-    console.log(`✔ wrote ${ path.relative(process.cwd(), outFile) }`);
+    console.log(`✔ wrote ${path.relative(process.cwd(), outFile)}`);
   } else {
-    console.log(`✓ skip (no changes) ${ path.relative(process.cwd(), outFile) }`);
+    console.log(`✓ skip (no changes) ${path.relative(process.cwd(), outFile)}`);
   }
 }
 
